@@ -36,7 +36,7 @@ export interface Guest {
   updatedAt: string;
 }
 
-export type EventType = 'welcome' | 'mehndi' | 'baraat' | 'wedding' | 'reception' | 'afterparty';
+export type EventType = 'welcome' | 'haldi' | 'mehndi' | 'baraat' | 'wedding' | 'cocktail' | 'reception';
 
 export interface RsvpData {
   inviteCode: string;

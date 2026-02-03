@@ -24,12 +24,13 @@ interface GuestInfo {
 }
 
 const eventOptions: { id: EventType; name: string; date: string }[] = [
-  { id: 'welcome', name: 'Welcome Party', date: 'Thursday, April 2' },
-  { id: 'mehndi', name: 'Mehndi Ceremony', date: 'Friday, April 3' },
-  { id: 'baraat', name: 'Baraat Procession', date: 'Saturday, April 4' },
-  { id: 'wedding', name: 'Wedding Ceremony', date: 'Saturday, April 4' },
-  { id: 'reception', name: 'Reception Dinner', date: 'Saturday, April 4' },
-  { id: 'afterparty', name: 'After Party', date: 'Saturday, April 4' },
+  { id: 'welcome', name: 'Welcome Dinner', date: 'Friday, April 2' },
+  { id: 'haldi', name: 'Haldi Ceremony', date: 'Saturday, April 3' },
+  { id: 'mehndi', name: 'Mehndi Ceremony', date: 'Saturday, April 3' },
+  { id: 'baraat', name: 'Baraat Procession', date: 'Sunday, April 4' },
+  { id: 'wedding', name: 'Wedding Ceremony', date: 'Sunday, April 4' },
+  { id: 'cocktail', name: 'Cocktail Hour', date: 'Sunday, April 4' },
+  { id: 'reception', name: 'Reception Dinner', date: 'Sunday, April 4' },
 ];
 
 export function RsvpPage() {

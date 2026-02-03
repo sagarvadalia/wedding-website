@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export type EventType = 'welcome' | 'mehndi' | 'baraat' | 'wedding' | 'reception' | 'afterparty';
+export type EventType = 'welcome' | 'haldi' | 'mehndi' | 'baraat' | 'wedding' | 'cocktail' | 'reception';
 export type RsvpStatus = 'pending' | 'confirmed' | 'declined';
 
 export interface IGuest extends Document {
@@ -44,7 +44,7 @@ const GuestSchema = new Schema<IGuest>({
   },
   events: [{
     type: String,
-    enum: ['welcome', 'mehndi', 'baraat', 'wedding', 'reception', 'afterparty']
+    enum: ['welcome', 'haldi', 'mehndi', 'baraat', 'wedding', 'cocktail', 'reception']
   }],
   dietaryRestrictions: {
     type: String,

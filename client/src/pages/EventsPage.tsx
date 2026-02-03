@@ -8,8 +8,8 @@ import type { EventType, WeddingEvent } from '@/types';
 const events: WeddingEvent[] = [
   {
     id: 'welcome',
-    name: 'Welcome Party',
-    date: 'Thursday, April 2, 2027',
+    name: 'Welcome Dinner',
+    date: 'Friday, April 2, 2027',
     time: '6:00 PM - 10:00 PM',
     location: 'Beachfront Terrace',
     dressCode: 'Resort Casual / Beach Attire',
@@ -17,10 +17,20 @@ const events: WeddingEvent[] = [
     stampTheme: 'beach',
   },
   {
+    id: 'haldi',
+    name: 'Haldi Ceremony',
+    date: 'Saturday, April 3, 2027',
+    time: '11:00 AM - 1:00 PM',
+    location: 'Garden Pavilion',
+    dressCode: 'Yellow / White Attire (clothes may get stained!)',
+    description: 'A joyful pre-wedding ritual where turmeric paste is applied to the bride and groom for blessings of prosperity and to give their skin a beautiful glow. Wear clothes you don\'t mind getting messy - it\'s part of the fun!',
+    stampTheme: 'haldi',
+  },
+  {
     id: 'mehndi',
     name: 'Mehndi Ceremony',
-    date: 'Friday, April 3, 2027',
-    time: '2:00 PM - 6:00 PM',
+    date: 'Saturday, April 3, 2027',
+    time: '3:00 PM - 7:00 PM',
     location: 'Garden Pavilion',
     dressCode: 'Colorful Indian Attire',
     description: 'Experience the beautiful tradition of Mehndi, where intricate henna designs are applied to the bride\'s hands and feet. Enjoy music, dancing, and traditional Indian snacks while celebrating this joyful pre-wedding ritual.',
@@ -29,7 +39,7 @@ const events: WeddingEvent[] = [
   {
     id: 'baraat',
     name: 'Baraat Procession',
-    date: 'Saturday, April 4, 2027',
+    date: 'Sunday, April 4, 2027',
     time: '3:00 PM',
     location: 'Resort Main Entrance',
     dressCode: 'Formal Indian Attire',
@@ -39,7 +49,7 @@ const events: WeddingEvent[] = [
   {
     id: 'wedding',
     name: 'Wedding Ceremony',
-    date: 'Saturday, April 4, 2027',
+    date: 'Sunday, April 4, 2027',
     time: '4:00 PM - 6:00 PM',
     location: 'Oceanfront Mandap',
     dressCode: 'Formal Indian Attire',
@@ -47,34 +57,35 @@ const events: WeddingEvent[] = [
     stampTheme: 'mandap',
   },
   {
+    id: 'cocktail',
+    name: 'Cocktail Hour',
+    date: 'Sunday, April 4, 2027',
+    time: '6:00 PM - 7:00 PM',
+    location: 'Oceanfront Terrace',
+    dressCode: 'Formal / Evening Wear',
+    description: 'Enjoy refreshing cocktails and hors d\'oeuvres while mingling with family and friends as the newlyweds take their first photos as a married couple. The perfect transition from ceremony to celebration!',
+    stampTheme: 'cocktail',
+  },
+  {
     id: 'reception',
     name: 'Reception Dinner',
-    date: 'Saturday, April 4, 2027',
+    date: 'Sunday, April 4, 2027',
     time: '7:00 PM - 11:00 PM',
     location: 'Grand Ballroom',
     dressCode: 'Formal / Evening Wear',
     description: 'Celebrate with us at our reception dinner! Enjoy a gourmet meal, heartfelt speeches, our first dance, and plenty of time to dance the night away. This elegant evening celebrates our union with all our loved ones.',
     stampTheme: 'celebration',
   },
-  {
-    id: 'afterparty',
-    name: 'After Party',
-    date: 'Saturday, April 4, 2027',
-    time: '11:00 PM - Late',
-    location: 'Poolside Lounge',
-    dressCode: 'Come as you are!',
-    description: 'Keep the party going! For those who aren\'t ready for the night to end, join us poolside for late-night snacks, drinks, and dancing under the stars. The perfect way to close out an unforgettable day.',
-    stampTheme: 'nightlife',
-  },
 ];
 
 const stampThemeToEventType: Record<string, EventType> = {
   beach: 'welcome',
+  haldi: 'haldi',
   henna: 'mehndi',
   elephant: 'baraat',
   mandap: 'wedding',
+  cocktail: 'cocktail',
   celebration: 'reception',
-  nightlife: 'afterparty',
 };
 
 export function EventsPage() {
@@ -158,9 +169,9 @@ export function EventsPage() {
           
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { day: 'Thursday', date: 'April 2', events: ['Welcome Party'] },
-              { day: 'Friday', date: 'April 3', events: ['Mehndi Ceremony'] },
-              { day: 'Saturday', date: 'April 4', events: ['Baraat', 'Wedding', 'Reception', 'After Party'] },
+              { day: 'Friday', date: 'April 2', events: ['Welcome Dinner'] },
+              { day: 'Saturday', date: 'April 3', events: ['Haldi', 'Mehndi'] },
+              { day: 'Sunday', date: 'April 4', events: ['Baraat', 'Wedding', 'Cocktail Hour', 'Reception'] },
             ].map((day, index) => (
               <motion.div
                 key={day.day}

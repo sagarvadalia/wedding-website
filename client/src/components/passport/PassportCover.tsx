@@ -147,7 +147,7 @@ export function PassportCover({ isOpen, onOpen, className }: PassportCoverProps)
                 color: 'transparent',
               }}
             >
-              APRIL 4-7, 2027
+              APRIL 2-5, 2027
             </p>
           </div>
 

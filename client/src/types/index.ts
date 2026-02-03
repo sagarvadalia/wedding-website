@@ -1,4 +1,4 @@
-export type EventType = 'welcome' | 'mehndi' | 'baraat' | 'wedding' | 'reception' | 'afterparty';
+export type EventType = 'welcome' | 'haldi' | 'mehndi' | 'baraat' | 'wedding' | 'cocktail' | 'reception';
 
 export interface WeddingEvent {
   id: EventType;
@@ -8,7 +8,7 @@ export interface WeddingEvent {
   location: string;
   dressCode: string;
   description: string;
-  stampTheme: 'beach' | 'henna' | 'elephant' | 'mandap' | 'celebration' | 'nightlife';
+  stampTheme: 'beach' | 'haldi' | 'henna' | 'elephant' | 'mandap' | 'cocktail' | 'celebration';
 }
 
 export interface TimelineEvent {

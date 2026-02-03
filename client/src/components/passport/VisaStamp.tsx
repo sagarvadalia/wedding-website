@@ -28,7 +28,7 @@ const stampConfigs: Record<EventType, {
   borderStyle: 'circle' | 'rectangle' | 'oval';
 }> = {
   welcome: {
-    title: 'WELCOME PARTY',
+    title: 'WELCOME DINNER',
     color: '#2E8B8B',
     borderStyle: 'circle',
     icon: (
@@ -42,6 +42,24 @@ const stampConfigs: Record<EventType, {
         <path d="M50 45 Q50 25 50 30" stroke="currentColor" strokeWidth="2" fill="none" />
         {/* Waves */}
         <path d="M20 75 Q30 72 40 75 Q50 78 60 75 Q70 72 80 75" stroke="currentColor" strokeWidth="2" fill="none" />
+      </g>
+    ),
+  },
+  haldi: {
+    title: 'HALDI',
+    color: '#F4C430',
+    borderStyle: 'circle',
+    icon: (
+      <g>
+        {/* Turmeric/flower bowl */}
+        <ellipse cx="50" cy="60" rx="20" ry="8" fill="none" stroke="currentColor" strokeWidth="2" />
+        <path d="M30 60 Q30 45 50 45 Q70 45 70 60" fill="none" stroke="currentColor" strokeWidth="2" />
+        {/* Turmeric mound */}
+        <ellipse cx="50" cy="52" rx="12" ry="6" fill="currentColor" opacity="0.6" />
+        {/* Marigold flowers */}
+        <circle cx="35" cy="38" r="6" fill="currentColor" opacity="0.8" />
+        <circle cx="50" cy="32" r="6" fill="currentColor" opacity="0.8" />
+        <circle cx="65" cy="38" r="6" fill="currentColor" opacity="0.8" />
       </g>
     ),
   },
@@ -98,6 +116,25 @@ const stampConfigs: Record<EventType, {
       </g>
     ),
   },
+  cocktail: {
+    title: 'COCKTAIL HOUR',
+    color: '#1E3A5F',
+    borderStyle: 'rectangle',
+    icon: (
+      <g>
+        {/* Martini glass */}
+        <path d="M35 35 L50 55 L65 35" stroke="currentColor" strokeWidth="2" fill="none" />
+        <path d="M50 55 L50 70" stroke="currentColor" strokeWidth="2" />
+        <path d="M40 70 L60 70" stroke="currentColor" strokeWidth="2" />
+        {/* Olive */}
+        <circle cx="50" cy="42" r="4" fill="currentColor" />
+        {/* Decorative bubbles */}
+        <circle cx="30" cy="45" r="2" fill="currentColor" opacity="0.5" />
+        <circle cx="70" cy="50" r="2" fill="currentColor" opacity="0.5" />
+        <circle cx="68" cy="40" r="1.5" fill="currentColor" opacity="0.5" />
+      </g>
+    ),
+  },
   reception: {
     title: 'RECEPTION',
     color: '#87CEEB',
@@ -115,23 +152,6 @@ const stampConfigs: Record<EventType, {
         
         {/* Clink sparkle */}
         <path d="M47 40 L53 40 M50 37 L50 43" stroke="currentColor" strokeWidth="1.5" />
-      </g>
-    ),
-  },
-  afterparty: {
-    title: 'AFTERPARTY',
-    color: '#1E3A5F',
-    borderStyle: 'rectangle',
-    icon: (
-      <g>
-        {/* Music notes */}
-        <circle cx="35" cy="55" r="5" fill="currentColor" />
-        <path d="M40 55 L40 35 L55 30 L55 50" stroke="currentColor" strokeWidth="2" fill="none" />
-        <circle cx="55" cy="50" r="5" fill="currentColor" />
-        
-        {/* Stars/disco */}
-        <path d="M65 35 L67 40 L72 40 L68 44 L70 50 L65 46 L60 50 L62 44 L58 40 L63 40 Z" 
-          fill="currentColor" />
       </g>
     ),
   },
@@ -253,12 +273,13 @@ export function VisaStamp({
 
 export function StampCollection({ className }: { className?: string }) {
   const events: { event: EventType; date: string }[] = [
-    { event: 'welcome', date: 'APR 4, 2027' },
-    { event: 'mehndi', date: 'APR 5, 2027' },
-    { event: 'baraat', date: 'APR 6, 2027' },
-    { event: 'wedding', date: 'APR 6, 2027' },
-    { event: 'reception', date: 'APR 6, 2027' },
-    { event: 'afterparty', date: 'APR 6, 2027' },
+    { event: 'welcome', date: 'APR 2, 2027' },
+    { event: 'haldi', date: 'APR 3, 2027' },
+    { event: 'mehndi', date: 'APR 3, 2027' },
+    { event: 'baraat', date: 'APR 4, 2027' },
+    { event: 'wedding', date: 'APR 4, 2027' },
+    { event: 'cocktail', date: 'APR 4, 2027' },
+    { event: 'reception', date: 'APR 4, 2027' },
   ];
 
   return (
