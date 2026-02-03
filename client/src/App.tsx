@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Navigation } from '@/components/layout/Navigation';
 import { Footer } from '@/components/layout/Footer';
+import { AudioPlayer } from '@/components/layout/AudioPlayer';
 import { HomePage } from '@/pages/HomePage';
 import { OurStoryPage } from '@/pages/OurStoryPage';
 import { EventsPage } from '@/pages/EventsPage';
@@ -16,20 +17,19 @@ function App() {
     <BrowserRouter>
       <div className="min-h-screen flex flex-col">
         <Routes>
-          {/* Home page has its own layout without nav */}
-          <Route path="/" element={<HomePage />} />
-          
           {/* Admin page has its own layout */}
           <Route path="/admin" element={<AdminPage />} />
           
-          {/* All other pages with nav and footer */}
+          {/* All public pages with nav and footer */}
           <Route
             path="/*"
             element={
               <>
                 <Navigation />
-                <main className="flex-1 pt-16 md:pt-16">
+                <AudioPlayer />
+                <main className="flex-1">
                   <Routes>
+                    <Route path="/" element={<HomePage />} />
                     <Route path="/our-story" element={<OurStoryPage />} />
                     <Route path="/events" element={<EventsPage />} />
                     <Route path="/travel" element={<TravelPage />} />

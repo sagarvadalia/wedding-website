@@ -79,30 +79,56 @@ export function TravelPage() {
           className="mb-12"
         >
           <Card className="overflow-hidden">
-            <div className="bg-gradient-to-r from-ocean-deep to-ocean-caribbean text-sand-pearl p-8 md:p-12">
-              <div className="max-w-3xl">
-                <h2 className="text-3xl md:text-4xl font-heading mb-4">
-                  Dreams Playa Mujeres
-                </h2>
-                <p className="text-xl text-sand-pearl/90 mb-2">
-                  Golf & Spa Resort
-                </p>
-                <p className="text-sand-pearl/70 mb-6">
-                  Playa Mujeres, Cancun, Mexico
-                </p>
-                <p className="text-sand-pearl/80 leading-relaxed mb-6">
-                  An all-inclusive luxury resort featuring pristine beaches, world-class amenities, 
-                  and breathtaking ocean views. Perfect for our destination wedding celebration!
-                </p>
-                <div className="flex flex-wrap gap-4">
-                  <Button variant="gold" size="lg" asChild>
-                    <a href="https://www.dreamsresorts.com/playa-mujeres" target="_blank" rel="noopener noreferrer">
-                      View Resort <ExternalLink className="w-4 h-4 ml-2" />
-                    </a>
-                  </Button>
+            {/* Resort Image */}
+            <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
+              <img
+                src="/images/dreams-playa-mujeres.jpg"
+                alt="Dreams Playa Mujeres Golf & Spa Resort - Aerial view of the beachfront property"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Fallback gradient if image not found
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+              {/* Fallback gradient shown if image fails to load */}
+              <div className="hidden absolute inset-0 bg-gradient-to-br from-ocean-deep via-ocean-caribbean to-ocean-sky flex items-center justify-center">
+                <div className="text-center text-white/80">
+                  <Hotel className="w-16 h-16 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Add resort image to public/images/</p>
                 </div>
               </div>
+              {/* Gradient overlay for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-ocean-deep/90 via-ocean-deep/40 to-transparent" />
+              {/* Resort name overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                <h2 className="text-3xl md:text-4xl font-heading text-white mb-1">
+                  Dreams Playa Mujeres
+                </h2>
+                <p className="text-lg text-sand-pearl/90">
+                  Golf & Spa Resort
+                </p>
+              </div>
             </div>
+            
+            {/* Resort Info */}
+            <div className="bg-gradient-to-r from-ocean-deep to-ocean-caribbean text-sand-pearl p-6 md:p-8">
+              <p className="text-sand-pearl/70 mb-4">
+                Playa Mujeres, Cancun, Mexico
+              </p>
+              <p className="text-sand-pearl/80 leading-relaxed mb-6">
+                An all-inclusive luxury resort featuring pristine beaches, world-class amenities, 
+                and breathtaking ocean views. Perfect for our destination wedding celebration!
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Button variant="gold" size="lg" asChild>
+                  <a href="https://www.dreamsresorts.com/playa-mujeres" target="_blank" rel="noopener noreferrer">
+                    View Resort <ExternalLink className="w-4 h-4 ml-2" />
+                  </a>
+                </Button>
+              </div>
+            </div>
+            
             <CardContent className="p-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 {[

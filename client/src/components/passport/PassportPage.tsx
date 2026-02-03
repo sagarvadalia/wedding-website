@@ -15,7 +15,7 @@ export function PassportPage({ children, pageNumber, className }: PassportPagePr
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
       className={cn(
-        'relative min-h-screen bg-sand-pearl',
+        'relative min-h-screen bg-sand-pearl pt-16 md:pt-16',
         className
       )}
     >
