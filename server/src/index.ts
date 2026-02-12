@@ -32,6 +32,19 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', message: 'Sagar & Grace Wedding API' });
 });
 
+// Production: serve client SPA from server/public (populated by root build)
+if (process.env.NODE_ENV === 'production') {
+  const path = await import('path');
+  const fs = await import('fs');
+  const publicDir = path.join(process.cwd(), 'public');
+  if (fs.existsSync(publicDir)) {
+    app.use(express.static(publicDir));
+    app.get('*', (_req, res) => {
+      res.sendFile(path.join(publicDir, 'index.html'));
+    });
+  }
+}
+
 // Error handling (must be after routes)
 app.use(notFoundHandler);
 app.use(errorHandler);

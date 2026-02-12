@@ -71,6 +71,20 @@ npm run dev:server
 npm run build
 ```
 
+### Deploy to Railway
+
+Deployment is configured via **config as code** in the repo root:
+
+- **[`railway.json`](railway.json)** – build command, start command, healthcheck, watch paths.
+
+To deploy:
+
+1. Create a new project on [Railway](https://railway.com) and connect this repo.
+2. Set **variables** in the Railway dashboard (see `server/.env.example`; e.g. `MONGODB_URI`, `JWT_SECRET`, `NODE_ENV=production`, `CLIENT_URL` = your Railway app URL).
+3. Push to your linked branch; Railway builds and deploys using `railway.json`.
+
+No Terraform or extra tooling required.
+
 ## Project Structure
 
 ```
