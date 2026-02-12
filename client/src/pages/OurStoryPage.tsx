@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion';
-import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
+import { PageHeader, PassportPage, Section } from '@/components/passport/PassportPage';
 import { Card, CardContent } from '@/components/ui/card';
-import { Heart, Plane, MapPin, Star } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Diamond, Gem, Heart, House, Sparkle, Sunset, Waves } from 'lucide-react';
 
 interface TimelineEvent {
   year: string;
@@ -14,38 +14,51 @@ const timeline: TimelineEvent[] = [
   {
     year: '2014',
     title: 'First Connection',
-    description: 'Our paths crossed as freshman at Cornell University, both living in the same dorm floor.',
-    icon: <Star className="w-5 h-5" />,
+    description: "In Fall 2014, we were two wide-eyed college freshmen at Cornell eager to start a new chapter in our lives. We both lived in a freshman dorm across the hallway from one another. Because of that, we would share frequent dining hall meals together and go to the typical college parties and events as a large group. One night in early November, the two of us attended a sorority paint party together- the first event we attended just the two of us. The night was filled with goofy pictures, endless dancing, colorful paint throwing, and undeniable chemistry between the two of us. In the days and weeks following the paint party, we were inseparable. We spent late nights chatting and getting to know each other, binging How I Met Your Mother (which became one of Grace’s favorite shows), playing piano in the dorm lounge, studying (and flirting) in the library, and gaining the freshman 15 at the dining hall. We eventually had our first “date” watching Interstellar at the Ithaca mall - a night to remember, where we got stuck in the mall at 2 am after the movie ended (our age is showing-this was pre-uber!). Even though our majors were different and we didn’t share any classes, we loved spending time together. Those few months were a spark-filled, beutiful yet fleeting time in both of our lives.",
+    icon: (
+      <span className="relative inline-block w-5 h-5">
+        <Sparkle className="w-5 h-5 fill-current relative z-10" />
+        {/* Small sparkles placed at top, right, bottom, left—aligned & matching color */}
+        {/* Top */}
+        <Sparkle className="absolute w-2 h-2 fill-current text-inherit left-1/2 -translate-x-1/2 -top-3 opacity-80 z-0" />
+        {/* Right */}
+        <Sparkle className="absolute w-2 h-2 fill-current text-inherit right-[-14px] top-1/2 -translate-y-1/2 opacity-70 z-0" />
+        {/* Bottom */}
+        <Sparkle className="absolute w-2 h-2 fill-current text-inherit left-1/2 -translate-x-1/2 -bottom-3 opacity-60 z-0" />
+        {/* Left */}
+        <Sparkle className="absolute w-2 h-2 fill-current text-inherit left-[-14px] top-1/2 -translate-y-1/2 opacity-65 z-0" />
+      </span>
+    ),
   },
   {
-    year: '2014',
-    title: 'Unexpected First Date',
-    description: 'Our group had plans to go to a sorority color party but we ended up being the only two that could make it! We spent the entire night together dancing, laughing, and getting to know each other.',
-    icon: <Heart className="w-5 h-5" />,
-  },
-  {
-    year: '2014',
-    title: 'Unfortunate Seperation',
-    description: "Unfortunately, the timing wasn't right. The two of us drifted apart and went our separate ways.",
-    icon: <Plane className="w-5 h-5" />,
+    year: '2015',
+    title: 'Temporary "Goodbye"',
+    description: "It was a beautiful friendship, and in a perfect world, it would have continued forever. However, as we all know, life is not always perfect, especially for two 18-year-olds finding their way through the ups and downs of college and self-discovery. Ultimately, we both chose different paths, not pursuing a romantic relationship at that time. Our friendship remained for a bit, but we eventually went our separate ways during college, only to reunite 7 years later.",
+    icon: <Sunset className="w-5 h-5" />,
   },
   {
     year: '2021',
-    title: 'Reconnecting',
-    description: 'We took the leap and moved in together. Our apartment became filled with love, inside jokes, and the occasional debate about whose turn it was to do dishes.',
-    icon: <MapPin className="w-5 h-5" />,
+    title: 'Second Chance',
+    description: 'In 2021, the world was coming out of the harshest COVID lockdowns. This was also the time when people longed for human connection. What better reason to reach out to that “one that got away” from nearly a decade ago…  And that’s what we did in June 2021, both single and starting our careers. A simple, innocent Facebook message out of the blue turned into a reunion dinner with an old friend in Long Island City, NY. We shared guac and chips, life stories from the past 7 years, growing butterflies, and by the end of the night, we both realized that night was not the last we would see of one another. We both went home excited, hopeful, and in awe of what fate had handed to us- a second chance at falling in love with that one that got away all those years ago. And yes, we FINALLY took that chance together, and it has been the best and most beautiful decision we made.',
+    icon: <Heart className="w-5 h-5 fill-current" />,
+  },
+  {
+    year: '2021-present',
+    title: 'Life together in NYC',
+    description: 'Over the next several years, we have grown our lives together, and our love has only continued to grow every day. We eventually made our first home in Long Island City, NYC, and have raised our sweet 4 legged boy, Cosmo. From our weekend bagels in Gantry Park (our most sacred tradition!) to our spontaneous ferry rides to explore different areas of NYC, we always treasure our adventures together. We both share a love of food, travel, and exploration. We have been fortunate to have visited various places around the country and world, including Aruba, India, Jamaica, Mexico, California, Arizona, and Greece.',
+    icon: <House className="w-5 h-5 fill-current" />,
   },
   {
     year: '2024',
-    title: 'The Proposal',
-    description: 'Under a sky full of stars, with hearts full of love, Sagar got down on one knee and asked the question. Through happy tears, Grace said YES!',
-    icon: <Heart className="w-5 h-5 fill-current" />,
+    title: 'Engaged!',
+    description: 'We took a trip to Greece for our 3-year anniversary, where Sagar proposed on our 3rd anniversary overlooking a beautiful sunset in Mykonos. Grace was totally caught of guard and shocked and elated at the same time. It was a truly magical moment that we will never forget.',
+    icon: <Gem className="w-5 h-5 fill-current" />,
   },
   {
     year: '2027',
     title: 'Forever Begins',
-    description: 'And now, we invite you to join us in Cancun as we say "I do" and begin our greatest adventure yet—a lifetime together.',
-    icon: <Star className="w-5 h-5 fill-current" />,
+    description: 'Our love of life, travel, and everything related to the beach, swimming, and the ocean (yes, Sagar’s name actually means “ocean”) extends to you all. We are blessed and thrilled to celebrate our marriage together in beautiful Playa Mujeres, Cancun, Mexico.',
+    icon: <Waves className="w-5 h-5 fill-current" />,
   },
 ];
 
