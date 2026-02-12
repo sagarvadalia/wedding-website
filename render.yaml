@@ -7,7 +7,8 @@ services:
     runtime: node
     plan: free
 
-    buildCommand: npm ci && npm run build
+    # Install devDependencies so client build has Vite + type defs (vite/client, node)
+buildCommand: npm ci --include=dev && npm run build
     startCommand: npm run start --workspace=server
 
     healthCheckPath: /api/health
