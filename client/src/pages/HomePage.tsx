@@ -5,7 +5,6 @@ import { PassportCover } from '@/components/passport/PassportCover';
 import { PassportPolaroid } from '@/components/passport/PassportPolaroid';
 import { Button } from '@/components/ui/button';
 import { StampCollection } from '@/components/passport/VisaStamp';
-import { WeddingCountdown } from '@/components/layout/WeddingCountdown';
 import { FEATURED_PHOTOS } from '@/lib/constants';
 import { Calendar, MapPin } from 'lucide-react';
 
