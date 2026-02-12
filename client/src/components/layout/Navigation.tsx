@@ -231,7 +231,7 @@ export function Navigation() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="bg-ocean-deep/95 backdrop-blur-sm overflow-hidden"
+              className="bg-ocean-deep/95 backdrop-blur-sm overflow-hidden relative z-60"
             >
               <div className="px-4 py-4 space-y-1">
                 {/* Guest account section */}
@@ -297,26 +297,30 @@ export function Navigation() {
                   </div>
                 ))}
 
-                {/* Standalone RSVP */}
-                <div className="border-t border-sand-pearl/20 my-2" />
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <Link
-                    to="/rsvp"
-                    onClick={() => setIsOpen(false)}
-                    className={cn(
-                      'block px-4 py-3 rounded-md transition-colors font-medium',
-                      rsvpActive
-                        ? 'bg-sand-pearl text-ocean-deep'
-                        : 'text-gold hover:bg-ocean-caribbean/30'
-                    )}
-                  >
-                    {rsvpLabel}
-                  </Link>
-                </motion.div>
+                {/* Standalone RSVP (only when not logged in; logged-in users have My RSVP in account section) */}
+                {!guestContext?.group && (
+                  <>
+                    <div className="border-t border-sand-pearl/20 my-2" />
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <Link
+                        to="/rsvp"
+                        onClick={() => setIsOpen(false)}
+                        className={cn(
+                          'block px-4 py-3 rounded-md transition-colors font-medium',
+                          rsvpActive
+                            ? 'bg-sand-pearl text-ocean-deep'
+                            : 'text-gold hover:bg-ocean-caribbean/30'
+                        )}
+                      >
+                        {rsvpLabel}
+                      </Link>
+                    </motion.div>
+                  </>
+                )}
               </div>
             </motion.div>
           )}

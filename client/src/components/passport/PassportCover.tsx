@@ -26,9 +26,9 @@ export function PassportCover({ isOpen, onOpen, className }: PassportCoverProps)
           transformStyle: 'preserve-3d',
         }}
       >
-        {/* Front Cover */}
+        {/* Front Cover - responsive width so it never overflows on narrow viewports */}
         <div
-          className="relative w-[340px] h-[480px] md:w-[400px] md:h-[560px] rounded-r-lg shadow-passport"
+          className="relative w-[min(340px,calc(100vw-2rem))] md:w-[400px] aspect-340/480 md:aspect-400/560 rounded-r-lg shadow-passport"
           style={{
             backfaceVisibility: 'hidden',
             background: 'linear-gradient(145deg, #1E3A5F 0%, #152C47 50%, #1E3A5F 100%)',
@@ -196,9 +196,9 @@ export function PassportCover({ isOpen, onOpen, className }: PassportCoverProps)
           />
         </div>
 
-        {/* Back of cover (visible when flipped) */}
+        {/* Back of cover (visible when flipped) - fills parent, size from front */}
         <div
-          className="absolute inset-0 w-[340px] h-[480px] md:w-[400px] md:h-[560px] rounded-l-lg paper-texture"
+          className="absolute inset-0 rounded-l-lg paper-texture"
           style={{
             backfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)',

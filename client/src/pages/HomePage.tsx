@@ -98,7 +98,7 @@ export function HomePage() {
 
       {/* Content - when invite open, overflow hidden so only the card scrolls */}
       <div
-        className={`relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-8 ${isOpen ? 'overflow-hidden' : ''}`}
+        className={`relative z-10 min-h-screen flex flex-col items-center justify-center px-4 pt-16 pb-8 md:py-8 ${isOpen ? 'overflow-hidden' : ''}`}
         onClick={isOpen ? () => setIsOpen(false) : undefined}
       >
         <AnimatePresence mode="wait">
@@ -109,10 +109,11 @@ export function HomePage() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9, rotateY: -90 }}
               transition={{ duration: 0.5 }}
-              className="flex flex-row items-center justify-center gap-4 md:gap-8"
+              className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 w-full max-w-5xl"
             >
-              {/* Left: 2 polaroids at corners (top and bottom of a column) */}
-              <div className="flex flex-col justify-between items-center gap-4 py-4 min-h-[320px] md:min-h-[400px]">
+              {/* Mobile: passport + subtitle + countdown first */}
+              {/* Desktop: left polaroids column */}
+              <div className="hidden md:flex flex-col justify-between items-center gap-4 py-4 min-h-[400px]">
                 <PassportPolaroid
                   src={FEATURED_PHOTOS[0]?.src ?? ''}
                   alt={FEATURED_PHOTOS[0]?.alt ?? ''}
@@ -127,7 +128,7 @@ export function HomePage() {
                 />
               </div>
               {/* Center: passport + subtitle + countdown */}
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center shrink-0">
                 <PassportCover
                   isOpen={isOpen}
                   onOpen={() => setIsOpen(true)}
@@ -149,8 +150,8 @@ export function HomePage() {
                   <WeddingCountdown variant="inline" className="text-ocean-deep/60" />
                 </motion.div>
               </div>
-              {/* Right: 2 polaroids at corners */}
-              <div className="flex flex-col justify-between items-center gap-4 py-4 min-h-[320px] md:min-h-[400px]">
+              {/* Desktop: right polaroids column */}
+              <div className="hidden md:flex flex-col justify-between items-center gap-4 py-4 min-h-[400px]">
                 <PassportPolaroid
                   src={FEATURED_PHOTOS[2]?.src ?? ''}
                   alt={FEATURED_PHOTOS[2]?.alt ?? ''}
@@ -163,6 +164,18 @@ export function HomePage() {
                   size="md"
                   rotate={CLOSED_POLAROID_ROTATIONS[3]}
                 />
+              </div>
+              {/* Mobile: 2x2 polaroid grid below passport */}
+              <div className="grid grid-cols-2 gap-3 md:hidden justify-items-center w-full max-w-sm">
+                {[0, 1, 2, 3].map((i) => (
+                  <PassportPolaroid
+                    key={i}
+                    src={FEATURED_PHOTOS[i]?.src ?? ''}
+                    alt={FEATURED_PHOTOS[i]?.alt ?? ''}
+                    size="sm"
+                    rotate={CLOSED_POLAROID_ROTATIONS[i]}
+                  />
+                ))}
               </div>
             </motion.div>
           ) : (

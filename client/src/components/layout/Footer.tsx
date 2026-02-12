@@ -20,7 +20,7 @@ export function Footer() {
         </svg>
       </div>
 
-      <div className="relative pt-24 pb-8 px-4">
+      <div className="relative pt-24 px-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
         <div className="max-w-4xl mx-auto text-center">
           {/* Tagline */}
           <p className="text-sand-pearl/80 italic mb-2">
