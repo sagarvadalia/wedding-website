@@ -1,6 +1,6 @@
 # Deployment
 
-This project deploys to **Railway** using **config as code** only (no Terraform).
+This project deploys to **Render** using **config as code**.
 
-- **Build and deploy settings** are in the repo root: [`railway.json`](../railway.json).
-- To deploy: connect this repo to Railway (e.g. [railway.com/new](https://railway.com/new)), set your **variables** (see `server/.env.example`) in the Railway dashboard, and push. Railway will use `railway.json` for the build command, start command, healthcheck, and watch paths.
+- **Build and deploy settings** are in the repo root: [`render.yaml`](../render.yaml) (Render Blueprint).
+- To deploy: connect this repo to Render via **New → Blueprint** (or **New → Web Service**), set **Environment** variables (see `server/.env.example`) in the Render dashboard, and push. Render uses `render.yaml` for build command, start command, healthcheck, and build filter.

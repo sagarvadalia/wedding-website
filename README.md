@@ -71,19 +71,18 @@ npm run dev:server
 npm run build
 ```
 
-### Deploy to Railway
+### Deploy to Render
 
 Deployment is configured via **config as code** in the repo root:
 
-- **[`railway.json`](railway.json)** – build command, start command, healthcheck, watch paths.
+- **[`render.yaml`](render.yaml)** – build command, start command, healthcheck, build filter (monorepo).
 
 To deploy:
 
-1. Create a new project on [Railway](https://railway.com) and connect this repo.
-2. Set **variables** in the Railway dashboard (see `server/.env.example`; e.g. `MONGODB_URI`, `JWT_SECRET`, `NODE_ENV=production`, `CLIENT_URL` = your Railway app URL).
-3. Push to your linked branch; Railway builds and deploys using `railway.json`.
-
-No Terraform or extra tooling required.
+1. In [Render](https://render.com), go to **New → Blueprint** and connect this repo (or **New → Web Service** and point it at this repo).
+2. If using Blueprint: Render will detect `render.yaml` and create the `wedding-web` service. Click **Apply**.
+3. Set **Environment** variables in the Render dashboard (see `server/.env.example`; e.g. `MONGODB_URI`, `JWT_SECRET`, `NODE_ENV=production`, `CLIENT_URL` = your Render URL, e.g. `https://wedding-web.onrender.com`).
+4. Push to your linked branch; Render builds and deploys using `render.yaml`.
 
 ## Project Structure
 

@@ -1,0 +1,21 @@
+# Render Blueprint – config as code
+# https://docs.render.com/blueprint-spec
+
+services:
+  - type: web
+    name: wedding-web
+    runtime: node
+
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start --workspace=server
+
+    healthCheckPath: /api/health
+
+    # Only redeploy when relevant paths change (monorepo)
+    buildFilter:
+      paths:
+        - client/**
+        - server/**
+        - package.json
+        - package-lock.json
+        - scripts/**
