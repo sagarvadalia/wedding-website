@@ -71,6 +71,42 @@ export function OurStoryPage() {
       />
 
       <Section>
+        {/* Our Journey in Numbers */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-16"
+        >
+          <h2 className="text-2xl md:text-3xl font-heading text-center text-ocean-deep mb-12">
+            Our Journey in Numbers
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { number: '5+', label: 'Years Together' },
+              { number: '12', label: 'Countries Visited' },
+              { number: '∞', label: 'Cups of Coffee' },
+              { number: '1', label: 'Forever' },
+            ].map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="text-center"
+              >
+                <div className="text-4xl md:text-5xl font-heading text-gold mb-2">
+                  {stat.number}
+                </div>
+                <div className="text-sm text-sand-dark uppercase tracking-wider">
+                  {stat.label}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
         {/* Introduction */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -87,7 +123,7 @@ The first - back in November 2014, as two wide-eyed college freshmen who were st
         {/* Timeline */}
         <div className="relative">
           {/* Center line */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 w-[2px] h-full bg-gradient-to-b from-ocean-caribbean via-gold to-coral hidden md:block" />
+          <div className="absolute left-1/2 transform -translate-x-1/2 w-[2px] h-full bg-linear-to-b from-ocean-caribbean via-gold to-coral hidden md:block" />
 
           {/* Timeline events */}
           <div className="space-y-12 md:space-y-24">
@@ -98,7 +134,7 @@ The first - back in November 2014, as two wide-eyed college freshmen who were st
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className={`relative flex flex-col md:flex-row items-center gap-8 ${
+                className={`relative flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-10 ${
                   index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
                 }`}
               >
@@ -133,94 +169,29 @@ The first - back in November 2014, as two wide-eyed college freshmen who were st
                 {/* Center dot (desktop) */}
                 <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full bg-gold border-4 border-sand-pearl shadow-md z-10" />
 
-                {/* Empty space for opposite side */}
-                <div className="flex-1 hidden md:block" />
+                {/* Polaroid across from this event */}
+                <div className={`flex-1 flex justify-center min-w-0 ${index % 2 === 0 ? 'md:justify-start md:pl-4' : 'md:justify-end md:pr-4'}`}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20, rotate: ([-3, 2, -2, 4, -4, 1][index] ?? 0) - 5 }}
+                    whileInView={{ opacity: 1, y: 0, rotate: [-3, 2, -2, 4, -4, 1][index] ?? 0 }}
+                    viewport={{ once: true, margin: '-20px' }}
+                    transition={{ duration: 0.5, delay: index * 0.05 }}
+                    className="shrink-0"
+                  >
+                    <div className="bg-sand-pearl px-4 pt-4 pb-12 shadow-lg rounded-sm hover:shadow-xl transition-shadow">
+                      <div className="w-52 h-52 sm:w-60 sm:h-60 md:w-72 md:h-72 bg-sand-warm/50 flex items-center justify-center border border-sand-driftwood/20">
+                        <div className="text-center text-sand-dark/50">
+                          <Heart className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-1" />
+                          <p className="text-sm">Photo {index + 1}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
-
-        {/* Fun stats section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mt-24"
-        >
-          <h2 className="text-2xl md:text-3xl font-heading text-center text-ocean-deep mb-12">
-            Our Journey in Numbers
-          </h2>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { number: '5+', label: 'Years Together' },
-              { number: '12', label: 'Countries Visited' },
-              { number: '∞', label: 'Cups of Coffee' },
-              { number: '1', label: 'Forever' },
-            ].map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="text-center"
-              >
-                <div className="text-4xl md:text-5xl font-heading text-gold mb-2">
-                  {stat.number}
-                </div>
-                <div className="text-sm text-sand-dark uppercase tracking-wider">
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Moments we cherish - polaroid style */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="mt-24"
-        >
-          <h2 className="text-2xl md:text-3xl font-heading text-center text-ocean-deep mb-12">
-            Moments We Cherish
-          </h2>
-          
-          <div className="flex flex-wrap justify-center gap-8 md:gap-10 items-start">
-            {[
-              { rotate: -3, delay: 0 },
-              { rotate: 2, delay: 0.05 },
-              { rotate: -2, delay: 0.1 },
-              { rotate: 4, delay: 0.15 },
-              { rotate: -4, delay: 0.2 },
-              { rotate: 1, delay: 0.25 },
-            ].map(({ rotate, delay }, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20, rotate: rotate - 5 }}
-                whileInView={{ opacity: 1, y: 0, rotate }}
-                viewport={{ once: true, margin: '-20px' }}
-                transition={{ duration: 0.5, delay }}
-                className="flex-shrink-0"
-              >
-                {/* Polaroid frame: white border + shadow */}
-                <div className="bg-sand-pearl px-3 pt-3 pb-10 shadow-lg rounded-sm hover:shadow-xl transition-shadow">
-                  <div className="w-40 h-40 md:w-44 md:h-44 bg-sand-warm/50 flex items-center justify-center border border-sand-driftwood/20">
-                    <div className="text-center text-sand-dark/50">
-                      <Heart className="w-8 h-8 mx-auto mb-1" />
-                      <p className="text-xs">Photo {index + 1}</p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          <p className="text-center text-sand-dark/60 mt-8 text-sm">
-            Add your favorite photos here
-          </p>
-        </motion.div>
       </Section>
     </PassportPage>
   );
