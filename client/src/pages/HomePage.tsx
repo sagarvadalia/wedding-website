@@ -133,22 +133,8 @@ export function HomePage() {
                   isOpen={isOpen}
                   onOpen={() => setIsOpen(true)}
                 />
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="mt-8 text-ocean-deep/70 text-center"
-                >
-                  You're invited to our destination wedding
-                </motion.p>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.7 }}
-                  className="mt-4 text-ocean-deep/50 text-sm"
-                >
-                  <WeddingCountdown variant="inline" className="text-ocean-deep/60" />
-                </motion.div>
+               
+                
               </div>
               {/* Desktop: right polaroids column */}
               <div className="hidden md:flex flex-col justify-between items-center gap-4 py-4 min-h-[400px]">
