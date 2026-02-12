@@ -12,10 +12,10 @@ interface PassportPageProps {
 function generateBubbles(count: number) {
   return Array.from({ length: count }, (_, i) => ({
     id: i,
-    size: 3 + (i % 7) * 2.5,
+    size: 4 + (i % 6) * 2,
     left: `${(i * 7.3) % 100}%`,
     delay: (i * 0.4) % 12,
-    duration: 8 + (i % 8) * 2,
+    duration: 10 + (i % 8) * 3,
   }));
 }
 
@@ -23,23 +23,48 @@ function generateBubbles(count: number) {
 function generateFish(count: number) {
   return Array.from({ length: count }, (_, i) => ({
     id: i,
-    size: 12 + (i % 5) * 8,
-    top: `${5 + (i * 17) % 85}%`, // Full vertical range from 5% to 90%
+    size: 24 + (i % 4) * 10, // Minimum 24px for clarity
+    top: `${8 + (i * 17) % 75}%`,
     direction: i % 2 === 0 ? 'left' : 'right',
-    delay: (i * 1.2) % 15,
-    duration: 12 + (i % 6) * 4,
-    opacity: 0.15 + (i % 4) * 0.05, // Much more visible: 0.15 to 0.30
+    delay: (i * 1) % 20,
+    duration: 18 + (i % 6) * 5,
+    opacity: 0.12 + (i % 4) * 0.04,
+  }));
+}
+
+// Generate floating particles (plankton/sediment)
+function generateParticles(count: number) {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    size: 2 + (i % 3),
+    left: `${(i * 13.7) % 100}%`,
+    top: `${(i * 11.3) % 100}%`,
+    delay: (i * 0.8) % 15,
+    duration: 20 + (i % 10) * 4,
+  }));
+}
+
+// Generate kelp strands
+function generateKelp(count: number) {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    left: `${5 + i * 18}%`,
+    height: 120 + (i % 3) * 40,
+    delay: i * 0.5,
+    swayAmount: 8 + (i % 3) * 4,
   }));
 }
 
 export function PassportPage({ children, pageNumber, className }: PassportPageProps) {
-  const bubbles = useMemo(() => generateBubbles(60), []);
-  const fish = useMemo(() => generateFish(16), []);
+  const bubbles = useMemo(() => generateBubbles(40), []);
+  const fish = useMemo(() => generateFish(12), []);
+  const particles = useMemo(() => generateParticles(20), []);
+  const kelp = useMemo(() => generateKelp(5), []);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
       className={cn(
@@ -47,137 +72,115 @@ export function PassportPage({ children, pageNumber, className }: PassportPagePr
         className
       )}
     >
-      {/* Deep ocean gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-ocean-sky/40 via-ocean-caribbean/20 to-ocean-deep/30" />
+      {/* Deep ocean gradient background - enhanced depth (visible immediately on page load) */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(
+            180deg,
+            rgba(135, 206, 235, 0.35) 0%,
+            rgba(46, 139, 139, 0.25) 25%,
+            rgba(30, 58, 95, 0.35) 60%,
+            rgba(15, 35, 60, 0.45) 100%
+          )`,
+        }}
+      />
       
-      {/* Underwater light rays */}
+      {/* Enhanced underwater light rays (god rays) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div 
-          className="absolute top-0 left-1/4 w-96 h-[600px] opacity-20"
+        {/* Ray 1 - Left side */}
+        <motion.div 
+          className="absolute top-0 w-[300px] h-[700px]"
           style={{
-            background: 'linear-gradient(180deg, rgba(135,206,235,0.6) 0%, transparent 100%)',
-            transform: 'rotate(-15deg)',
-            filter: 'blur(40px)',
-          }}
-        />
-        <div 
-          className="absolute top-0 right-1/4 w-72 h-[500px] opacity-15"
-          style={{
-            background: 'linear-gradient(180deg, rgba(135,206,235,0.5) 0%, transparent 100%)',
-            transform: 'rotate(10deg)',
+            left: '10%',
+            background: 'linear-gradient(180deg, rgba(135,206,235,0.5) 0%, rgba(135,206,235,0.1) 60%, transparent 100%)',
+            transform: 'rotate(-20deg)',
+            transformOrigin: 'top center',
             filter: 'blur(30px)',
           }}
+          animate={{ opacity: [0.15, 0.25, 0.15] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         />
-        <div 
-          className="absolute top-0 left-1/2 w-64 h-[400px] opacity-10"
+        {/* Ray 2 - Left-center */}
+        <motion.div 
+          className="absolute top-0 w-[250px] h-[600px]"
           style={{
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 100%)',
-            transform: 'translateX(-50%)',
-            filter: 'blur(20px)',
+            left: '25%',
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(135,206,235,0.15) 50%, transparent 100%)',
+            transform: 'rotate(-10deg)',
+            transformOrigin: 'top center',
+            filter: 'blur(25px)',
           }}
+          animate={{ opacity: [0.12, 0.22, 0.12] }}
+          transition={{ duration: 5, delay: 1, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        {/* Ray 3 - Center */}
+        <motion.div 
+          className="absolute top-0 w-[280px] h-[650px]"
+          style={{
+            left: '45%',
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(135,206,235,0.12) 55%, transparent 100%)',
+            transform: 'rotate(5deg)',
+            transformOrigin: 'top center',
+            filter: 'blur(28px)',
+          }}
+          animate={{ opacity: [0.18, 0.28, 0.18] }}
+          transition={{ duration: 4.5, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        {/* Ray 4 - Right-center */}
+        <motion.div 
+          className="absolute top-0 w-[220px] h-[550px]"
+          style={{
+            left: '62%',
+            background: 'linear-gradient(180deg, rgba(135,206,235,0.45) 0%, rgba(135,206,235,0.1) 60%, transparent 100%)',
+            transform: 'rotate(15deg)',
+            transformOrigin: 'top center',
+            filter: 'blur(22px)',
+          }}
+          animate={{ opacity: [0.1, 0.2, 0.1] }}
+          transition={{ duration: 5.5, delay: 2, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        {/* Ray 5 - Right side */}
+        <motion.div 
+          className="absolute top-0 w-[260px] h-[580px]"
+          style={{
+            left: '78%',
+            background: 'linear-gradient(180deg, rgba(135,206,235,0.4) 0%, rgba(46,139,139,0.1) 55%, transparent 100%)',
+            transform: 'rotate(22deg)',
+            transformOrigin: 'top center',
+            filter: 'blur(26px)',
+          }}
+          animate={{ opacity: [0.14, 0.24, 0.14] }}
+          transition={{ duration: 4.8, delay: 1.5, repeat: Infinity, ease: 'easeInOut' }}
         />
       </div>
 
-      {/* Animated wave layers - TOP (water surface from below) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Top Wave 1 - Surface ripples (brightest, like sunlight) */}
-        <svg 
-          className="absolute top-0 left-0 w-[200%] animate-wave-fast opacity-60 rotate-180"
-          viewBox="0 0 1440 320" 
-          preserveAspectRatio="none"
-          style={{ height: '180px' }}
-        >
-          <path 
-            fill="#B5D8E8" 
-            d="M0,64L60,80C120,96,240,128,360,138.7C480,149,600,139,720,122.7C840,107,960,85,1080,90.7C1200,96,1320,128,1380,144L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
-          />
-        </svg>
-        
-        {/* Top Wave 2 - Mid surface */}
-        <svg 
-          className="absolute top-0 left-0 w-[200%] animate-wave-medium opacity-50 rotate-180"
-          viewBox="0 0 1440 320" 
-          preserveAspectRatio="none"
-          style={{ height: '150px' }}
-        >
-          <path 
-            fill="#87CEEB" 
-            d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-          />
-        </svg>
+      {/* Water surface shimmer effect at top */}
+      <div 
+        className="absolute top-0 left-0 right-0 h-32 pointer-events-none"
+        style={{
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(135,206,235,0.1) 50%, transparent 100%)',
+        }}
+      />
 
-        {/* Top Wave 3 - Deeper layer */}
-        <svg 
-          className="absolute top-0 left-0 w-[200%] animate-wave-slow opacity-40 rotate-180"
-          viewBox="0 0 1440 320" 
-          preserveAspectRatio="none"
-          style={{ height: '120px' }}
-        >
-          <path 
-            fill="#2E8B8B" 
-            d="M0,160L48,144C96,128,192,96,288,106.7C384,117,480,171,576,181.3C672,192,768,160,864,154.7C960,149,1056,171,1152,176C1248,181,1344,171,1392,165.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-          />
-        </svg>
-
-        {/* BOTTOM Waves */}
-        {/* Wave 1 - Back (deepest) */}
-        <svg 
-          className="absolute bottom-0 left-0 w-[200%] animate-wave-slow opacity-70"
-          viewBox="0 0 1440 320" 
-          preserveAspectRatio="none"
-          style={{ height: '220px' }}
-        >
-          <path 
-            fill="#1E3A5F" 
-            d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,138.7C672,128,768,160,864,181.3C960,203,1056,213,1152,197.3C1248,181,1344,139,1392,117.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-          />
-        </svg>
-        
-        {/* Wave 2 - Middle */}
-        <svg 
-          className="absolute bottom-0 left-0 w-[200%] animate-wave-medium opacity-60"
-          viewBox="0 0 1440 320" 
-          preserveAspectRatio="none"
-          style={{ height: '180px' }}
-        >
-          <path 
-            fill="#2E8B8B" 
-            d="M0,64L48,80C96,96,192,128,288,128C384,128,480,96,576,106.7C672,117,768,171,864,181.3C960,192,1056,160,1152,144C1248,128,1344,128,1392,128L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-          />
-        </svg>
-        
-        {/* Wave 3 - Front (lightest) */}
-        <svg 
-          className="absolute bottom-0 left-0 w-[200%] animate-wave-fast opacity-45"
-          viewBox="0 0 1440 320" 
-          preserveAspectRatio="none"
-          style={{ height: '140px' }}
-        >
-          <path 
-            fill="#87CEEB" 
-            d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,218.7C672,235,768,245,864,234.7C960,224,1056,192,1152,181.3C1248,171,1344,181,1392,186.7L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-          />
-        </svg>
-      </div>
-
-      {/* Floating bubbles - more of them and more visible */}
+      {/* Floating bubbles */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {bubbles.map((bubble) => (
           <motion.div
             key={bubble.id}
-            className="absolute rounded-full bg-white/60 backdrop-blur-[1px]"
+            className="absolute rounded-full"
             style={{
-              width: bubble.size * 1.3,
-              height: bubble.size * 1.3,
+              width: bubble.size,
+              height: bubble.size,
               left: bubble.left,
               bottom: -20,
-              boxShadow: 'inset -2px -2px 4px rgba(255,255,255,0.5), 0 0 8px rgba(135,206,235,0.3)',
-              border: '1px solid rgba(255,255,255,0.4)',
+              background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.3))',
+              boxShadow: 'inset -1px -1px 3px rgba(255,255,255,0.4), 0 0 6px rgba(135,206,235,0.2)',
             }}
             animate={{
-              y: [0, -1200],
-              x: [0, Math.sin(bubble.id) * 50],
-              opacity: [0, 0.9, 0.9, 0],
+              y: [0, -1100],
+              x: [0, Math.sin(bubble.id) * 30, 0],
+              opacity: [0, 0.7, 0.7, 0],
             }}
             transition={{
               duration: bubble.duration,
@@ -189,19 +192,100 @@ export function PassportPage({ children, pageNumber, className }: PassportPagePr
         ))}
       </div>
 
+      {/* Floating particles (plankton/sediment) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {particles.map((particle) => (
+          <motion.div
+            key={`particle-${particle.id}`}
+            className="absolute rounded-full bg-white/30"
+            style={{
+              width: particle.size,
+              height: particle.size,
+              left: particle.left,
+              top: particle.top,
+            }}
+            animate={{
+              y: [0, -50, 0, 30, 0],
+              x: [0, 20, 0, -15, 0],
+              opacity: [0.2, 0.4, 0.3, 0.4, 0.2],
+            }}
+            transition={{
+              duration: particle.duration,
+              delay: particle.delay,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          />
+        ))}
+      </div>
+
       {/* Subtle water caustics effect */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-10"
+      <motion.div 
+        className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.015' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
           backgroundBlendMode: 'overlay',
+        }}
+        animate={{ opacity: [0.06, 0.1, 0.06] }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      {/* Kelp/Seaweed at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 pointer-events-none overflow-hidden" style={{ height: '200px' }}>
+        {kelp.map((strand) => (
+          <motion.div
+            key={`kelp-${strand.id}`}
+            className="absolute bottom-0"
+            style={{ left: strand.left }}
+            animate={{
+              skewX: [-strand.swayAmount, strand.swayAmount, -strand.swayAmount],
+            }}
+            transition={{
+              duration: 4 + strand.delay,
+              delay: strand.delay,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          >
+            <svg 
+              viewBox="0 0 20 100" 
+              style={{ width: 16, height: strand.height }}
+              className="text-ocean-caribbean"
+            >
+              <path 
+                d="M10 100 Q5 80 10 60 Q15 40 10 20 Q8 10 10 0" 
+                stroke="currentColor" 
+                strokeWidth="3" 
+                fill="none"
+                opacity="0.4"
+                strokeLinecap="round"
+              />
+              {/* Kelp leaves */}
+              <ellipse cx="6" cy="30" rx="5" ry="8" fill="currentColor" opacity="0.3" transform="rotate(-20 6 30)" />
+              <ellipse cx="14" cy="50" rx="5" ry="8" fill="currentColor" opacity="0.3" transform="rotate(20 14 50)" />
+              <ellipse cx="7" cy="70" rx="4" ry="6" fill="currentColor" opacity="0.25" transform="rotate(-15 7 70)" />
+            </svg>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Ocean floor gradient */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-48 pointer-events-none"
+        style={{
+          background: 'linear-gradient(0deg, rgba(15,35,60,0.5) 0%, rgba(30,58,95,0.2) 50%, transparent 100%)',
         }}
       />
 
-      {/* Content */}
-      <div className="relative z-10">
+      {/* Content - fades in after sea life background is already visible */}
+      <motion.div
+        className="relative z-10"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
         {children}
-      </div>
+      </motion.div>
 
       {/* Page number */}
       {pageNumber && (
@@ -210,21 +294,21 @@ export function PassportPage({ children, pageNumber, className }: PassportPagePr
         </div>
       )}
 
-      {/* Swimming fish throughout the ENTIRE background */}
+      {/* Swimming fish throughout the background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Individual fish at all depths */}
+        {/* Individual fish at various depths */}
         {fish.map((f) => (
           <motion.div
             key={f.id}
             className="absolute"
             style={{
               top: f.top,
-              left: f.direction === 'right' ? '-10%' : '110%',
+              left: f.direction === 'right' ? '-8%' : '108%',
               opacity: f.opacity,
             }}
             animate={{
-              x: f.direction === 'right' ? ['0vw', '120vw'] : ['0vw', '-120vw'],
-              y: [0, Math.sin(f.id) * 30, 0, Math.sin(f.id + 1) * -20, 0],
+              x: f.direction === 'right' ? ['0vw', '116vw'] : ['0vw', '-116vw'],
+              y: [0, Math.sin(f.id) * 25, 0, Math.sin(f.id + 1) * -20, 0],
             }}
             transition={{
               duration: f.duration,
@@ -233,8 +317,9 @@ export function PassportPage({ children, pageNumber, className }: PassportPagePr
               ease: 'linear',
             }}
           >
+            {/* Improved fish SVG with cubic beziers - single continuous path */}
             <svg 
-              viewBox="0 0 60 30" 
+              viewBox="0 0 40 20"
               style={{ 
                 width: f.size, 
                 height: f.size / 2,
@@ -242,204 +327,217 @@ export function PassportPage({ children, pageNumber, className }: PassportPagePr
               }}
               className="text-ocean-deep"
             >
-              {/* Fish facing left by default: head at left (x=0), tail at right (x=60) */}
-              <path fill="currentColor" d="M0 15 Q15 5 30 15 Q15 25 0 15 M45 15 C55 15 60 10 60 10 L60 20 C60 20 55 15 45 15" />
-              <circle cx="8" cy="14" r="2" fill="currentColor" opacity="0.5" />
-              <path fill="currentColor" opacity="0.7" d="M15 15 Q20 8 25 15" />
+              {/* Fish body + tail as connected path */}
+              <path 
+                fill="currentColor" 
+                d="M4 10 C8 4, 18 4, 24 10 C18 16, 8 16, 4 10 M24 10 L34 4 L34 16 Z"
+              />
+              {/* Eye */}
+              <circle cx="10" cy="9" r="1.5" fill="currentColor" opacity="0.4" />
+              {/* Dorsal fin */}
+              <path fill="currentColor" opacity="0.6" d="M14 4 Q17 2 20 4 L17 8 Z" />
             </svg>
           </motion.div>
         ))}
         
-        {/* School of tiny fish - TOP area (near surface) - moving LEFT */}
-        {[...Array(6)].map((_, i) => (
+        {/* School of small fish - TOP area - moving LEFT */}
+        {[...Array(5)].map((_, i) => (
           <motion.div
             key={`school-top-${i}`}
             className="absolute"
             style={{
-              top: `${8 + (i * 3) % 15}%`,
-              right: '-5%',
-              opacity: 0.25,
+              top: `${10 + (i * 4) % 15}%`,
+              right: '-6%',
+              opacity: 0.18,
             }}
             animate={{
-              x: ['0vw', '-115vw'],
-              y: [0, Math.sin(i * 2) * 10, 0],
+              x: ['0vw', '-112vw'],
+              y: [0, Math.sin(i * 2) * 12, 0],
             }}
             transition={{
-              duration: 18 + i * 2,
+              duration: 22 + i * 3,
+              delay: i * 0.8,
+              repeat: Infinity,
+              ease: 'linear',
+            }}
+          >
+            {/* Small fish facing left */}
+            <svg viewBox="0 0 24 12" style={{ width: 20, height: 10 }} className="text-ocean-sky">
+              <path fill="currentColor" d="M2 6 C4 2, 10 2, 14 6 C10 10, 4 10, 2 6 M14 6 L20 2 L20 10 Z" />
+            </svg>
+          </motion.div>
+        ))}
+
+        {/* School of small fish - MIDDLE area - moving RIGHT */}
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={`school-mid-${i}`}
+            className="absolute"
+            style={{
+              top: `${38 + (i * 5) % 25}%`,
+              left: '-6%',
+              opacity: 0.16,
+            }}
+            animate={{
+              x: ['0vw', '112vw'],
+              y: [0, Math.sin(i * 2) * 15, 0],
+            }}
+            transition={{
+              duration: 24 + i * 2,
               delay: i * 0.5,
               repeat: Infinity,
               ease: 'linear',
             }}
           >
-            {/* Fish facing left: head at x=0, tail at x=30 */}
-            <svg viewBox="0 0 30 15" style={{ width: 22, height: 11 }} className="text-ocean-sky">
-              <path fill="currentColor" d="M0 7.5 Q7 2 15 7.5 Q7 13 0 7.5 M22 7.5 C27 7.5 30 5 30 5 L30 10 C30 10 27 7.5 22 7.5" />
+            {/* Small fish facing right */}
+            <svg viewBox="0 0 24 12" style={{ width: 22, height: 11 }} className="text-ocean-caribbean">
+              <path fill="currentColor" d="M22 6 C20 2, 14 2, 10 6 C14 10, 20 10, 22 6 M10 6 L4 2 L4 10 Z" />
             </svg>
           </motion.div>
         ))}
 
-        {/* School of tiny fish - MIDDLE area - moving RIGHT */}
-        {[...Array(8)].map((_, i) => (
-          <motion.div
-            key={`school-mid-${i}`}
-            className="absolute"
-            style={{
-              top: `${35 + (i * 5) % 30}%`,
-              left: '-5%',
-              opacity: 0.22,
-            }}
-            animate={{
-              x: ['0vw', '115vw'],
-              y: [0, Math.sin(i * 2) * 15, 0],
-            }}
-            transition={{
-              duration: 20 + i * 2,
-              delay: i * 0.3,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
-          >
-            {/* Fish facing right: head at x=30, tail at x=0 */}
-            <svg viewBox="0 0 30 15" style={{ width: 24, height: 12 }} className="text-ocean-caribbean">
-              <path fill="currentColor" d="M30 7.5 Q23 2 15 7.5 Q23 13 30 7.5 M8 7.5 C3 7.5 0 5 0 5 L0 10 C0 10 3 7.5 8 7.5" />
-            </svg>
-          </motion.div>
-        ))}
-
-        {/* School of tiny fish - BOTTOM area - moving LEFT */}
-        {[...Array(6)].map((_, i) => (
+        {/* School of small fish - BOTTOM area - moving LEFT */}
+        {[...Array(4)].map((_, i) => (
           <motion.div
             key={`school-bottom-${i}`}
             className="absolute"
             style={{
-              top: `${70 + (i * 4) % 20}%`,
-              right: '-5%',
-              opacity: 0.18,
+              top: `${68 + (i * 5) % 18}%`,
+              right: '-6%',
+              opacity: 0.14,
             }}
             animate={{
-              x: ['0vw', '-115vw'],
-              y: [0, Math.sin(i * 3) * 12, 0],
+              x: ['0vw', '-112vw'],
+              y: [0, Math.sin(i * 3) * 10, 0],
             }}
             transition={{
-              duration: 22 + i * 3,
-              delay: i * 0.8 + 5,
+              duration: 26 + i * 3,
+              delay: i * 1.2 + 5,
               repeat: Infinity,
               ease: 'linear',
             }}
           >
-            {/* Fish facing left: head at x=0, tail at x=30 */}
-            <svg viewBox="0 0 30 15" style={{ width: 20, height: 10 }} className="text-ocean-deep">
-              <path fill="currentColor" d="M0 7.5 Q7 2 15 7.5 Q7 13 0 7.5 M22 7.5 C27 7.5 30 5 30 5 L30 10 C30 10 27 7.5 22 7.5" />
+            {/* Small fish facing left */}
+            <svg viewBox="0 0 24 12" style={{ width: 18, height: 9 }} className="text-ocean-deep">
+              <path fill="currentColor" d="M2 6 C4 2, 10 2, 14 6 C10 10, 4 10, 2 6 M14 6 L20 2 L20 10 Z" />
             </svg>
           </motion.div>
         ))}
 
-        {/* Larger tropical fish near top */}
-        {[...Array(4)].map((_, i) => (
+        {/* Larger tropical fish */}
+        {[...Array(3)].map((_, i) => (
           <motion.div
             key={`tropical-${i}`}
             className="absolute"
             style={{
-              top: `${10 + i * 8}%`,
-              left: i % 2 === 0 ? '-8%' : '108%',
-              opacity: 0.2,
+              top: `${15 + i * 25}%`,
+              left: i % 2 === 0 ? '-10%' : '110%',
+              opacity: 0.15,
             }}
             animate={{
-              x: i % 2 === 0 ? ['0vw', '116vw'] : ['0vw', '-116vw'],
-              y: [0, -15, 0, 15, 0],
+              x: i % 2 === 0 ? ['0vw', '120vw'] : ['0vw', '-120vw'],
+              y: [0, -20, 0, 20, 0],
             }}
             transition={{
-              duration: 25 + i * 3,
-              delay: i * 4,
+              duration: 30 + i * 5,
+              delay: i * 6,
               repeat: Infinity,
               ease: 'linear',
             }}
           >
-            {/* Fish faces left by default (head left, tail right) */}
-            {/* i % 2 === 0 moves RIGHT, so flip to face right */}
-            {/* i % 2 === 1 moves LEFT, so keep facing left */}
             <svg 
-              viewBox="0 0 50 35" 
+              viewBox="0 0 50 30"
               style={{ 
-                width: 45 + i * 6, 
-                height: 32 + i * 4,
+                width: 50 + i * 8, 
+                height: 30 + i * 5,
                 transform: i % 2 === 0 ? 'scaleX(-1)' : 'none',
               }} 
               className="text-ocean-caribbean"
             >
-              {/* Tropical fish body - facing left */}
-              <ellipse cx="22" cy="17" rx="18" ry="12" fill="currentColor" />
-              {/* Tail on right */}
-              <path fill="currentColor" d="M38 17 L50 8 L50 26 Z" />
-              {/* Dorsal fin */}
-              <path fill="currentColor" opacity="0.8" d="M15 5 Q22 2 28 5 L22 12 Z" />
-              {/* Eye on left */}
-              <circle cx="12" cy="15" r="3" fill="white" opacity="0.5" />
+              {/* Tropical fish - elegant curves */}
+              <path 
+                fill="currentColor" 
+                d="M6 15 C12 6, 28 6, 36 15 C28 24, 12 24, 6 15 M36 15 L48 6 L48 24 Z"
+              />
+              {/* Top fin */}
+              <path fill="currentColor" opacity="0.7" d="M18 6 Q24 2 30 6 L24 12 Z" />
+              {/* Bottom fin */}
+              <path fill="currentColor" opacity="0.6" d="M20 24 Q24 28 28 24 L24 18 Z" />
+              {/* Eye */}
+              <circle cx="14" cy="14" r="2.5" fill="white" opacity="0.4" />
+              <circle cx="14" cy="14" r="1" fill="currentColor" opacity="0.3" />
             </svg>
           </motion.div>
         ))}
 
-        {/* Jellyfish throughout */}
-        {[...Array(6)].map((_, i) => (
+        {/* Jellyfish */}
+        {[...Array(4)].map((_, i) => (
           <motion.div
             key={`jelly-${i}`}
             className="absolute"
             style={{
-              left: `${10 + i * 15}%`,
-              bottom: '-15%',
-              opacity: 0.15 + (i % 2) * 0.05,
+              left: `${15 + i * 22}%`,
+              bottom: '-12%',
+              opacity: 0.12 + (i % 2) * 0.04,
             }}
             animate={{
-              y: [0, -1200],
-              x: [0, Math.sin(i * 3) * 60, 0, Math.sin(i * 2) * -40, 0],
+              y: [0, -1100],
+              x: [0, Math.sin(i * 3) * 50, 0, Math.sin(i * 2) * -35, 0],
             }}
             transition={{
-              duration: 30 + i * 5,
-              delay: i * 2,
+              duration: 35 + i * 6,
+              delay: i * 4,
               repeat: Infinity,
               ease: 'easeInOut',
             }}
           >
-            <svg viewBox="0 0 40 60" style={{ width: 35 + i * 5, height: 52 + i * 8 }} className="text-ocean-sky">
-              <ellipse cx="20" cy="15" rx="18" ry="12" fill="currentColor" opacity="0.8" />
-              <path d="M8 20 Q6 35 10 50" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.6" />
-              <path d="M15 22 Q13 40 16 55" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.6" />
-              <path d="M20 23 Q20 42 20 58" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.6" />
-              <path d="M25 22 Q27 40 24 55" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.6" />
-              <path d="M32 20 Q34 35 30 50" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.6" />
+            <svg viewBox="0 0 40 60" style={{ width: 32 + i * 4, height: 48 + i * 6 }} className="text-ocean-sky">
+              {/* Dome */}
+              <ellipse cx="20" cy="14" rx="16" ry="12" fill="currentColor" opacity="0.7" />
+              {/* Inner dome highlight */}
+              <ellipse cx="20" cy="12" rx="10" ry="7" fill="currentColor" opacity="0.3" />
+              {/* Tentacles with curves */}
+              <path d="M8 22 Q4 35 10 52" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.5" strokeLinecap="round" />
+              <path d="M14 24 Q10 40 15 55" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.5" strokeLinecap="round" />
+              <path d="M20 25 Q20 42 20 57" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.5" strokeLinecap="round" />
+              <path d="M26 24 Q30 40 25 55" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.5" strokeLinecap="round" />
+              <path d="M32 22 Q36 35 30 52" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.5" strokeLinecap="round" />
             </svg>
           </motion.div>
         ))}
 
-        {/* Sea turtle near top */}
+        {/* Sea turtle */}
         <motion.div
           className="absolute"
           style={{
-            top: '15%',
+            top: '20%',
             left: '-12%',
-            opacity: 0.18,
+            opacity: 0.14,
           }}
           animate={{
             x: ['0vw', '124vw'],
-            y: [0, -20, 0, 20, 0],
+            y: [0, -25, 0, 25, 0],
           }}
           transition={{
-            duration: 45,
-            delay: 8,
+            duration: 50,
+            delay: 10,
             repeat: Infinity,
             ease: 'linear',
           }}
         >
-          <svg viewBox="0 0 80 50" style={{ width: 80, height: 50 }} className="text-ocean-caribbean">
-            {/* Shell */}
-            <ellipse cx="40" cy="28" rx="25" ry="18" fill="currentColor" />
+          <svg viewBox="0 0 70 45" style={{ width: 70, height: 45 }} className="text-ocean-caribbean">
+            {/* Shell with pattern */}
+            <ellipse cx="32" cy="24" rx="22" ry="16" fill="currentColor" />
+            <ellipse cx="32" cy="24" rx="15" ry="10" fill="currentColor" opacity="0.6" />
             {/* Head */}
-            <ellipse cx="68" cy="25" rx="8" ry="6" fill="currentColor" />
-            {/* Flippers */}
-            <ellipse cx="25" cy="15" rx="12" ry="5" fill="currentColor" transform="rotate(-30 25 15)" />
-            <ellipse cx="25" cy="41" rx="12" ry="5" fill="currentColor" transform="rotate(30 25 41)" />
-            <ellipse cx="55" cy="15" rx="10" ry="4" fill="currentColor" transform="rotate(20 55 15)" />
-            <ellipse cx="55" cy="41" rx="10" ry="4" fill="currentColor" transform="rotate(-20 55 41)" />
+            <ellipse cx="58" cy="22" rx="7" ry="5" fill="currentColor" />
+            {/* Flippers - natural angles */}
+            <ellipse cx="18" cy="12" rx="10" ry="4" fill="currentColor" transform="rotate(-35 18 12)" />
+            <ellipse cx="18" cy="36" rx="10" ry="4" fill="currentColor" transform="rotate(35 18 36)" />
+            <ellipse cx="46" cy="14" rx="8" ry="3" fill="currentColor" transform="rotate(25 46 14)" />
+            <ellipse cx="46" cy="34" rx="8" ry="3" fill="currentColor" transform="rotate(-25 46 34)" />
+            {/* Tail */}
+            <path d="M10 24 L4 24" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
           </svg>
         </motion.div>
       </div>

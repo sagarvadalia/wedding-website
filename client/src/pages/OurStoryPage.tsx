@@ -12,26 +12,26 @@ interface TimelineEvent {
 
 const timeline: TimelineEvent[] = [
   {
-    year: '2020',
+    year: '2014',
     title: 'First Connection',
-    description: 'Our paths crossed in the most unexpected way. What started as a simple conversation turned into hours of talking, laughing, and discovering how much we had in common.',
+    description: 'Our paths crossed as freshman at Cornell University, both living in the same dorm floor.',
     icon: <Star className="w-5 h-5" />,
   },
   {
-    year: '2021',
-    title: 'First Date',
-    description: 'Nervous excitement filled the air as we met for coffee that turned into dinner, that turned into a walk under the stars. We knew this was something special.',
+    year: '2014',
+    title: 'Unexpected First Date',
+    description: 'Our group had plans to go to a sorority color party but we ended up being the only two that could make it! We spent the entire night together dancing, laughing, and getting to know each other.',
     icon: <Heart className="w-5 h-5" />,
   },
   {
-    year: '2022',
-    title: 'Adventures Together',
-    description: 'From spontaneous road trips to cozy nights in, every moment together felt like an adventure. We traveled, we laughed, we grew—together.',
+    year: '2014',
+    title: 'Unfortunate Seperation',
+    description: "Unfortunately, the timing wasn't right. The two of us drifted apart and went our separate ways.",
     icon: <Plane className="w-5 h-5" />,
   },
   {
-    year: '2023',
-    title: 'Building Our Life',
+    year: '2021',
+    title: 'Reconnecting',
     description: 'We took the leap and moved in together. Our apartment became filled with love, inside jokes, and the occasional debate about whose turn it was to do dishes.',
     icon: <MapPin className="w-5 h-5" />,
   },
@@ -62,7 +62,7 @@ export function OurStoryPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center max-w-3xl mx-auto mb-16"
+          className="text-center max-w-3xl mx-auto mb-12"
         >
           <p className="text-lg text-sand-dark leading-relaxed">
             From strangers to soulmates, our journey has been filled with laughter, 
@@ -163,35 +163,47 @@ export function OurStoryPage() {
           </div>
         </motion.div>
 
-        {/* Photo placeholder section */}
+        {/* Moments we cherish - polaroid style */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           className="mt-24"
         >
-          <h2 className="text-2xl md:text-3xl font-heading text-center text-ocean-deep mb-8">
+          <h2 className="text-2xl md:text-3xl font-heading text-center text-ocean-deep mb-12">
             Moments We Cherish
           </h2>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, index) => (
+          <div className="flex flex-wrap justify-center gap-8 md:gap-10 items-start">
+            {[
+              { rotate: -3, delay: 0 },
+              { rotate: 2, delay: 0.05 },
+              { rotate: -2, delay: 0.1 },
+              { rotate: 4, delay: 0.15 },
+              { rotate: -4, delay: 0.2 },
+              { rotate: 1, delay: 0.25 },
+            ].map(({ rotate, delay }, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.05 }}
-                className="aspect-square bg-sand-warm/50 rounded-lg flex items-center justify-center border-2 border-dashed border-sand-driftwood/30"
+                initial={{ opacity: 0, y: 20, rotate: rotate - 5 }}
+                whileInView={{ opacity: 1, y: 0, rotate }}
+                viewport={{ once: true, margin: '-20px' }}
+                transition={{ duration: 0.5, delay }}
+                className="flex-shrink-0"
               >
-                <div className="text-center text-sand-dark/50">
-                  <Heart className="w-8 h-8 mx-auto mb-2" />
-                  <p className="text-xs">Photo {index + 1}</p>
+                {/* Polaroid frame: white border + shadow */}
+                <div className="bg-sand-pearl px-3 pt-3 pb-10 shadow-lg rounded-sm hover:shadow-xl transition-shadow">
+                  <div className="w-40 h-40 md:w-44 md:h-44 bg-sand-warm/50 flex items-center justify-center border border-sand-driftwood/20">
+                    <div className="text-center text-sand-dark/50">
+                      <Heart className="w-8 h-8 mx-auto mb-1" />
+                      <p className="text-xs">Photo {index + 1}</p>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             ))}
           </div>
-          <p className="text-center text-sand-dark/60 mt-4 text-sm">
+          <p className="text-center text-sand-dark/60 mt-8 text-sm">
             Add your favorite photos here
           </p>
         </motion.div>

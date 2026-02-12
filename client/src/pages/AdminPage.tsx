@@ -4,32 +4,59 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { adminApi, type Guest, type Stats } from '@/lib/api';
-import { 
-  Users, 
-  Check, 
-  X, 
-  Clock, 
-  Plus, 
-  Trash2, 
+import {
+  adminApi,
+  type Guest,
+  type Group,
+  type Stats,
+} from '@/lib/api';
+import {
+  Users,
+  Check,
+  X,
+  Clock,
+  Plus,
+  Trash2,
   Download,
   RefreshCw,
-  LogIn
+  LogIn,
+  UserPlus,
+  HelpCircle,
+  Calendar,
 } from 'lucide-react';
+
+type Tab = 'guests' | 'groups' | 'stats';
 
 export function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [guests, setGuests] = useState<Guest[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newGuest, setNewGuest] = useState({ name: '', email: '', allowedPlusOne: false });
+  const [tab, setTab] = useState<Tab>('stats');
+  const [showAddGuest, setShowAddGuest] = useState(false);
+  const [showAddGroup, setShowAddGroup] = useState(false);
+  const [editingGuestId, setEditingGuestId] = useState<string | null>(null);
+  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
+  const [newGuest, setNewGuest] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    groupId: '',
+    allowedPlusOne: false,
+  });
+  const [editGuest, setEditGuest] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    groupId: '',
+    allowedPlusOne: false,
+  });
+  const [newGroupName, setNewGroupName] = useState('');
+  const [editGroupName, setEditGroupName] = useState('');
 
-  // Simple password check (in production, use proper auth)
   const handleLogin = () => {
-    // For demo purposes, use a simple password
-    // In production, this should be replaced with proper authentication
     if (password === 'wedding2027') {
       localStorage.setItem('adminToken', 'demo-token');
       setIsAuthenticated(true);
@@ -41,11 +68,13 @@ export function AdminPage() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [guestsData, statsData] = await Promise.all([
+      const [guestsData, groupsData, statsData] = await Promise.all([
         adminApi.getGuests(),
+        adminApi.getGroups(),
         adminApi.getStats(),
       ]);
       setGuests(guestsData);
+      setGroups(groupsData);
       setStats(statsData);
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -61,27 +90,44 @@ export function AdminPage() {
   }, [isAuthenticated]);
 
   const handleAddGuest = async () => {
-    if (!newGuest.name || !newGuest.email) {
-      alert('Please fill in all required fields');
+    if (!newGuest.firstName?.trim() || !newGuest.lastName?.trim() || !newGuest.email?.trim() || !newGuest.groupId) {
+      alert('First name, last name, email, and group are required');
       return;
     }
-
     try {
       await adminApi.addGuest(newGuest);
-      setNewGuest({ name: '', email: '', allowedPlusOne: false });
-      setShowAddForm(false);
+      setNewGuest({ firstName: '', lastName: '', email: '', groupId: '', allowedPlusOne: false });
+      setShowAddGuest(false);
       fetchData();
     } catch (error) {
       console.error('Failed to add guest:', error);
-      alert('Failed to add guest');
+      alert((error as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Failed to add guest');
+    }
+  };
+
+  const handleUpdateGuest = async () => {
+    if (!editingGuestId) return;
+    try {
+      await adminApi.updateGuest(editingGuestId, {
+        firstName: editGuest.firstName.trim(),
+        lastName: editGuest.lastName.trim(),
+        email: editGuest.email.trim(),
+        groupId: editGuest.groupId || undefined,
+        allowedPlusOne: editGuest.allowedPlusOne,
+      });
+      setEditingGuestId(null);
+      fetchData();
+    } catch (error) {
+      console.error('Failed to update guest:', error);
+      alert((error as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Failed to update guest');
     }
   };
 
   const handleDeleteGuest = async (id: string) => {
     if (!confirm('Are you sure you want to delete this guest?')) return;
-
     try {
       await adminApi.deleteGuest(id);
+      setEditingGuestId(null);
       fetchData();
     } catch (error) {
       console.error('Failed to delete guest:', error);
@@ -89,29 +135,94 @@ export function AdminPage() {
     }
   };
 
+  const openEditGuest = (g: Guest) => {
+    setEditingGuestId(g._id);
+    setEditGuest({
+      firstName: g.firstName,
+      lastName: g.lastName,
+      email: g.email,
+      groupId: g.groupId,
+      allowedPlusOne: g.allowedPlusOne,
+    });
+  };
+
+  const handleAddGroup = async () => {
+    try {
+      await adminApi.createGroup({ name: newGroupName.trim() || undefined });
+      setNewGroupName('');
+      setShowAddGroup(false);
+      fetchData();
+    } catch (error) {
+      console.error('Failed to create group:', error);
+      alert('Failed to create group');
+    }
+  };
+
+  const handleUpdateGroup = async () => {
+    if (!editingGroupId) return;
+    try {
+      await adminApi.updateGroup(editingGroupId, { name: editGroupName.trim() || undefined });
+      setEditingGroupId(null);
+      fetchData();
+    } catch (error) {
+      console.error('Failed to update group:', error);
+      alert('Failed to update group');
+    }
+  };
+
+  const handleDeleteGroup = async (id: string) => {
+    if (!confirm('Delete this group and all its guests? This cannot be undone.')) return;
+    try {
+      await adminApi.deleteGroup(id);
+      setEditingGroupId(null);
+      fetchData();
+    } catch (error) {
+      console.error('Failed to delete group:', error);
+      alert('Failed to delete group');
+    }
+  };
+
   const exportToCsv = () => {
-    const headers = ['Name', 'Email', 'Invite Code', 'Status', 'Events', 'Dietary', 'Plus One', 'Song Request'];
+    const headers = [
+      'First Name',
+      'Last Name',
+      'Email',
+      'Group',
+      'Status',
+      'Events',
+      'Dietary',
+      'Plus One',
+      'Song Request',
+    ];
     const rows = guests.map((g) => [
-      g.name,
+      g.firstName,
+      g.lastName,
       g.email,
-      g.inviteCode,
+      (g as Guest & { groupName?: string }).groupName ?? '',
       g.rsvpStatus,
       g.events.join('; '),
-      g.dietaryRestrictions,
-      g.plusOne?.name || '',
-      g.songRequest,
+      g.dietaryRestrictions ?? '',
+      g.plusOne?.name ?? '',
+      g.songRequest ?? '',
     ]);
-
-    const csv = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n');
+    const csv = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'wedding-guests.csv';
     a.click();
+    URL.revokeObjectURL(url);
   };
 
-  // Login Screen
+  const statusBadge = (status: string) => {
+    const base = 'inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ';
+    if (status === 'confirmed') return base + 'bg-green-100 text-green-800';
+    if (status === 'maybe') return base + 'bg-amber-100 text-amber-800';
+    if (status === 'declined') return base + 'bg-red-100 text-red-800';
+    return base + 'bg-yellow-100 text-yellow-800';
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-sand-pearl flex items-center justify-center p-4">
@@ -145,13 +256,12 @@ export function AdminPage() {
 
   return (
     <div className="min-h-screen bg-sand-pearl">
-      {/* Header */}
       <div className="bg-ocean-deep text-sand-pearl py-6 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-heading">Wedding Admin</h1>
-              <p className="text-sand-pearl/70">Manage guests and RSVPs</p>
+              <p className="text-sand-pearl/70">Manage guests, groups, and RSVPs</p>
             </div>
             <Button
               variant="outline"
@@ -168,68 +278,24 @@ export function AdminPage() {
       </div>
 
       <div className="max-w-7xl mx-auto p-4 md:p-8">
-        {/* Stats */}
-        {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <Users className="w-8 h-8 mx-auto mb-2 text-ocean-caribbean" />
-                  <p className="text-3xl font-heading text-ocean-deep">{stats.total}</p>
-                  <p className="text-sm text-sand-dark">Total Guests</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <Check className="w-8 h-8 mx-auto mb-2 text-green-600" />
-                  <p className="text-3xl font-heading text-ocean-deep">{stats.confirmed}</p>
-                  <p className="text-sm text-sand-dark">Confirmed</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <X className="w-8 h-8 mx-auto mb-2 text-coral" />
-                  <p className="text-3xl font-heading text-ocean-deep">{stats.declined}</p>
-                  <p className="text-sm text-sand-dark">Declined</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Card>
-                <CardContent className="p-4 text-center">
-                  <Clock className="w-8 h-8 mx-auto mb-2 text-gold" />
-                  <p className="text-3xl font-heading text-ocean-deep">{stats.pending}</p>
-                  <p className="text-sm text-sand-dark">Pending</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="flex flex-wrap gap-4 mb-6">
-          <Button onClick={() => setShowAddForm(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Guest
+        <div className="flex flex-wrap gap-2 mb-6">
+          <Button
+            variant={tab === 'stats' ? 'gold' : 'outline'}
+            onClick={() => setTab('stats')}
+          >
+            Stats
+          </Button>
+          <Button
+            variant={tab === 'guests' ? 'gold' : 'outline'}
+            onClick={() => setTab('guests')}
+          >
+            Guests
+          </Button>
+          <Button
+            variant={tab === 'groups' ? 'gold' : 'outline'}
+            onClick={() => setTab('groups')}
+          >
+            Groups
           </Button>
           <Button variant="outline" onClick={fetchData} disabled={isLoading}>
             <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
@@ -241,133 +307,457 @@ export function AdminPage() {
           </Button>
         </div>
 
-        {/* Add Guest Form */}
-        {showAddForm && (
+        {tab === 'stats' && stats && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-6"
           >
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <Users className="w-8 h-8 mx-auto mb-2 text-ocean-caribbean" />
+                  <p className="text-2xl font-heading text-ocean-deep">{stats.total}</p>
+                  <p className="text-sm text-sand-dark">Total Guests</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <Users className="w-8 h-8 mx-auto mb-2 text-ocean-deep" />
+                  <p className="text-2xl font-heading text-ocean-deep">{stats.totalGroups}</p>
+                  <p className="text-sm text-sand-dark">Groups</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <Check className="w-8 h-8 mx-auto mb-2 text-green-600" />
+                  <p className="text-2xl font-heading text-ocean-deep">{stats.confirmed}</p>
+                  <p className="text-sm text-sand-dark">Confirmed</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <HelpCircle className="w-8 h-8 mx-auto mb-2 text-amber-600" />
+                  <p className="text-2xl font-heading text-ocean-deep">{stats.maybe}</p>
+                  <p className="text-sm text-sand-dark">Maybe</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <X className="w-8 h-8 mx-auto mb-2 text-coral" />
+                  <p className="text-2xl font-heading text-ocean-deep">{stats.declined}</p>
+                  <p className="text-sm text-sand-dark">Declined</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <Clock className="w-8 h-8 mx-auto mb-2 text-gold" />
+                  <p className="text-2xl font-heading text-ocean-deep">{stats.pending}</p>
+                  <p className="text-sm text-sand-dark">Pending</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <p className="text-2xl font-heading text-ocean-deep">{stats.responseRate}%</p>
+                  <p className="text-sm text-sand-dark">Response Rate</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <Calendar className="w-8 h-8 mx-auto mb-2 text-ocean-deep" />
+                  <p className="text-lg font-heading text-ocean-deep">
+                    {stats.rsvpOpen ? 'Open' : 'Closed'}
+                  </p>
+                  <p className="text-sm text-sand-dark">
+                    RSVP {stats.rsvpByDate ? `by ${stats.rsvpByDate}` : 'no deadline'}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
             <Card>
               <CardHeader>
-                <CardTitle>Add New Guest</CardTitle>
+                <CardTitle>By event (attending + maybe)</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="guestName">Name</Label>
-                    <Input
-                      id="guestName"
-                      value={newGuest.name}
-                      onChange={(e) => setNewGuest({ ...newGuest, name: e.target.value })}
-                      placeholder="Full name"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="guestEmail">Email</Label>
-                    <Input
-                      id="guestEmail"
-                      type="email"
-                      value={newGuest.email}
-                      onChange={(e) => setNewGuest({ ...newGuest, email: e.target.value })}
-                      placeholder="Email address"
-                    />
-                  </div>
-                  <div className="flex items-end gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={newGuest.allowedPlusOne}
-                        onChange={(e) => setNewGuest({ ...newGuest, allowedPlusOne: e.target.checked })}
-                        className="rounded"
+                <div className="flex flex-wrap gap-4">
+                  {Object.entries(stats.eventCounts).map(([event, count]) => (
+                    <div key={event} className="px-4 py-2 bg-sand-light rounded">
+                      <span className="font-medium capitalize">{event}</span>: {count}
+                    </div>
+                  ))}
+                  {Object.keys(stats.eventCounts).length === 0 && (
+                    <p className="text-sand-dark">No event data yet</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Groups</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p>With at least one response: {stats.groupsWithResponse}</p>
+                  <p>No response yet: {stats.groupsWithoutResponse}</p>
+                  <p>Fully declined: {stats.groupsFullyDeclined}</p>
+                  <p>Mixed (some yes, some no): {stats.groupsMixed}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Plus ones</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p>Allowed +1: {stats.plusOneAllowed}</p>
+                  <p>Bringing a guest: {stats.plusOneWithGuest}</p>
+                  <p>Coming alone: {stats.plusOneComingAlone}</p>
+                </CardContent>
+              </Card>
+            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Dietary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Guests with dietary restrictions: {stats.dietaryCount}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {tab === 'guests' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="flex flex-wrap gap-4 mb-6">
+              <Button onClick={() => setShowAddGuest(true)}>
+                <UserPlus className="w-4 h-4 mr-2" />
+                Add Guest
+              </Button>
+            </div>
+            {showAddGuest && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Add Guest</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>First name</Label>
+                      <Input
+                        value={newGuest.firstName}
+                        onChange={(e) => setNewGuest({ ...newGuest, firstName: e.target.value })}
+                        placeholder="First name"
                       />
-                      <span className="text-sm">Allow +1</span>
-                    </label>
-                    <Button onClick={handleAddGuest}>Add</Button>
-                    <Button variant="outline" onClick={() => setShowAddForm(false)}>Cancel</Button>
+                    </div>
+                    <div>
+                      <Label>Last name</Label>
+                      <Input
+                        value={newGuest.lastName}
+                        onChange={(e) => setNewGuest({ ...newGuest, lastName: e.target.value })}
+                        placeholder="Last name"
+                      />
+                    </div>
+                    <div>
+                      <Label>Email</Label>
+                      <Input
+                        type="email"
+                        value={newGuest.email}
+                        onChange={(e) => setNewGuest({ ...newGuest, email: e.target.value })}
+                        placeholder="Email"
+                      />
+                    </div>
+                    <div>
+                      <Label>Group</Label>
+                      <select
+                        className="w-full border border-sand-driftwood/30 rounded-md px-3 py-2 bg-white"
+                        value={newGuest.groupId}
+                        onChange={(e) => setNewGuest({ ...newGuest, groupId: e.target.value })}
+                      >
+                        <option value="">Select group</option>
+                        {groups.map((gr) => (
+                          <option key={gr._id} value={gr._id}>
+                            {gr.name || `Group (${gr.guestCount ?? 0} guests)`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex items-end gap-2">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newGuest.allowedPlusOne}
+                          onChange={(e) =>
+                            setNewGuest({ ...newGuest, allowedPlusOne: e.target.checked })
+                          }
+                          className="rounded"
+                        />
+                        <span className="text-sm">Allow +1</span>
+                      </label>
+                      <Button onClick={handleAddGuest}>Add</Button>
+                      <Button variant="outline" onClick={() => setShowAddGuest(false)}>
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
+                </CardContent>
+              </Card>
+            )}
+            {editingGuestId && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Edit Guest</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>First name</Label>
+                      <Input
+                        value={editGuest.firstName}
+                        onChange={(e) => setEditGuest({ ...editGuest, firstName: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label>Last name</Label>
+                      <Input
+                        value={editGuest.lastName}
+                        onChange={(e) => setEditGuest({ ...editGuest, lastName: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label>Email</Label>
+                      <Input
+                        type="email"
+                        value={editGuest.email}
+                        onChange={(e) => setEditGuest({ ...editGuest, email: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label>Group</Label>
+                      <select
+                        className="w-full border border-sand-driftwood/30 rounded-md px-3 py-2 bg-white"
+                        value={editGuest.groupId}
+                        onChange={(e) => setEditGuest({ ...editGuest, groupId: e.target.value })}
+                      >
+                        {groups.map((gr) => (
+                          <option key={gr._id} value={gr._id}>
+                            {gr.name || `Group (${gr.guestCount ?? 0} guests)`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={editGuest.allowedPlusOne}
+                          onChange={(e) =>
+                            setEditGuest({ ...editGuest, allowedPlusOne: e.target.checked })
+                          }
+                          className="rounded"
+                        />
+                        <span className="text-sm">Allow +1</span>
+                      </label>
+                      <Button onClick={handleUpdateGuest}>Save</Button>
+                      <Button variant="outline" onClick={() => setEditingGuestId(null)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            <Card>
+              <CardHeader>
+                <CardTitle>Guest list</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-sand-driftwood/30">
+                        <th className="text-left py-3 px-2 font-medium text-sand-dark">Name</th>
+                        <th className="text-left py-3 px-2 font-medium text-sand-dark">Email</th>
+                        <th className="text-left py-3 px-2 font-medium text-sand-dark">Group</th>
+                        <th className="text-left py-3 px-2 font-medium text-sand-dark">Status</th>
+                        <th className="text-left py-3 px-2 font-medium text-sand-dark">Events</th>
+                        <th className="text-left py-3 px-2 font-medium text-sand-dark">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {guests.map((guest) => (
+                        <tr
+                          key={guest._id}
+                          className="border-b border-sand-driftwood/10 hover:bg-sand-light/50"
+                        >
+                          <td className="py-3 px-2">
+                            <p className="font-medium text-ocean-deep">
+                              {guest.firstName} {guest.lastName}
+                            </p>
+                            {guest.plusOne?.name && (
+                              <p className="text-xs text-sand-dark">+1: {guest.plusOne.name}</p>
+                            )}
+                          </td>
+                          <td className="py-3 px-2 text-sm text-sand-dark">{guest.email}</td>
+                          <td className="py-3 px-2 text-sm">
+                            {(guest as Guest & { groupName?: string }).groupName || '-'}
+                          </td>
+                          <td className="py-3 px-2">
+                            <span className={statusBadge(guest.rsvpStatus)}>
+                              {guest.rsvpStatus === 'confirmed' && <Check className="w-3 h-3" />}
+                              {guest.rsvpStatus === 'declined' && <X className="w-3 h-3" />}
+                              {guest.rsvpStatus === 'pending' && <Clock className="w-3 h-3" />}
+                              {guest.rsvpStatus}
+                            </span>
+                          </td>
+                          <td className="py-3 px-2 text-xs text-sand-dark">
+                            {guest.events?.length > 0 ? guest.events.join(', ') : '-'}
+                          </td>
+                          <td className="py-3 px-2">
+                            <div className="flex gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => openEditGuest(guest)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteGuest(guest._id)}
+                                className="text-coral hover:text-coral hover:bg-coral/10"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {guests.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="py-8 text-center text-sand-dark">
+                            No guests. Create a group first, then add guests.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
         )}
 
-        {/* Guest List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Guest List</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-sand-driftwood/30">
-                    <th className="text-left py-3 px-2 font-medium text-sand-dark">Name</th>
-                    <th className="text-left py-3 px-2 font-medium text-sand-dark">Email</th>
-                    <th className="text-left py-3 px-2 font-medium text-sand-dark">Code</th>
-                    <th className="text-left py-3 px-2 font-medium text-sand-dark">Status</th>
-                    <th className="text-left py-3 px-2 font-medium text-sand-dark">Events</th>
-                    <th className="text-left py-3 px-2 font-medium text-sand-dark">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {guests.map((guest) => (
-                    <tr key={guest._id} className="border-b border-sand-driftwood/10 hover:bg-sand-light/50">
-                      <td className="py-3 px-2">
-                        <div>
-                          <p className="font-medium text-ocean-deep">{guest.name}</p>
-                          {guest.plusOne && (
-                            <p className="text-xs text-sand-dark">+1: {guest.plusOne.name}</p>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-3 px-2 text-sm text-sand-dark">{guest.email}</td>
-                      <td className="py-3 px-2">
-                        <code className="text-xs bg-sand-light px-2 py-1 rounded">{guest.inviteCode}</code>
-                      </td>
-                      <td className="py-3 px-2">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                            guest.rsvpStatus === 'confirmed'
-                              ? 'bg-green-100 text-green-800'
-                              : guest.rsvpStatus === 'declined'
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}
+        {tab === 'groups' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="flex flex-wrap gap-4 mb-6">
+              <Button onClick={() => setShowAddGroup(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Group
+              </Button>
+            </div>
+            {showAddGroup && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>New group</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <Label>Group name (optional)</Label>
+                      <Input
+                        value={newGroupName}
+                        onChange={(e) => setNewGroupName(e.target.value)}
+                        placeholder="e.g. Smith Family"
+                      />
+                    </div>
+                    <div className="flex items-end gap-2">
+                      <Button onClick={handleAddGroup}>Create</Button>
+                      <Button variant="outline" onClick={() => setShowAddGroup(false)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            {editingGroupId && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Edit group</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <Label>Group name</Label>
+                      <Input
+                        value={editGroupName}
+                        onChange={(e) => setEditGroupName(e.target.value)}
+                        placeholder="Group name"
+                      />
+                    </div>
+                    <div className="flex items-end gap-2">
+                      <Button onClick={handleUpdateGroup}>Save</Button>
+                      <Button variant="outline" onClick={() => setEditingGroupId(null)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            <Card>
+              <CardHeader>
+                <CardTitle>Groups</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {groups.map((group) => (
+                    <div
+                      key={group._id}
+                      className="flex items-center justify-between p-4 border border-sand-driftwood/20 rounded-lg"
+                    >
+                      <div>
+                        <p className="font-medium text-ocean-deep">
+                          {group.name || `Group ${group._id.slice(-6)}`}
+                        </p>
+                        <p className="text-sm text-sand-dark">
+                          {group.guestCount ?? 0} guests · Confirmed: {group.confirmed ?? 0},
+                          Maybe: {group.maybe ?? 0}, Declined: {group.declined ?? 0}, Pending:{' '}
+                          {group.pending ?? 0}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setEditingGroupId(group._id);
+                            setEditGroupName(group.name ?? '');
+                          }}
                         >
-                          {guest.rsvpStatus === 'confirmed' && <Check className="w-3 h-3" />}
-                          {guest.rsvpStatus === 'declined' && <X className="w-3 h-3" />}
-                          {guest.rsvpStatus === 'pending' && <Clock className="w-3 h-3" />}
-                          {guest.rsvpStatus}
-                        </span>
-                      </td>
-                      <td className="py-3 px-2 text-xs text-sand-dark">
-                        {guest.events.length > 0 ? guest.events.join(', ') : '-'}
-                      </td>
-                      <td className="py-3 px-2">
+                          Edit
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDeleteGuest(guest._id)}
+                          onClick={() => handleDeleteGroup(group._id)}
                           className="text-coral hover:text-coral hover:bg-coral/10"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
                   ))}
-                  {guests.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="py-8 text-center text-sand-dark">
-                        No guests added yet. Click "Add Guest" to get started.
-                      </td>
-                    </tr>
+                  {groups.length === 0 && (
+                    <p className="py-8 text-center text-sand-dark">
+                      No groups. Create one to add guests.
+                    </p>
                   )}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
       </div>
     </div>
   );

@@ -29,9 +29,9 @@ const travelInfo = [
     title: 'Accommodations',
     content: [
       'Dreams Playa Mujeres Golf & Spa Resort',
-      'We have a room block reserved for our guests',
+      'All guests MUST book through our wedding block',
       'All-inclusive resort with 10+ dining options',
-      'Contact our wedding coordinator for booking details',
+      'Book via Indian Destination Wedding (see link below)',
     ],
   },
   {
@@ -122,11 +122,19 @@ export function TravelPage() {
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button variant="gold" size="lg" asChild>
-                  <a href="https://www.dreamsresorts.com/playa-mujeres" target="_blank" rel="noopener noreferrer">
-                    View Resort <ExternalLink className="w-4 h-4 ml-2" />
+                  <a href="https://www.indiandestinationwedding.com/grace-sagar/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center whitespace-nowrap">
+                    Book Your Room <ExternalLink className="w-4 h-4 ml-2 flex-shrink-0" />
+                  </a>
+                </Button>
+                <Button variant="outline" size="lg" className="border-sand-pearl/30 text-sand-pearl hover:bg-sand-pearl/10" asChild>
+                  <a href="https://www.dreamsresorts.com/playa-mujeres" target="_blank" rel="noopener noreferrer" className="inline-flex items-center whitespace-nowrap">
+                    View Resort <ExternalLink className="w-4 h-4 ml-2 flex-shrink-0" />
                   </a>
                 </Button>
               </div>
+              <p className="text-sand-pearl/60 text-sm mt-4">
+                <strong className="text-gold">Important:</strong> All guests must book accommodations through Indian Destination Wedding to attend wedding events.
+              </p>
             </div>
             
             <CardContent className="p-6">

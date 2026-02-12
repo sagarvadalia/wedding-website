@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -6,21 +6,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { VisaStamp } from '@/components/passport/VisaStamp';
-import { rsvpApi, type EventType } from '@/lib/api';
-import { Search, Check, X, PartyPopper, Music } from 'lucide-react';
+import { rsvpApi, type LookupGroupDto, type LookupGuestDto, type EventType } from '@/lib/api';
+import { useGuest } from '@/contexts/GuestContext';
+import { Search, Check, X, PartyPopper, Music, HelpCircle } from 'lucide-react';
 
-type RsvpStep = 'lookup' | 'form' | 'confirmation';
+type RsvpStep = 'lookup' | 'chooseGroup' | 'form' | 'confirmation';
 
-interface GuestInfo {
-  name: string;
-  email: string;
-  allowedPlusOne: boolean;
+interface GuestFormState {
+  guestId: string;
+  attending: boolean | 'maybe';
   events: EventType[];
   dietaryRestrictions: string;
   plusOne: { name: string; dietaryRestrictions: string } | null;
   songRequest: string;
-  rsvpStatus: string;
 }
 
 const eventOptions: { id: EventType; name: string; date: string }[] = [
@@ -33,67 +31,108 @@ const eventOptions: { id: EventType; name: string; date: string }[] = [
   { id: 'reception', name: 'Reception Dinner', date: 'Sunday, April 4' },
 ];
 
+function guestToFormState(g: LookupGuestDto): GuestFormState {
+  const attending: boolean | 'maybe' =
+    g.rsvpStatus === 'confirmed' ? true : g.rsvpStatus === 'maybe' ? 'maybe' : false;
+  return {
+    guestId: g._id,
+    attending,
+    events: (g.events as EventType[]) ?? [],
+    dietaryRestrictions: g.dietaryRestrictions ?? '',
+    plusOne: g.plusOne ?? null,
+    songRequest: g.songRequest ?? '',
+  };
+}
+
 export function RsvpPage() {
+  const guestContext = useGuest();
   const [step, setStep] = useState<RsvpStep>('lookup');
-  const [inviteCode, setInviteCode] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [guestInfo, setGuestInfo] = useState<GuestInfo | null>(null);
-  
-  // Form state
-  const [attending, setAttending] = useState(true);
-  const [selectedEvents, setSelectedEvents] = useState<EventType[]>([]);
-  const [dietaryRestrictions, setDietaryRestrictions] = useState('');
-  const [hasPlusOne, setHasPlusOne] = useState(false);
-  const [plusOneName, setPlusOneName] = useState('');
-  const [plusOneDietary, setPlusOneDietary] = useState('');
-  const [songRequest, setSongRequest] = useState('');
+  const [lookupGroups, setLookupGroups] = useState<LookupGroupDto[]>([]);
+  const [rsvpOpen, setRsvpOpen] = useState(true);
+  const [rsvpByDate, setRsvpByDate] = useState<string | null>(null);
+  const [guestFormState, setGuestFormState] = useState<GuestFormState[]>([]);
+  const [confirmationEmail, setConfirmationEmail] = useState('');
+
+  const group = guestContext.group;
+
+  useEffect(() => {
+    if (group && step === 'form') {
+      setGuestFormState(group.guests.map(guestToFormState));
+    }
+  }, [group, step]);
+
+  useEffect(() => {
+    if (step === 'form') {
+      rsvpApi
+        .status()
+        .then((s) => {
+          setRsvpOpen(s.rsvpOpen);
+          setRsvpByDate(s.rsvpByDate);
+        })
+        .catch(() => undefined);
+    }
+  }, [step]);
 
   const handleLookup = async () => {
-    if (!inviteCode.trim()) {
-      setError('Please enter your invite code');
+    const f = firstName.trim();
+    const l = lastName.trim();
+    if (!f || !l) {
+      setError('Please enter both first and last name');
       return;
     }
-
     setIsLoading(true);
     setError('');
-
     try {
-      const guest = await rsvpApi.lookup(inviteCode);
-      setGuestInfo(guest);
-      setSelectedEvents(guest.events || []);
-      setDietaryRestrictions(guest.dietaryRestrictions || '');
-      setSongRequest(guest.songRequest || '');
-      if (guest.plusOne) {
-        setHasPlusOne(true);
-        setPlusOneName(guest.plusOne.name);
-        setPlusOneDietary(guest.plusOne.dietaryRestrictions);
+      const res = await rsvpApi.lookup(f, l);
+      setRsvpOpen(res.rsvpOpen);
+      setRsvpByDate(res.rsvpByDate);
+      if (res.groups.length === 0) {
+        setError('No invitation found with that name.');
+        return;
       }
-      setAttending(guest.rsvpStatus !== 'declined');
-      setStep('form');
+      if (res.groups.length === 1) {
+        guestContext.setGroup(res.groups[0]);
+        setStep('form');
+        setGuestFormState(res.groups[0].guests.map(guestToFormState));
+      } else {
+        setLookupGroups(res.groups);
+        setStep('chooseGroup');
+      }
     } catch {
-      setError('Invite code not found. Please check and try again.');
+      setError('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleChooseGroup = (g: LookupGroupDto) => {
+    guestContext.setGroup(g);
+    setLookupGroups([]);
+    setStep('form');
+    setGuestFormState(g.guests.map(guestToFormState));
+  };
+
   const handleSubmit = async () => {
+    if (!group) return;
     setIsLoading(true);
     setError('');
-
     try {
       await rsvpApi.submit({
-        inviteCode,
-        attending,
-        events: attending ? selectedEvents : [],
-        dietaryRestrictions,
-        plusOne: hasPlusOne && plusOneName ? {
-          name: plusOneName,
-          dietaryRestrictions: plusOneDietary,
-        } : undefined,
-        songRequest,
+        groupId: group._id,
+        guests: guestFormState.map((s) => ({
+          guestId: s.guestId,
+          attending: s.attending === true ? true : s.attending === 'maybe' ? 'maybe' : false,
+          events: s.attending === true || s.attending === 'maybe' ? s.events : [],
+          dietaryRestrictions: s.dietaryRestrictions,
+          plusOne: s.plusOne,
+          songRequest: s.songRequest,
+        })),
       });
+      setConfirmationEmail(group.guests[0]?.email ?? '');
       setStep('confirmation');
     } catch {
       setError('Failed to submit RSVP. Please try again.');
@@ -102,25 +141,70 @@ export function RsvpPage() {
     }
   };
 
-  const toggleEvent = (eventId: EventType) => {
-    setSelectedEvents((prev) =>
-      prev.includes(eventId)
-        ? prev.filter((e) => e !== eventId)
-        : [...prev, eventId]
+  const updateGuestState = (guestId: string, updater: (prev: GuestFormState) => GuestFormState) => {
+    setGuestFormState((prev) =>
+      prev.map((s) => (s.guestId === guestId ? updater(s) : s))
     );
   };
 
+  const toggleEvent = (guestId: string, eventId: EventType) => {
+    updateGuestState(guestId, (s) => ({
+      ...s,
+      events: s.events.includes(eventId)
+        ? s.events.filter((e) => e !== eventId)
+        : [...s.events, eventId],
+    }));
+  };
+
+  const anyAttending = guestFormState.some(
+    (s) => s.attending === true || s.attending === 'maybe'
+  );
+  const canSubmit =
+    !anyAttending || guestFormState.every((s) => s.attending !== true && s.attending !== 'maybe' || s.events.length > 0);
+
+  const startOver = () => {
+    setStep('lookup');
+    setFirstName('');
+    setLastName('');
+    setError('');
+    setLookupGroups([]);
+    setGuestFormState([]);
+    guestContext.setGroup(null);
+  };
+
+  if (group && step === 'lookup') {
+    return (
+      <PassportPage pageNumber={6}>
+        <PageHeader title="RSVP" subtitle="We can't wait to celebrate with you!" />
+        <Section>
+          <div className="max-w-2xl mx-auto">
+            <Card>
+              <CardContent className="py-8 text-center">
+                <p className="text-ocean-deep mb-4">
+                  Welcome back, {guestContext.displayName}!
+                </p>
+                <div className="flex flex-wrap gap-4 justify-center">
+                  <Button onClick={() => { setStep('form'); setGuestFormState(group.guests.map(guestToFormState)); }} variant="gold">
+                    Edit my RSVP
+                  </Button>
+                  <Button variant="outline" onClick={startOver}>
+                    RSVP for someone else
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </Section>
+      </PassportPage>
+    );
+  }
+
   return (
     <PassportPage pageNumber={6}>
-      <PageHeader
-        title="RSVP"
-        subtitle="We can't wait to celebrate with you!"
-      />
-
+      <PageHeader title="RSVP" subtitle="We can't wait to celebrate with you!" />
       <Section>
         <div className="max-w-2xl mx-auto">
           <AnimatePresence mode="wait">
-            {/* Step 1: Lookup */}
             {step === 'lookup' && (
               <motion.div
                 key="lookup"
@@ -132,46 +216,49 @@ export function RsvpPage() {
                   <CardHeader className="text-center">
                     <CardTitle className="text-2xl">Find Your Invitation</CardTitle>
                     <CardDescription>
-                      Enter the invite code from your invitation to RSVP
+                      Enter your first and last name to RSVP
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="inviteCode">Invite Code</Label>
-                        <Input
-                          id="inviteCode"
-                          placeholder="Enter your code (e.g., AB12CD34)"
-                          value={inviteCode}
-                          onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                          className="text-center text-lg tracking-widest uppercase"
-                        />
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="firstName">First name</Label>
+                          <Input
+                            id="firstName"
+                            placeholder="First name"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="lastName">Last name</Label>
+                          <Input
+                            id="lastName"
+                            placeholder="Last name"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                          />
+                        </div>
                       </div>
-                      
-                      {error && (
-                        <p className="text-coral text-sm text-center">{error}</p>
-                      )}
-                      
+                      {error && <p className="text-coral text-sm text-center">{error}</p>}
                       <Button
                         onClick={handleLookup}
                         disabled={isLoading}
                         className="w-full"
                         size="lg"
                       >
-                        {isLoading ? (
-                          'Looking up...'
-                        ) : (
+                        {isLoading ? 'Looking up...' : (
                           <>
                             <Search className="w-4 h-4 mr-2" />
-                            Find My Invitation
+                            Find my invitation
                           </>
                         )}
                       </Button>
                     </div>
-
                     <div className="mt-6 pt-6 border-t border-sand-driftwood/20 text-center">
                       <p className="text-sm text-sand-dark">
-                        Can't find your code? Contact us at{' '}
+                        Questions? Contact us at{' '}
                         <a href="mailto:wedding@sagarandgrace.com" className="text-ocean-caribbean hover:underline">
                           wedding@sagarandgrace.com
                         </a>
@@ -182,181 +269,257 @@ export function RsvpPage() {
               </motion.div>
             )}
 
-            {/* Step 2: RSVP Form */}
-            {step === 'form' && guestInfo && (
+            {step === 'chooseGroup' && lookupGroups.length > 0 && (
+              <motion.div
+                key="chooseGroup"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <Card>
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-2xl">Which group?</CardTitle>
+                    <CardDescription>
+                      We found more than one match. Select your group.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {lookupGroups.map((g) => (
+                      <button
+                        key={g._id}
+                        type="button"
+                        onClick={() => handleChooseGroup(g)}
+                        className="w-full text-left p-4 rounded-lg border-2 border-sand-driftwood/30 hover:border-ocean-caribbean transition-colors"
+                      >
+                        <p className="font-medium text-ocean-deep">
+                          {g.name || g.guests.map((u) => `${u.firstName} ${u.lastName}`).join(', ')}
+                        </p>
+                        <p className="text-sm text-sand-dark">
+                          {g.guests.map((u) => `${u.firstName} ${u.lastName}`).join(', ')}
+                        </p>
+                      </button>
+                    ))}
+                    <Button variant="outline" onClick={() => { setStep('lookup'); setLookupGroups([]); }} className="w-full mt-4">
+                      Back
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {step === 'form' && group && (
               <motion.div
                 key="form"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-2xl">
-                      Welcome, {guestInfo.name}!
-                    </CardTitle>
-                    <CardDescription>
-                      Please confirm your attendance below
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Attending? */}
-                    <div>
-                      <Label className="text-base mb-3 block">Will you be attending?</Label>
-                      <div className="flex gap-4">
-                        <Button
-                          type="button"
-                          variant={attending ? 'gold' : 'outline'}
-                          onClick={() => setAttending(true)}
-                          className="flex-1"
-                        >
-                          <Check className="w-4 h-4 mr-2" />
-                          Joyfully Accept
-                        </Button>
-                        <Button
-                          type="button"
-                          variant={!attending ? 'destructive' : 'outline'}
-                          onClick={() => setAttending(false)}
-                          className="flex-1"
-                        >
-                          <X className="w-4 h-4 mr-2" />
-                          Regretfully Decline
-                        </Button>
-                      </div>
-                    </div>
-
-                    {attending && (
-                      <>
-                        {/* Events */}
-                        <div>
-                          <Label className="text-base mb-3 block">Which events will you attend?</Label>
-                          <div className="grid gap-2">
-                            {eventOptions.map((event) => (
-                              <button
-                                key={event.id}
-                                type="button"
-                                onClick={() => toggleEvent(event.id)}
-                                className={`flex items-center justify-between p-3 rounded-lg border-2 transition-colors ${
-                                  selectedEvents.includes(event.id)
-                                    ? 'border-ocean-caribbean bg-ocean-caribbean/10'
-                                    : 'border-sand-driftwood/30 hover:border-sand-driftwood'
-                                }`}
-                              >
-                                <div className="text-left">
-                                  <p className="font-medium text-ocean-deep">{event.name}</p>
-                                  <p className="text-sm text-sand-dark">{event.date}</p>
-                                </div>
-                                {selectedEvents.includes(event.id) && (
-                                  <Check className="w-5 h-5 text-ocean-caribbean" />
-                                )}
-                              </button>
-                            ))}
-                          </div>
+                {!rsvpOpen ? (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-2xl">RSVP has closed</CardTitle>
+                      <CardDescription>
+                        {rsvpByDate ? `The RSVP deadline was ${rsvpByDate}.` : ''} Here is your current response.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      {group.guests.map((g) => (
+                        <div key={g._id} className="p-4 border border-sand-driftwood/20 rounded-lg">
+                          <p className="font-medium text-ocean-deep">
+                            {g.firstName} {g.lastName}
+                          </p>
+                          <p className="text-sm text-sand-dark capitalize">{g.rsvpStatus}</p>
+                          {g.events?.length > 0 && (
+                            <p className="text-sm text-sand-dark">Events: {g.events.join(', ')}</p>
+                          )}
+                          {g.dietaryRestrictions?.trim() && (
+                            <p className="text-sm text-sand-dark">Dietary: {g.dietaryRestrictions}</p>
+                          )}
+                          {g.plusOne?.name && (
+                            <p className="text-sm text-sand-dark">Plus one: {g.plusOne.name}</p>
+                          )}
                         </div>
-
-                        {/* Dietary Restrictions */}
-                        <div>
-                          <Label htmlFor="dietary">Dietary Restrictions</Label>
-                          <Input
-                            id="dietary"
-                            placeholder="Vegetarian, allergies, etc."
-                            value={dietaryRestrictions}
-                            onChange={(e) => setDietaryRestrictions(e.target.value)}
-                          />
-                        </div>
-
-                        {/* Plus One */}
-                        {guestInfo.allowedPlusOne && (
-                          <div>
-                            <Label className="text-base mb-3 block">Will you be bringing a guest?</Label>
-                            <div className="flex gap-4 mb-3">
-                              <Button
-                                type="button"
-                                variant={hasPlusOne ? 'secondary' : 'outline'}
-                                onClick={() => setHasPlusOne(true)}
-                                size="sm"
-                              >
-                                Yes
-                              </Button>
-                              <Button
-                                type="button"
-                                variant={!hasPlusOne ? 'secondary' : 'outline'}
-                                onClick={() => setHasPlusOne(false)}
-                                size="sm"
-                              >
-                                No
-                              </Button>
-                            </div>
-                            
-                            {hasPlusOne && (
-                              <div className="space-y-3 pl-4 border-l-2 border-ocean-caribbean/30">
-                                <div>
-                                  <Label htmlFor="plusOneName">Guest's Name</Label>
-                                  <Input
-                                    id="plusOneName"
-                                    placeholder="Full name"
-                                    value={plusOneName}
-                                    onChange={(e) => setPlusOneName(e.target.value)}
-                                  />
-                                </div>
-                                <div>
-                                  <Label htmlFor="plusOneDietary">Guest's Dietary Restrictions</Label>
-                                  <Input
-                                    id="plusOneDietary"
-                                    placeholder="If any"
-                                    value={plusOneDietary}
-                                    onChange={(e) => setPlusOneDietary(e.target.value)}
-                                  />
-                                </div>
+                      ))}
+                      <Button variant="outline" onClick={startOver}>Look up another name</Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-2xl">
+                        {group.name || `${group.guests.map((g) => g.firstName).join(' & ')}'s party`}
+                      </CardTitle>
+                      <CardDescription>
+                        Confirm attendance for each guest below
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-8">
+                      {guestFormState.map((state) => {
+                        const guest = group.guests.find((g) => g._id === state.guestId);
+                        if (!guest) return null;
+                        return (
+                          <div key={state.guestId} className="p-4 border border-sand-driftwood/20 rounded-lg space-y-4">
+                            <p className="font-medium text-ocean-deep">
+                              {guest.firstName} {guest.lastName}
+                            </p>
+                            <div>
+                              <Label className="text-base mb-2 block">Will they be attending?</Label>
+                              <div className="flex flex-wrap gap-2">
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant={state.attending === true ? 'gold' : 'outline'}
+                                  onClick={() => updateGuestState(state.guestId, (s) => ({ ...s, attending: true }))}
+                                >
+                                  <Check className="w-4 h-4 mr-1" /> Yes
+                                </Button>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant={state.attending === 'maybe' ? 'gold' : 'outline'}
+                                  onClick={() => updateGuestState(state.guestId, (s) => ({ ...s, attending: 'maybe' }))}
+                                >
+                                  <HelpCircle className="w-4 h-4 mr-1" /> Maybe
+                                </Button>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant={state.attending === false ? 'destructive' : 'outline'}
+                                  onClick={() => updateGuestState(state.guestId, (s) => ({ ...s, attending: false }))}
+                                >
+                                  <X className="w-4 h-4 mr-1" /> No
+                                </Button>
                               </div>
+                            </div>
+                            {(state.attending === true || state.attending === 'maybe') && (
+                              <>
+                                <div>
+                                  <Label className="text-base mb-2 block">Events</Label>
+                                  <div className="grid gap-2">
+                                    {eventOptions.map((ev) => (
+                                      <button
+                                        key={ev.id}
+                                        type="button"
+                                        onClick={() => toggleEvent(state.guestId, ev.id)}
+                                        className={`flex items-center justify-between p-2 rounded-lg border-2 text-left transition-colors ${
+                                          state.events.includes(ev.id)
+                                            ? 'border-ocean-caribbean bg-ocean-caribbean/10'
+                                            : 'border-sand-driftwood/30 hover:border-sand-driftwood'
+                                        }`}
+                                      >
+                                        <span className="text-sm font-medium">{ev.name}</span>
+                                        {state.events.includes(ev.id) && <Check className="w-4 h-4 text-ocean-caribbean" />}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label>Dietary restrictions</Label>
+                                  <Input
+                                    placeholder="Optional"
+                                    value={state.dietaryRestrictions}
+                                    onChange={(e) =>
+                                      updateGuestState(state.guestId, (s) => ({
+                                        ...s,
+                                        dietaryRestrictions: e.target.value,
+                                      }))
+                                    }
+                                  />
+                                </div>
+                                {guest.allowedPlusOne && (
+                                  <div>
+                                    <Label className="text-base mb-2 block">Bringing a guest?</Label>
+                                    <div className="flex gap-2 mb-2">
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant={state.plusOne ? 'gold' : 'outline'}
+                                        onClick={() =>
+                                          updateGuestState(state.guestId, (s) => ({
+                                            ...s,
+                                            plusOne: s.plusOne ? null : { name: '', dietaryRestrictions: '' },
+                                          }))
+                                        }
+                                      >
+                                        Yes
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant={!state.plusOne ? 'gold' : 'outline'}
+                                        onClick={() =>
+                                          updateGuestState(state.guestId, (s) => ({ ...s, plusOne: null }))
+                                        }
+                                      >
+                                        No
+                                      </Button>
+                                    </div>
+                                    {state.plusOne && (
+                                      <div className="space-y-2 pl-4 border-l-2 border-ocean-caribbean/30">
+                                        <Input
+                                          placeholder="Guest name"
+                                          value={state.plusOne.name}
+                                          onChange={(e) =>
+                                            updateGuestState(state.guestId, (s) => ({
+                                              ...s,
+                                              plusOne: s.plusOne
+                                                ? { ...s.plusOne, name: e.target.value }
+                                                : { name: e.target.value, dietaryRestrictions: '' },
+                                            }))
+                                          }
+                                        />
+                                        <Input
+                                          placeholder="Dietary (optional)"
+                                          value={state.plusOne?.dietaryRestrictions ?? ''}
+                                          onChange={(e) =>
+                                            updateGuestState(state.guestId, (s) => ({
+                                              ...s,
+                                              plusOne: s.plusOne
+                                                ? { ...s.plusOne, dietaryRestrictions: e.target.value }
+                                                : { name: '', dietaryRestrictions: e.target.value },
+                                            }))
+                                          }
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                                <div>
+                                  <Label className="flex items-center gap-2">
+                                    <Music className="w-4 h-4" /> Song request
+                                  </Label>
+                                  <Textarea
+                                    placeholder="Optional"
+                                    value={state.songRequest}
+                                    onChange={(e) =>
+                                      updateGuestState(state.guestId, (s) => ({ ...s, songRequest: e.target.value }))
+                                    }
+                                    rows={2}
+                                  />
+                                </div>
+                              </>
                             )}
                           </div>
-                        )}
-
-                        {/* Song Request */}
-                        <div>
-                          <Label htmlFor="song" className="flex items-center gap-2">
-                            <Music className="w-4 h-4" />
-                            Song Request
-                          </Label>
-                          <Textarea
-                            id="song"
-                            placeholder="What song will get you on the dance floor?"
-                            value={songRequest}
-                            onChange={(e) => setSongRequest(e.target.value)}
-                            rows={2}
-                          />
-                        </div>
-                      </>
-                    )}
-
-                    {error && (
-                      <p className="text-coral text-sm text-center">{error}</p>
-                    )}
-
-                    <div className="flex gap-4 pt-4">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setStep('lookup')}
-                      >
-                        Back
-                      </Button>
-                      <Button
-                        onClick={handleSubmit}
-                        disabled={isLoading || (attending && selectedEvents.length === 0)}
-                        className="flex-1"
-                        variant="gold"
-                      >
-                        {isLoading ? 'Submitting...' : 'Submit RSVP'}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                        );
+                      })}
+                      {error && <p className="text-coral text-sm text-center">{error}</p>}
+                      <div className="flex gap-4 pt-4">
+                        <Button variant="outline" onClick={startOver}>Back</Button>
+                        <Button
+                          onClick={handleSubmit}
+                          disabled={isLoading || !canSubmit}
+                          className="flex-1"
+                          variant="gold"
+                        >
+                          {isLoading ? 'Submitting...' : 'Submit RSVP'}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </motion.div>
             )}
 
-            {/* Step 3: Confirmation */}
             {step === 'confirmation' && (
               <motion.div
                 key="confirmation"
@@ -366,61 +529,27 @@ export function RsvpPage() {
               >
                 <Card>
                   <CardContent className="py-12 text-center">
-                    {attending ? (
-                      <>
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: 'spring', bounce: 0.5 }}
-                          className="mb-6"
-                        >
-                          <PartyPopper className="w-16 h-16 mx-auto text-gold" />
-                        </motion.div>
-                        <h2 className="text-3xl font-heading text-ocean-deep mb-4">
-                          We'll See You There!
-                        </h2>
-                        <p className="text-sand-dark mb-6">
-                          Thank you for RSVPing, {guestInfo?.name}! We're so excited to celebrate with you in Cancun.
-                        </p>
-                        
-                        {/* Show stamps for selected events */}
-                        <div className="flex flex-wrap justify-center gap-4 mb-8">
-                          {selectedEvents.slice(0, 3).map((event) => (
-                            <VisaStamp
-                              key={event}
-                              event={event}
-                              date="APR 2027"
-                              size="sm"
-                            />
-                          ))}
-                        </div>
-                        
-                        <p className="text-sm text-sand-dark">
-                          A confirmation email has been sent to your email address.
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <h2 className="text-3xl font-heading text-ocean-deep mb-4">
-                          We'll Miss You!
-                        </h2>
-                        <p className="text-sand-dark mb-6">
-                          We're sorry you can't make it, but thank you for letting us know. 
-                          We'll be thinking of you!
-                        </p>
-                      </>
-                    )}
-                    
-                    <Button
-                      onClick={() => {
-                        setStep('lookup');
-                        setInviteCode('');
-                        setGuestInfo(null);
-                      }}
-                      variant="outline"
-                      className="mt-4"
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', bounce: 0.5 }}
+                      className="mb-6"
                     >
-                      RSVP for Another Guest
+                      <PartyPopper className="w-16 h-16 mx-auto text-gold" />
+                    </motion.div>
+                    <h2 className="text-3xl font-heading text-ocean-deep mb-4">
+                      We've received your RSVP!
+                    </h2>
+                    <p className="text-sand-dark mb-6">
+                      Thank you for responding. We're so excited to celebrate with you.
+                    </p>
+                    {confirmationEmail && (
+                      <p className="text-sm text-sand-dark mb-6">
+                        A confirmation email has been sent to {confirmationEmail}.
+                      </p>
+                    )}
+                    <Button variant="outline" onClick={startOver} className="mt-4">
+                      RSVP for someone else
                     </Button>
                   </CardContent>
                 </Card>

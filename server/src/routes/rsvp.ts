@@ -1,19 +1,13 @@
 import { Router } from 'express';
-import { 
-  submitRsvp, 
-  getRsvpByCode, 
-  updateRsvp 
-} from '../controllers/rsvpController.js';
+import { lookupByName, getRsvpStatus, submitRsvp } from '../controllers/rsvpController.js';
 
 const router = Router();
 
-// Submit new RSVP
+// Must be before any :param routes
+router.get('/lookup', lookupByName);
+router.get('/status', getRsvpStatus);
+
+// Submit or update group RSVP (same endpoint for both)
 router.post('/', submitRsvp);
-
-// Get RSVP by invite code
-router.get('/:code', getRsvpByCode);
-
-// Update existing RSVP
-router.put('/:id', updateRsvp);
 
 export default router;

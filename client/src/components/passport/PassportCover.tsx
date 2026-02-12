@@ -151,6 +151,27 @@ export function PassportCover({ isOpen, onOpen, className }: PassportCoverProps)
             </p>
           </div>
 
+          {/* Mexico visa stamp */}
+          <div
+            className="absolute bottom-24 right-6 md:bottom-28 md:right-8 w-14 h-14 md:w-16 md:h-16 border-2 border-gold/80 rounded-sm flex flex-col items-center justify-center opacity-90"
+            style={{
+              transform: 'rotate(8deg)',
+              background: 'linear-gradient(135deg, rgba(250,248,245,0.95) 0%, rgba(245,240,230,0.98) 100%)',
+              color: '#1E3A5F',
+              boxShadow: 'inset 0 0 0 1px rgba(212,175,55,0.3)',
+            }}
+          >
+            <span className="text-[8px] md:text-[9px] font-mono font-bold tracking-wider uppercase">
+              MEXICO
+            </span>
+            <span className="text-[7px] md:text-[8px] font-mono text-ocean-deep/80 mt-0.5">
+              CUN
+            </span>
+            <span className="text-[6px] font-mono text-ocean-deep/60 mt-0.5">
+              APR 2027
+            </span>
+          </div>
+
           {/* Click hint */}
           <motion.div
             className="absolute bottom-2 right-4 text-gold/50 text-xs"

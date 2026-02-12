@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, type JSX } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { EventType } from '@/types';
@@ -271,7 +271,13 @@ export function VisaStamp({
   );
 }
 
-export function StampCollection({ className }: { className?: string }) {
+interface StampCollectionProps {
+  className?: string;
+  /** When true, lay out stamps in exactly two rows (4 + 3) to save vertical space */
+  twoRows?: boolean;
+}
+
+export function StampCollection({ className, twoRows }: StampCollectionProps) {
   const events: { event: EventType; date: string }[] = [
     { event: 'welcome', date: 'APR 2, 2027' },
     { event: 'haldi', date: 'APR 3, 2027' },
@@ -282,18 +288,35 @@ export function StampCollection({ className }: { className?: string }) {
     { event: 'reception', date: 'APR 4, 2027' },
   ];
 
+  const renderStamp = (e: { event: EventType; date: string }, index: number) => (
+    <motion.div
+      key={e.event}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+    >
+      <VisaStamp event={e.event} date={e.date} />
+    </motion.div>
+  );
+
+  if (twoRows) {
+    const row1 = events.slice(0, 4);
+    const row2 = events.slice(4, 7);
+    return (
+      <div className={cn('flex flex-col gap-3 justify-center items-center', className)}>
+        <div className="flex flex-wrap gap-3 justify-center">
+          {row1.map((e, i) => renderStamp(e, i))}
+        </div>
+        <div className="flex flex-wrap gap-3 justify-center">
+          {row2.map((e, i) => renderStamp(e, 4 + i))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={cn('flex flex-wrap gap-6 justify-center', className)}>
-      {events.map((e, index) => (
-        <motion.div
-          key={e.event}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1 }}
-        >
-          <VisaStamp event={e.event} date={e.date} />
-        </motion.div>
-      ))}
+      {events.map((e, index) => renderStamp(e, index))}
     </div>
   );
 }

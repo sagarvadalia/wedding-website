@@ -1,12 +1,13 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export type EventType = 'welcome' | 'haldi' | 'mehndi' | 'baraat' | 'wedding' | 'cocktail' | 'reception';
-export type RsvpStatus = 'pending' | 'confirmed' | 'declined';
+export type RsvpStatus = 'pending' | 'confirmed' | 'maybe' | 'declined';
 
 export interface IGuest extends Document {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  inviteCode: string;
+  groupId: mongoose.Types.ObjectId;
   events: EventType[];
   dietaryRestrictions: string;
   plusOne: {
@@ -22,10 +23,17 @@ export interface IGuest extends Document {
 }
 
 const GuestSchema = new Schema<IGuest>({
-  name: {
+  firstName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    index: true
+  },
+  lastName: {
+    type: String,
+    required: true,
+    trim: true,
+    index: true
   },
   email: {
     type: String,
@@ -35,11 +43,10 @@ const GuestSchema = new Schema<IGuest>({
     trim: true,
     index: true
   },
-  inviteCode: {
-    type: String,
+  groupId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Group',
     required: true,
-    unique: true,
-    uppercase: true,
     index: true
   },
   events: [{
@@ -60,7 +67,7 @@ const GuestSchema = new Schema<IGuest>({
   },
   rsvpStatus: {
     type: String,
-    enum: ['pending', 'confirmed', 'declined'],
+    enum: ['pending', 'confirmed', 'maybe', 'declined'],
     default: 'pending',
     index: true
   },
@@ -76,9 +83,8 @@ const GuestSchema = new Schema<IGuest>({
   timestamps: true
 });
 
-// Compound index for common queries: sorting guests by status and update time
+GuestSchema.index({ firstName: 1, lastName: 1 });
 GuestSchema.index({ rsvpStatus: 1, updatedAt: -1 });
 
-// Export the model
 const Guest = mongoose.model<IGuest>('Guest', GuestSchema);
 export default Guest;

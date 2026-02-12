@@ -1,27 +1,36 @@
 import { Router } from 'express';
-import { 
-  getAllGuests, 
-  addGuest, 
-  deleteGuest, 
-  getStats 
+import {
+  getAllGuests,
+  addGuest,
+  updateGuest,
+  deleteGuest,
+  getAllGroups,
+  getGroup,
+  createGroup,
+  updateGroup,
+  deleteGroup,
+  getStats
 } from '../controllers/adminController.js';
 import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 
-// All admin routes are protected
 router.use(authMiddleware);
 
-// Get all guests
+// Guests
 router.get('/guests', getAllGuests);
-
-// Add new guest
 router.post('/guests', addGuest);
-
-// Delete guest
+router.put('/guests/:id', updateGuest);
 router.delete('/guests/:id', deleteGuest);
 
-// Get RSVP statistics
+// Groups
+router.get('/groups', getAllGroups);
+router.get('/groups/:id', getGroup);
+router.post('/groups', createGroup);
+router.put('/groups/:id', updateGroup);
+router.delete('/groups/:id', deleteGroup);
+
+// Stats
 router.get('/stats', getStats);
 
 export default router;

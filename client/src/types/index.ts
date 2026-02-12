@@ -30,3 +30,14 @@ export interface Activity {
   link?: string;
   category: 'resort' | 'excursion' | 'dining' | 'shopping';
 }
+
+/** Wedding party / cast member for "The Cast" page */
+export interface CastMember {
+  id: string;
+  name: string;
+  role: string;
+  /** Optional photo URL; placeholder used if empty */
+  photo?: string;
+  /** Short, fun explainer blurb (comedic bend) */
+  blurb: string;
+}

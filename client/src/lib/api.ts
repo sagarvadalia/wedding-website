@@ -7,7 +7,6 @@ const api = axios.create({
   },
 });
 
-// Add auth token to requests if available
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('adminToken');
   if (token) {
@@ -16,12 +15,15 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Types
+export type EventType = 'welcome' | 'haldi' | 'mehndi' | 'baraat' | 'wedding' | 'cocktail' | 'reception';
+
 export interface Guest {
   _id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  inviteCode: string;
+  groupId: string;
+  groupName?: string;
   events: EventType[];
   dietaryRestrictions: string;
   plusOne: {
@@ -29,61 +31,131 @@ export interface Guest {
     dietaryRestrictions: string;
   } | null;
   songRequest: string;
-  rsvpStatus: 'pending' | 'confirmed' | 'declined';
+  rsvpStatus: 'pending' | 'confirmed' | 'maybe' | 'declined';
   rsvpDate: string | null;
   allowedPlusOne: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export type EventType = 'welcome' | 'haldi' | 'mehndi' | 'baraat' | 'wedding' | 'cocktail' | 'reception';
+export interface Group {
+  _id: string;
+  name?: string;
+  createdAt?: string;
+  guestCount?: number;
+  confirmed?: number;
+  maybe?: number;
+  declined?: number;
+  pending?: number;
+}
 
-export interface RsvpData {
-  inviteCode: string;
-  attending: boolean;
-  events: EventType[];
+export interface GroupWithGuests extends Group {
+  guests: Guest[];
+}
+
+export interface LookupResponse {
+  groups: LookupGroupDto[];
+  rsvpOpen: boolean;
+  rsvpByDate: string | null;
+}
+
+export interface LookupGuestDto {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  rsvpStatus: string;
+  events: string[];
+  dietaryRestrictions: string;
+  plusOne: { name: string; dietaryRestrictions: string } | null;
+  songRequest: string;
+  allowedPlusOne: boolean;
+  rsvpDate: string | null;
+}
+
+export interface LookupGroupDto {
+  _id: string;
+  name?: string;
+  guests: LookupGuestDto[];
+}
+
+export interface RsvpStatusResponse {
+  rsvpOpen: boolean;
+  rsvpByDate: string | null;
+}
+
+export interface GroupRsvpGuestPayload {
+  guestId: string;
+  attending: boolean | 'maybe';
+  events?: EventType[];
   dietaryRestrictions?: string;
-  plusOne?: {
-    name: string;
-    dietaryRestrictions: string;
-  };
+  plusOne?: { name: string; dietaryRestrictions: string } | null;
   songRequest?: string;
+}
+
+export interface GroupRsvpPayload {
+  groupId: string;
+  guests: GroupRsvpGuestPayload[];
 }
 
 export interface Stats {
   total: number;
+  totalGroups: number;
   confirmed: number;
+  maybe: number;
   declined: number;
   pending: number;
   responseRate: string;
-  eventCounts: Record<EventType, number>;
+  rsvpOpen: boolean;
+  rsvpByDate: string | null;
+  eventCounts: Record<string, number>;
+  groupsWithResponse: number;
+  groupsWithoutResponse: number;
+  groupsFullyDeclined: number;
+  groupsMixed: number;
+  plusOneAllowed: number;
+  plusOneWithGuest: number;
+  plusOneComingAlone: number;
+  dietaryCount: number;
 }
 
-// RSVP API
 export const rsvpApi = {
-  lookup: (code: string) => 
-    api.get<Guest>(`/rsvp/${code}`).then((res) => res.data),
-  
-  submit: (data: RsvpData) => 
+  lookup: (firstName: string, lastName: string) =>
+    api
+      .get<LookupResponse>('/rsvp/lookup', { params: { firstName, lastName } })
+      .then((res) => res.data),
+
+  status: () =>
+    api.get<RsvpStatusResponse>('/rsvp/status').then((res) => res.data),
+
+  submit: (data: GroupRsvpPayload) =>
     api.post('/rsvp', data).then((res) => res.data),
-  
-  update: (id: string, data: Partial<RsvpData>) => 
-    api.put(`/rsvp/${id}`, data).then((res) => res.data),
 };
 
-// Admin API
 export const adminApi = {
-  getGuests: () => 
-    api.get<Guest[]>('/admin/guests').then((res) => res.data),
-  
-  addGuest: (data: { name: string; email: string; allowedPlusOne?: boolean }) => 
-    api.post('/admin/guests', data).then((res) => res.data),
-  
-  deleteGuest: (id: string) => 
-    api.delete(`/admin/guests/${id}`).then((res) => res.data),
-  
-  getStats: () => 
-    api.get<Stats>('/admin/stats').then((res) => res.data),
+  getGuests: () => api.get<Guest[]>('/admin/guests').then((res) => res.data),
+  addGuest: (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    groupId: string;
+    allowedPlusOne?: boolean;
+  }) => api.post<{ success: boolean; guest: Guest }>('/admin/guests', data).then((res) => res.data),
+  updateGuest: (
+    id: string,
+    data: Partial<{ firstName: string; lastName: string; email: string; groupId: string; allowedPlusOne: boolean }>
+  ) => api.put<{ success: boolean; guest: Guest }>(`/admin/guests/${id}`, data).then((res) => res.data),
+  deleteGuest: (id: string) => api.delete(`/admin/guests/${id}`).then((res) => res.data),
+
+  getGroups: () => api.get<Group[]>('/admin/groups').then((res) => res.data),
+  getGroup: (id: string) => api.get<GroupWithGuests>(`/admin/groups/${id}`).then((res) => res.data),
+  createGroup: (data: { name?: string }) =>
+    api.post<{ success: boolean; group: Group }>('/admin/groups', data).then((res) => res.data),
+  updateGroup: (id: string, data: { name?: string }) =>
+    api.put<{ success: boolean; group: Group }>(`/admin/groups/${id}`, data).then((res) => res.data),
+  deleteGroup: (id: string) => api.delete(`/admin/groups/${id}`).then((res) => res.data),
+
+  getStats: () => api.get<Stats>('/admin/stats').then((res) => res.data),
 };
 
 export default api;

@@ -1,4 +1,6 @@
 import { Heart } from 'lucide-react';
+import { WeddingCountdown } from './WeddingCountdown';
+import { HONEYMOON_FUND_VENMO_URL } from '@/lib/constants';
 
 export function Footer() {
   return (
@@ -20,6 +22,12 @@ export function Footer() {
 
       <div className="relative pt-24 pb-8 px-4">
         <div className="max-w-4xl mx-auto text-center">
+          {/* Tagline */}
+          <p className="text-sand-pearl/80 italic mb-2">
+            With love, Sagar & Grace
+          </p>
+          <WeddingCountdown className="mb-4" />
+
           {/* Names with heart */}
           <div className="flex items-center justify-center gap-4 mb-6">
             <span className="font-heading text-2xl md:text-3xl">Sagar</span>
@@ -44,8 +52,22 @@ export function Footer() {
           />
 
           {/* Hashtag */}
-          <p className="text-gold font-medium mb-8">
+          <p className="text-gold font-medium mb-4">
             #SagarAndGrace2027
+          </p>
+
+          {/* Optional honeymoon fund - subtle */}
+          <p className="text-sand-pearl/50 text-xs mb-6 max-w-sm mx-auto">
+            Your presence is our gift. If you'd like to contribute to our honeymoon,{' '}
+            <a
+              href={HONEYMOON_FUND_VENMO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gold/80 hover:text-gold hover:underline"
+            >
+              Venmo us here
+            </a>
+            .
           </p>
 
           {/* Copyright */}
