@@ -47,6 +47,7 @@ async function seed() {
       events: [...ALL_EVENTS],
       dietaryRestrictions: '',
       allowedPlusOne: false,
+      hasBooked: true,
       songRequest: 'September - Earth, Wind & Fire',
     },
     {
@@ -59,6 +60,7 @@ async function seed() {
       events: [...ALL_EVENTS],
       dietaryRestrictions: 'Vegetarian',
       allowedPlusOne: false,
+      hasBooked: true,
       songRequest: '',
     },
     {
@@ -114,6 +116,7 @@ async function seed() {
       events: ['welcome', 'haldi', 'baraat', 'wedding', 'reception'],
       dietaryRestrictions: '',
       allowedPlusOne: true,
+      hasBooked: true,
       plusOne: { name: 'Priya Sharma', dietaryRestrictions: 'No shellfish' },
       songRequest: 'Chaiyya Chaiyya',
     },
@@ -164,6 +167,7 @@ async function seed() {
     events: ['welcome', 'wedding', 'cocktail', 'reception'],
     dietaryRestrictions: 'Nut allergy',
     allowedPlusOne: true,
+    hasBooked: true,
     plusOne: { name: 'Tom Williams', dietaryRestrictions: '' },
     songRequest: "Don't Stop Me Now - Queen",
   });
@@ -197,6 +201,7 @@ async function seed() {
       events: ['welcome', 'baraat', 'wedding', 'cocktail', 'reception'],
       dietaryRestrictions: 'Halal',
       allowedPlusOne: false,
+      hasBooked: true,
       songRequest: '',
     },
     {
@@ -265,6 +270,7 @@ async function seed() {
       events: ['wedding', 'reception'],
       dietaryRestrictions: 'Pescatarian',
       allowedPlusOne: false,
+      hasBooked: true,
       songRequest: 'Shake It Off - Taylor Swift',
     },
     {
@@ -292,6 +298,7 @@ async function seed() {
     events: ['welcome', 'haldi', 'mehndi', 'baraat', 'wedding', 'cocktail', 'reception'],
     dietaryRestrictions: 'Strictly vegetarian, no eggs',
     allowedPlusOne: false,
+    hasBooked: true,
     songRequest: 'Jai Ho',
   });
 
@@ -302,6 +309,7 @@ async function seed() {
   const maybe = await Guest.countDocuments({ rsvpStatus: 'maybe' });
   const declined = await Guest.countDocuments({ rsvpStatus: 'declined' });
   const pending = await Guest.countDocuments({ rsvpStatus: 'pending' });
+  const hasBooked = await Guest.countDocuments({ hasBooked: true });
 
   console.log('\n=== Seed complete ===');
   console.log(`Groups:    ${totalGroups}`);
@@ -310,6 +318,7 @@ async function seed() {
   console.log(`Maybe:     ${maybe}`);
   console.log(`Declined:  ${declined}`);
   console.log(`Pending:   ${pending}`);
+  console.log(`Has booked: ${hasBooked}`);
 
   await mongoose.disconnect();
   console.log('Disconnected. Done.');

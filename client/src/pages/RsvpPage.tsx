@@ -8,7 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { rsvpApi, type LookupGroupDto, type LookupGuestDto, type EventType } from '@/lib/api';
 import { useGuest } from '@/contexts/GuestContext';
-import { Search, Check, X, PartyPopper, Music, HelpCircle } from 'lucide-react';
+import { Search, Check, X, PartyPopper, Music, HelpCircle, Hotel, ExternalLink } from 'lucide-react';
+
+/** Link for guests to book their room (same as Travel page). */
+const BOOK_ROOM_URL = 'https://www.indiandestinationwedding.com/grace-sagar/';
 
 type RsvpStep = 'lookup' | 'chooseGroup' | 'form' | 'confirmation';
 
@@ -21,15 +24,23 @@ interface GuestFormState {
   songRequest: string;
 }
 
-const eventOptions: { id: EventType; name: string; date: string }[] = [
-  { id: 'welcome', name: 'Welcome Dinner', date: 'Friday, April 2' },
-  { id: 'haldi', name: 'Haldi Ceremony', date: 'Saturday, April 3' },
-  { id: 'mehndi', name: 'Mehndi Ceremony', date: 'Saturday, April 3' },
-  { id: 'baraat', name: 'Baraat Procession', date: 'Sunday, April 4' },
-  { id: 'wedding', name: 'Wedding Ceremony', date: 'Sunday, April 4' },
-  { id: 'cocktail', name: 'Cocktail Hour', date: 'Sunday, April 4' },
-  { id: 'reception', name: 'Reception Dinner', date: 'Sunday, April 4' },
+const eventOptions: {
+  id: EventType;
+  name: string;
+  dayOfWeek: string;
+  date: string;
+  time: string;
+}[] = [
+  { id: 'welcome', name: 'Welcome Dinner', dayOfWeek: 'Friday', date: 'April 2, 2027', time: '6:00 PM' },
+  { id: 'haldi', name: 'Haldi Ceremony', dayOfWeek: 'Saturday', date: 'April 3, 2027', time: '10:00 AM' },
+  { id: 'mehndi', name: 'Mehndi Ceremony', dayOfWeek: 'Saturday', date: 'April 3, 2027', time: '2:00 PM' },
+  { id: 'baraat', name: 'Baraat Procession', dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '4:00 PM' },
+  { id: 'wedding', name: 'Wedding Ceremony', dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '5:30 PM' },
+  { id: 'cocktail', name: 'Cocktail Hour', dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '6:30 PM' },
+  { id: 'reception', name: 'Reception Dinner', dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '7:30 PM' },
 ];
+
+const ALL_EVENT_IDS: EventType[] = eventOptions.map((e) => e.id);
 
 function guestToFormState(g: LookupGuestDto): GuestFormState {
   const attending: boolean | 'maybe' =
@@ -354,6 +365,19 @@ export function RsvpPage() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-8">
+                      <div className="rounded-lg border-2 border-ocean-caribbean/30 bg-ocean-caribbean/5 p-4 flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 text-ocean-deep">
+                          <Hotel className="w-5 h-5 text-ocean-caribbean shrink-0" />
+                          <span className="text-sm font-medium">
+                            Book your stay at Dreams Playa Mujeres through our room block.
+                          </span>
+                        </div>
+                        <Button variant="gold" size="sm" asChild>
+                          <a href={BOOK_ROOM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center">
+                            Book your room <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
+                          </a>
+                        </Button>
+                      </div>
                       {guestFormState.map((state) => {
                         const guest = group.guests.find((g) => g._id === state.guestId);
                         if (!guest) return null;
@@ -369,7 +393,13 @@ export function RsvpPage() {
                                   type="button"
                                   size="sm"
                                   variant={state.attending === true ? 'gold' : 'outline'}
-                                  onClick={() => updateGuestState(state.guestId, (s) => ({ ...s, attending: true }))}
+                                  onClick={() =>
+                                    updateGuestState(state.guestId, (s) => ({
+                                      ...s,
+                                      attending: true,
+                                      events: s.attending === true ? s.events : ALL_EVENT_IDS,
+                                    }))
+                                  }
                                 >
                                   <Check className="w-4 h-4 mr-1" /> Yes
                                 </Button>
@@ -377,7 +407,13 @@ export function RsvpPage() {
                                   type="button"
                                   size="sm"
                                   variant={state.attending === 'maybe' ? 'gold' : 'outline'}
-                                  onClick={() => updateGuestState(state.guestId, (s) => ({ ...s, attending: 'maybe' }))}
+                                  onClick={() =>
+                                    updateGuestState(state.guestId, (s) => ({
+                                      ...s,
+                                      attending: 'maybe',
+                                      events: s.attending === 'maybe' ? s.events : ALL_EVENT_IDS,
+                                    }))
+                                  }
                                 >
                                   <HelpCircle className="w-4 h-4 mr-1" /> Maybe
                                 </Button>
@@ -407,8 +443,13 @@ export function RsvpPage() {
                                             : 'border-sand-driftwood/30 hover:border-sand-driftwood'
                                         }`}
                                       >
-                                        <span className="text-sm font-medium">{ev.name}</span>
-                                        {state.events.includes(ev.id) && <Check className="w-4 h-4 text-ocean-caribbean" />}
+                                        <span className="text-sm font-medium">
+                                          {ev.name}
+                                          <span className="block text-xs font-normal text-sand-dark mt-0.5">
+                                            {ev.dayOfWeek}, {ev.date} · {ev.time}
+                                          </span>
+                                        </span>
+                                        {state.events.includes(ev.id) && <Check className="w-4 h-4 text-ocean-caribbean shrink-0" />}
                                       </button>
                                     ))}
                                   </div>

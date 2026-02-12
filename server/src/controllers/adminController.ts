@@ -13,10 +13,11 @@ export const getAllGuests = async (_req: Request, res: Response): Promise<void> 
     const serialized = guests.map((g) => {
       const row = g as Record<string, unknown>;
       const group = row.groupId as { _id: mongoose.Types.ObjectId; name?: string } | null;
+      const groupIdStr = group ? String(group._id) : String(row.groupId);
       return {
         ...row,
         _id: String(row._id),
-        groupId: String(row.groupId),
+        groupId: groupIdStr,
         groupName: group?.name ?? ''
       };
     });
@@ -29,7 +30,7 @@ export const getAllGuests = async (_req: Request, res: Response): Promise<void> 
 
 export const addGuest = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { firstName, lastName, email, groupId, allowedPlusOne } = req.body;
+    const { firstName, lastName, email, groupId, allowedPlusOne, hasBooked } = req.body;
 
     if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !groupId) {
       res.status(400).json({ error: 'firstName, lastName, email, and groupId are required' });
@@ -54,6 +55,7 @@ export const addGuest = async (req: Request, res: Response): Promise<void> => {
       email: email.trim().toLowerCase(),
       groupId: new mongoose.Types.ObjectId(groupId),
       allowedPlusOne: allowedPlusOne ?? false,
+      hasBooked: hasBooked ?? false,
       rsvpStatus: 'pending',
       events: []
     });
@@ -75,7 +77,7 @@ export const addGuest = async (req: Request, res: Response): Promise<void> => {
 export const updateGuest = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, email, groupId, allowedPlusOne } = req.body;
+    const { firstName, lastName, email, groupId, allowedPlusOne, hasBooked } = req.body;
 
     const guest = await Guest.findById(id);
     if (!guest) {
@@ -97,14 +99,21 @@ export const updateGuest = async (req: Request, res: Response): Promise<void> =>
       }
     }
     if (groupId !== undefined) {
-      const group = await Group.findById(groupId);
+      const groupIdStr =
+        typeof groupId === 'string' ? groupId : (groupId && typeof groupId === 'object' && '_id' in groupId ? String((groupId as { _id: unknown })._id) : undefined);
+      if (!groupIdStr) {
+        res.status(400).json({ error: 'Invalid groupId' });
+        return;
+      }
+      const group = await Group.findById(groupIdStr);
       if (!group) {
         res.status(400).json({ error: 'Group not found' });
         return;
       }
-      guest.groupId = new mongoose.Types.ObjectId(groupId);
+      guest.groupId = new mongoose.Types.ObjectId(groupIdStr);
     }
     if (allowedPlusOne !== undefined) guest.allowedPlusOne = Boolean(allowedPlusOne);
+    if (hasBooked !== undefined) guest.hasBooked = Boolean(hasBooked);
 
     await guest.save();
     const populated = await Guest.findById(guest._id).populate('groupId', 'name').lean();
@@ -306,6 +315,8 @@ export const getStats = async (_req: Request, res: Response): Promise<void> => {
       dietaryRestrictions: { $exists: true, $regex: /\S/ }
     });
 
+    const hasBookedCount = await Guest.countDocuments({ hasBooked: true });
+
     res.json({
       total: totalGuests,
       totalGroups,
@@ -324,7 +335,8 @@ export const getStats = async (_req: Request, res: Response): Promise<void> => {
       plusOneAllowed: plusOneTotal,
       plusOneWithGuest,
       plusOneComingAlone: plusOneTotal - plusOneWithGuest,
-      dietaryCount
+      dietaryCount,
+      hasBookedCount
     });
   } catch (error) {
     console.error('Get stats error:', error);

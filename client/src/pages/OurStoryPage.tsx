@@ -1,7 +1,7 @@
 import { PageHeader, PassportPage, Section } from '@/components/passport/PassportPage';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { Diamond, Gem, Heart, House, Sparkle, Sunset, Waves } from 'lucide-react';
+import { Gem, Heart, House, Sparkle, Sunset, Waves } from 'lucide-react';
 
 interface TimelineEvent {
   year: string;
@@ -67,7 +67,7 @@ export function OurStoryPage() {
     <PassportPage pageNumber={2}>
       <PageHeader
         title="Our Story"
-        subtitle="Every love story is beautiful, but ours is our favorite"
+        subtitle="As some of you may or may not know, this one is quite a story… so, grab the popcorn and enjoy!"
       />
 
       <Section>
@@ -78,8 +78,9 @@ export function OurStoryPage() {
           className="text-center max-w-3xl mx-auto mb-12"
         >
           <p className="text-lg text-sand-dark leading-relaxed">
-            From strangers to soulmates, our journey has been filled with laughter, 
-            love, and countless memories. Here's how our story unfolded...
+        When people ask us about our first date, as funny as it is, there are always two answers: 
+The first - back in November 2014, as two wide-eyed college freshmen who were still learning and growing in life, and the second -  June 2021, as two 25-year-olds making our mark in the working adult world. Why were our “first” dates 7 years apart? Well, it’s a beautiful story that portrays how the “ones that got away” eventually come back when the time is right. We are excited to share our story with you, and we hope you enjoy it as much as we cherish it every day. 
+
           </p>
         </motion.div>
 

@@ -34,6 +34,7 @@ export interface Guest {
   rsvpStatus: 'pending' | 'confirmed' | 'maybe' | 'declined';
   rsvpDate: string | null;
   allowedPlusOne: boolean;
+  hasBooked: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -117,6 +118,7 @@ export interface Stats {
   plusOneWithGuest: number;
   plusOneComingAlone: number;
   dietaryCount: number;
+  hasBookedCount: number;
 }
 
 export const rsvpApi = {
@@ -143,7 +145,7 @@ export const adminApi = {
   }) => api.post<{ success: boolean; guest: Guest }>('/admin/guests', data).then((res) => res.data),
   updateGuest: (
     id: string,
-    data: Partial<{ firstName: string; lastName: string; email: string; groupId: string; allowedPlusOne: boolean }>
+    data: Partial<{ firstName: string; lastName: string; email: string; groupId: string; allowedPlusOne: boolean; hasBooked: boolean }>
   ) => api.put<{ success: boolean; guest: Guest }>(`/admin/guests/${id}`, data).then((res) => res.data),
   deleteGuest: (id: string) => api.delete(`/admin/guests/${id}`).then((res) => res.data),
 

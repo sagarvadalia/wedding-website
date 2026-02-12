@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,6 +23,7 @@ import {
   UserPlus,
   HelpCircle,
   Calendar,
+  Hotel,
 } from 'lucide-react';
 
 type Tab = 'guests' | 'groups' | 'stats';
@@ -52,6 +53,7 @@ export function AdminPage() {
     email: '',
     groupId: '',
     allowedPlusOne: false,
+    hasBooked: false,
   });
   const [newGroupName, setNewGroupName] = useState('');
   const [editGroupName, setEditGroupName] = useState('');
@@ -114,6 +116,7 @@ export function AdminPage() {
         email: editGuest.email.trim(),
         groupId: editGuest.groupId || undefined,
         allowedPlusOne: editGuest.allowedPlusOne,
+        hasBooked: editGuest.hasBooked,
       });
       setEditingGuestId(null);
       fetchData();
@@ -143,6 +146,7 @@ export function AdminPage() {
       email: g.email,
       groupId: g.groupId,
       allowedPlusOne: g.allowedPlusOne,
+      hasBooked: g.hasBooked ?? false,
     });
   };
 
@@ -193,6 +197,7 @@ export function AdminPage() {
       'Dietary',
       'Plus One',
       'Song Request',
+      'Has Booked',
     ];
     const rows = guests.map((g) => [
       g.firstName,
@@ -204,6 +209,7 @@ export function AdminPage() {
       g.dietaryRestrictions ?? '',
       g.plusOne?.name ?? '',
       g.songRequest ?? '',
+      g.hasBooked ? 'Yes' : 'No',
     ]);
     const csv = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -373,7 +379,40 @@ export function AdminPage() {
                   </p>
                 </CardContent>
               </Card>
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <Hotel className="w-8 h-8 mx-auto mb-2 text-ocean-caribbean" />
+                  <p className="text-2xl font-heading text-ocean-deep">{stats.hasBookedCount}</p>
+                  <p className="text-sm text-sand-dark">Has booked room</p>
+                </CardContent>
+              </Card>
             </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Room bookings</CardTitle>
+                <CardDescription>
+                  Guests marked as having booked their room (for reminder tracking)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-sand-dark">Booked vs total guests</span>
+                    <span className="font-medium text-ocean-deep">
+                      {stats.hasBookedCount} / {stats.total}
+                    </span>
+                  </div>
+                  <div className="h-3 w-full rounded-full bg-sand-light overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-ocean-caribbean transition-all duration-300"
+                      style={{
+                        width: stats.total > 0 ? `${(stats.hasBookedCount / stats.total) * 100}%` : '0%',
+                      }}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
             <Card>
               <CardHeader>
                 <CardTitle>By event (attending + maybe)</CardTitle>
@@ -544,7 +583,7 @@ export function AdminPage() {
                         ))}
                       </select>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-4">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="checkbox"
@@ -555,6 +594,17 @@ export function AdminPage() {
                           className="rounded"
                         />
                         <span className="text-sm">Allow +1</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={editGuest.hasBooked}
+                          onChange={(e) =>
+                            setEditGuest({ ...editGuest, hasBooked: e.target.checked })
+                          }
+                          className="rounded"
+                        />
+                        <span className="text-sm">Has booked</span>
                       </label>
                       <Button onClick={handleUpdateGuest}>Save</Button>
                       <Button variant="outline" onClick={() => setEditingGuestId(null)}>
@@ -579,6 +629,7 @@ export function AdminPage() {
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Group</th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Status</th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Events</th>
+                        <th className="text-left py-3 px-2 font-medium text-sand-dark">Booked</th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Actions</th>
                       </tr>
                     </thead>
@@ -610,6 +661,15 @@ export function AdminPage() {
                           </td>
                           <td className="py-3 px-2 text-xs text-sand-dark">
                             {guest.events?.length > 0 ? guest.events.join(', ') : '-'}
+                          </td>
+                          <td className="py-3 px-2">
+                            {guest.hasBooked ? (
+                              <span className="inline-flex items-center gap-1 text-green-600 text-sm">
+                                <Check className="w-3 h-3" /> Yes
+                              </span>
+                            ) : (
+                              <span className="text-sand-dark text-sm">—</span>
+                            )}
                           </td>
                           <td className="py-3 px-2">
                             <div className="flex gap-1">
