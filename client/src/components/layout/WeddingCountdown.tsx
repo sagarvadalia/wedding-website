@@ -29,7 +29,7 @@ function getDaysUntil(target: Date): number {
 }
 
 interface WeddingCountdownProps {
-  variant?: 'inline' | 'standalone' | 'hero';
+  variant?: 'inline' | 'standalone' | 'hero' | 'heroOverlay';
   className?: string;
 }
 
@@ -38,7 +38,7 @@ export function WeddingCountdown({ variant = 'standalone', className = '' }: Wed
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => getTimeLeft(WEDDING_DATE));
 
   useEffect(() => {
-    if (variant === 'hero') {
+    if (variant === 'hero' || variant === 'heroOverlay') {
       const tick = () => setTimeLeft(getTimeLeft(WEDDING_DATE));
       tick();
       const id = setInterval(tick, 1000);
@@ -53,11 +53,16 @@ export function WeddingCountdown({ variant = 'standalone', className = '' }: Wed
 
   const isPast = days === 0 && timeLeft.hours === 0 && timeLeft.minutes === 0 && timeLeft.seconds === 0;
 
-  if (variant === 'hero') {
+  const isHeroVariant = variant === 'hero' || variant === 'heroOverlay';
+  const isOverlay = variant === 'heroOverlay';
+
+  if (isHeroVariant) {
     if (isPast) {
       return (
         <div className={`text-center ${className}`}>
-          <p className="text-2xl md:text-3xl font-heading text-gold">We said I do!</p>
+          <p className="text-2xl md:text-3xl font-heading text-gold">
+            We said I do!
+          </p>
         </div>
       );
     }
@@ -69,24 +74,29 @@ export function WeddingCountdown({ variant = 'standalone', className = '' }: Wed
       { value: timeLeft.seconds, label: 'Seconds' },
     ];
 
+    const subtitleClass = isOverlay ? 'text-white/80' : 'text-sand-dark/80';
+    const valueClass = isOverlay ? 'text-white' : 'text-ocean-deep';
+    const labelClass = isOverlay ? 'text-white/70' : 'text-sand-dark';
+    const colonClass = isOverlay ? 'text-gold' : 'text-gold';
+
     return (
       <div className={`text-center ${className}`}>
-        <p className="text-sm uppercase tracking-widest text-sand-dark/80 mb-3">
+        <p className={`text-sm uppercase tracking-widest mb-3 ${subtitleClass}`}>
           Counting down to forever
         </p>
         <div className="flex items-center justify-center gap-3 md:gap-5">
           {segments.map((seg, i) => (
             <div key={seg.label} className="flex items-center gap-3 md:gap-5">
               <div className="flex flex-col items-center">
-                <span className="text-3xl md:text-5xl font-heading text-ocean-deep tabular-nums leading-none">
+                <span className={`text-3xl md:text-5xl font-heading tabular-nums leading-none ${valueClass}`}>
                   {String(seg.value).padStart(2, '0')}
                 </span>
-                <span className="text-[10px] md:text-xs uppercase tracking-wider text-sand-dark mt-1">
+                <span className={`text-[10px] md:text-xs uppercase tracking-wider mt-1 ${labelClass}`}>
                   {seg.label}
                 </span>
               </div>
               {i < segments.length - 1 && (
-                <span className="text-2xl md:text-4xl text-gold font-light -mt-4">:</span>
+                <span className={`text-2xl md:text-4xl font-light -mt-4 ${colonClass}`}>:</span>
               )}
             </div>
           ))}

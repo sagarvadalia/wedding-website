@@ -1,106 +1,96 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PassportCover } from '@/components/passport/PassportCover';
 import { PassportPolaroid } from '@/components/passport/PassportPolaroid';
-import { WeddingCountdown } from '@/components/layout/WeddingCountdown';
 import { Button } from '@/components/ui/button';
 import { StampCollection } from '@/components/passport/VisaStamp';
-import { FEATURED_PHOTOS } from '@/lib/constants';
+import { FEATURED_PHOTOS, HERO_PHOTO } from '@/lib/constants';
+import { WeddingCountdown } from '@/components/layout/WeddingCountdown';
 import { Calendar, MapPin } from 'lucide-react';
+import { OceanBackground } from '@/components/layout/OceanBackground';
+import { HeroSection } from '@/components/home/HeroSection';
 
-/** Rotations for the 4 polaroids (closed state): left-top, left-bottom, right-top, right-bottom */
-const CLOSED_POLAROID_ROTATIONS = [4, -3, -4, 3];
-
-// Generate stable particle data
-interface Particle {
-  width: number;
-  height: number;
-  left: string;
-  top: string;
-  duration: number;
-  delay: number;
-}
-
-function generateParticles(count: number): Particle[] {
-  return Array.from({ length: count }, () => ({
-    width: Math.random() * 20 + 5,
-    height: Math.random() * 20 + 5,
-    left: `${Math.random() * 100}%`,
-    top: `${Math.random() * 100}%`,
-    duration: Math.random() * 10 + 10,
-    delay: Math.random() * 5,
-  }));
-}
+const PASSPORT_SECTION_ID = 'passport-section';
 
 export function HomePage() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  
-  // Memoize particles to avoid regeneration on re-render
-  const particles = useMemo(() => generateParticles(20), []);
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Animated ocean background */}
-      <div className="fixed inset-0 bg-gradient-to-b from-ocean-mist via-ocean-light to-ocean-sky" />
-      
-      {/* Floating particles/bubbles */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {particles.map((particle, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full bg-white/20"
-            style={{
-              width: particle.width,
-              height: particle.height,
-              left: particle.left,
-              top: particle.top,
-            }}
-            animate={{
-              y: [0, -100, 0],
-              opacity: [0.2, 0.5, 0.2],
-            }}
-            transition={{
-              duration: particle.duration,
-              repeat: Infinity,
-              delay: particle.delay,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Wave decoration at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 h-32 overflow-hidden pointer-events-none">
-        <svg
-          viewBox="0 0 1440 100"
-          className="absolute bottom-0 w-full"
-          preserveAspectRatio="none"
+    <div className="relative">
+      {/* ── Section 1: Full-viewport hero photo ── */}
+      <HeroSection photo={HERO_PHOTO} scrollTargetId={PASSPORT_SECTION_ID}>
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="mb-4 font-heading text-4xl text-white drop-shadow-lg md:text-6xl lg:text-7xl"
         >
-          <motion.path
-            d="M0,50 C360,100 720,0 1080,50 C1260,75 1380,50 1440,50 L1440,100 L0,100 Z"
-            fill="#1E3A5F"
-            animate={{
-              d: [
-                "M0,50 C360,100 720,0 1080,50 C1260,75 1380,50 1440,50 L1440,100 L0,100 Z",
-                "M0,60 C360,20 720,80 1080,40 C1260,55 1380,60 1440,60 L1440,100 L0,100 Z",
-                "M0,50 C360,100 720,0 1080,50 C1260,75 1380,50 1440,50 L1440,100 L0,100 Z",
-              ],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        </svg>
-      </div>
+          Sagar &amp; Grace
+        </motion.h1>
 
-      {/* Content - when invite open, overflow hidden so only the card scrolls */}
-      <div
-        className={`relative z-10 min-h-screen flex flex-col items-center justify-center px-4 pt-16 pb-8 md:py-8 ${isOpen ? 'overflow-hidden' : ''}`}
-        onClick={isOpen ? () => setIsOpen(false) : undefined}
-      >
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="mb-4 h-[2px] w-24 md:w-32"
+          style={{ background: 'linear-gradient(90deg, transparent, #D4AF37, transparent)' }}
+        />
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="text-lg font-light text-white/90 drop-shadow-md md:text-xl lg:text-2xl"
+        >
+          April 2–5, 2027 · Cancun, Mexico
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1 }}
+          className="mt-6"
+        >
+          <WeddingCountdown variant="heroOverlay" className="drop-shadow-md" />
+        </motion.div>
+      </HeroSection>
+
+      {/* ── Section 2: Passport ── */}
+      <div id={PASSPORT_SECTION_ID} className="relative min-h-screen overflow-hidden">
+        <OceanBackground variant="surface" />
+        {/* Wave decoration at bottom (layered over ocean background) */}
+        <div className="fixed bottom-0 left-0 right-0 h-32 overflow-hidden pointer-events-none" style={{ zIndex: 6 }}>
+          <svg
+            viewBox="0 0 1440 100"
+            className="absolute bottom-0 w-full"
+            preserveAspectRatio="none"
+          >
+            <motion.path
+              d="M0,50 C360,100 720,0 1080,50 C1260,75 1380,50 1440,50 L1440,100 L0,100 Z"
+              fill="#1E3A5F"
+              animate={{
+                d: [
+                  "M0,50 C360,100 720,0 1080,50 C1260,75 1380,50 1440,50 L1440,100 L0,100 Z",
+                  "M0,60 C360,20 720,80 1080,40 C1260,55 1380,60 1440,60 L1440,100 L0,100 Z",
+                  "M0,50 C360,100 720,0 1080,50 C1260,75 1380,50 1440,50 L1440,100 L0,100 Z",
+                ],
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          </svg>
+        </div>
+
+        {/* Passport content — when invite open, overflow hidden so only the card scrolls */}
+        <div
+          className={`relative z-10 min-h-screen flex flex-col items-center justify-center px-4 pt-16 pb-8 md:py-8 ${isOpen ? 'overflow-hidden' : ''}`}
+          onClick={isOpen ? () => setIsOpen(false) : undefined}
+        >
         <AnimatePresence mode="wait">
           {!isOpen ? (
             <motion.div
@@ -111,63 +101,12 @@ export function HomePage() {
               transition={{ duration: 0.5 }}
               className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 w-full max-w-5xl"
             >
-              {/* Mobile: passport + subtitle + countdown first */}
-              {/* Desktop: left polaroids column */}
-              <div className="hidden md:flex flex-col justify-between items-center gap-4 py-4 min-h-[400px]">
-                <PassportPolaroid
-                  src={FEATURED_PHOTOS[0]?.src ?? ''}
-                  alt={FEATURED_PHOTOS[0]?.alt ?? ''}
-                  size="md"
-                  rotate={CLOSED_POLAROID_ROTATIONS[0]}
-                />
-                <PassportPolaroid
-                  src={FEATURED_PHOTOS[1]?.src ?? ''}
-                  alt={FEATURED_PHOTOS[1]?.alt ?? ''}
-                  size="md"
-                  rotate={CLOSED_POLAROID_ROTATIONS[1]}
-                />
-              </div>
-              {/* Center: passport + subtitle + countdown */}
+              {/* Center: passport */}
               <div className="flex flex-col items-center shrink-0">
                 <PassportCover
                   isOpen={isOpen}
                   onOpen={() => setIsOpen(true)}
                 />
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="mt-6"
-                >
-                  <WeddingCountdown variant="hero" />
-                </motion.div>
-              </div>
-              {/* Desktop: right polaroids column */}
-              <div className="hidden md:flex flex-col justify-between items-center gap-4 py-4 min-h-[400px]">
-                <PassportPolaroid
-                  src={FEATURED_PHOTOS[2]?.src ?? ''}
-                  alt={FEATURED_PHOTOS[2]?.alt ?? ''}
-                  size="md"
-                  rotate={CLOSED_POLAROID_ROTATIONS[2]}
-                />
-                <PassportPolaroid
-                  src={FEATURED_PHOTOS[3]?.src ?? ''}
-                  alt={FEATURED_PHOTOS[3]?.alt ?? ''}
-                  size="md"
-                  rotate={CLOSED_POLAROID_ROTATIONS[3]}
-                />
-              </div>
-              {/* Mobile: 2x2 polaroid grid below passport */}
-              <div className="grid grid-cols-2 gap-3 md:hidden justify-items-center w-full max-w-sm">
-                {[0, 1, 2, 3].map((i) => (
-                  <PassportPolaroid
-                    key={i}
-                    src={FEATURED_PHOTOS[i]?.src ?? ''}
-                    alt={FEATURED_PHOTOS[i]?.alt ?? ''}
-                    size="sm"
-                    rotate={CLOSED_POLAROID_ROTATIONS[i]}
-                  />
-                ))}
               </div>
             </motion.div>
           ) : (
@@ -197,7 +136,7 @@ export function HomePage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-ocean-deep to-ocean-caribbean flex items-center justify-center">
+                      <div className="w-full h-full bg-linear-to-br from-ocean-deep to-ocean-caribbean flex items-center justify-center">
                         <span className="text-white/60 text-xs">Photo</span>
                       </div>
                     )}
@@ -219,7 +158,7 @@ export function HomePage() {
 
               {/* Book spine (desktop) / divider (mobile) */}
               <div
-                className="w-full h-2 md:h-full md:w-2 flex-shrink-0 md:min-h-0"
+                className="w-full h-2 md:h-full md:w-2 shrink-0 md:min-h-0"
                 style={{
                   background: 'linear-gradient(90deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.08) 100%)',
                 }}
@@ -303,6 +242,7 @@ export function HomePage() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
     </div>
   );

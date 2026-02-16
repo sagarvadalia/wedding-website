@@ -43,16 +43,23 @@ function AnimatedPages() {
 /**
  * Public layout: Navigation, AudioPlayer, Footer all persist across page
  * navigations so audio playback is never interrupted.
+ * On the home page, navbar and footer are hidden so the passport is the only entry point.
  */
 function PublicLayout() {
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+  const isRsvpPage = location.pathname === '/rsvp';
+  const showChrome = !isHomePage;
+  const showFooter = showChrome && !isRsvpPage;
+
   return (
     <>
-      <Navigation />
+      {showChrome && <Navigation />}
       <AudioPlayer />
       <main className="flex-1">
         <AnimatedPages />
       </main>
-      <Footer />
+      {showFooter && <Footer />}
     </>
   );
 }

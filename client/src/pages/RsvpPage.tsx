@@ -1,6 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
+import { Section } from '@/components/passport/PassportPage';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,11 +8,16 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { rsvpApi, type LookupGroupDto, type LookupGuestDto, type EventType } from '@/lib/api';
 import { useGuest } from '@/contexts/GuestContext';
+import { RSVP_BACKGROUND_PHOTO } from '@/lib/constants';
+import { OceanBackground } from '@/components/layout/OceanBackground';
+import { HeroSection } from '@/components/home/HeroSection';
 import { Search, Check, X, PartyPopper, Music, HelpCircle, Hotel, ExternalLink, AlertCircle, Eye } from 'lucide-react';
 import axios from 'axios';
 
 /** Link for guests to book their room (same as Travel page). */
 const BOOK_ROOM_URL = 'https://www.indiandestinationwedding.com/grace-sagar/';
+
+const RSVP_FORM_SECTION_ID = 'rsvp-form-section';
 
 type RsvpStep = 'lookup' | 'chooseGroup' | 'form' | 'review' | 'confirmation';
 
@@ -64,6 +69,64 @@ function guestToFormState(g: LookupGuestDto): GuestFormState {
     plusOne: g.plusOne ?? null,
     songRequest: g.songRequest ?? '',
   };
+}
+
+function RsvpLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="relative"
+    >
+      {/* ── Section 1: Full-viewport hero photo ── */}
+      <HeroSection
+        photo={RSVP_BACKGROUND_PHOTO}
+        scrollTargetId={RSVP_FORM_SECTION_ID}
+        hasNavbar
+      >
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="mb-4 font-heading text-4xl text-white drop-shadow-lg md:text-6xl lg:text-7xl"
+        >
+          RSVP
+        </motion.h1>
+
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="mb-4 h-[2px] w-24 md:w-32"
+          style={{ background: 'linear-gradient(90deg, transparent, #D4AF37, transparent)' }}
+        />
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="text-lg font-light text-white/90 drop-shadow-md md:text-xl lg:text-2xl"
+        >
+          We can&apos;t wait to celebrate with you!
+        </motion.p>
+      </HeroSection>
+
+      {/* ── Section 2: RSVP form on ocean background ── */}
+      <div id={RSVP_FORM_SECTION_ID} className="relative min-h-screen pt-12 pb-16 overflow-hidden">
+        <OceanBackground variant="deep" />
+        <motion.div
+          className="relative z-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {children}
+        </motion.div>
+      </div>
+    </motion.div>
+  );
 }
 
 export function RsvpPage() {
@@ -216,8 +279,7 @@ export function RsvpPage() {
 
   if (group && step === 'lookup') {
     return (
-      <PassportPage pageNumber={6}>
-        <PageHeader title="RSVP" subtitle="We can't wait to celebrate with you!" />
+      <RsvpLayout>
         <Section>
           <div className="max-w-2xl mx-auto">
             <Card>
@@ -237,13 +299,12 @@ export function RsvpPage() {
             </Card>
           </div>
         </Section>
-      </PassportPage>
+      </RsvpLayout>
     );
   }
 
   return (
-    <PassportPage pageNumber={6}>
-      <PageHeader title="RSVP" subtitle="We can't wait to celebrate with you!" />
+    <RsvpLayout>
       <Section>
         <div className="max-w-2xl mx-auto">
           <AnimatePresence mode="wait">
@@ -726,6 +787,6 @@ export function RsvpPage() {
           </AnimatePresence>
         </div>
       </Section>
-    </PassportPage>
+    </RsvpLayout>
   );
 }

@@ -3,7 +3,35 @@
  */
 
 /** Venmo profile URL for optional honeymoon fund (e.g. https://venmo.com/u/YourUsername) */
-export const HONEYMOON_FUND_VENMO_URL = 'https://venmo.com/u/YourUsername';
+export const HONEYMOON_FUND_VENMO_URL = 'https://venmo.com/u/grace-capati';
+
+/**
+ * Hero background photo for the landing page.
+ *
+ * objectPosition / mobileObjectPosition control which part of the photo
+ * stays visible when the browser crops to fill the hero container.
+ *
+ * Format: 'X Y'
+ *   X = horizontal → 0% is left edge, 50% is center, 100% is right edge
+ *   Y = vertical   → 0% is top edge,  50% is center, 100% is bottom edge
+ *
+ * Tip: open the photo, estimate where the subject's face is as a percentage
+ * from the left and top edges, and use those values.
+ */
+export const HERO_PHOTO = {
+  src: '/images/hero-wedding-photo.avif',
+  alt: 'Sagar and Grace',
+  objectPosition: '50% 30%',
+  mobileObjectPosition: '80% 70%',
+};
+
+/** Background photo for the RSVP page — same format as HERO_PHOTO. */
+export const RSVP_BACKGROUND_PHOTO = {
+  src: '/images/rsvp-landing-photo.avif',
+  alt: 'Sagar and Grace',
+  objectPosition: '50% 30%',
+  mobileObjectPosition: '80% 50%',
+};
 
 /** Featured photos for landing polaroids and open passport spread. Replace with real engagement/couple images. */
 export interface FeaturedPhoto {

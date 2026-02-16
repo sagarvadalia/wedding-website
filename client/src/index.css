@@ -232,6 +232,27 @@ h1, h2, h3, h4, h5, h6 {
   background-size: cover;
 }
 
+/* Hero Section Overlay */
+.hero-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.25) 0%,
+    rgba(0, 0, 0, 0.15) 40%,
+    rgba(0, 0, 0, 0.20) 70%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+}
+
+/* Hero image — responsive object-position via CSS custom properties */
+.hero-img {
+  object-position: var(--hero-obj-pos-mobile, center);
+}
+@media (min-width: 768px) {
+  .hero-img {
+    object-position: var(--hero-obj-pos-desktop, center);
+  }
+}
+
 /* Utility Classes */
 .text-balance {
   text-wrap: balance;
