@@ -35,6 +35,7 @@ const timeline: TimelineEvent[] = [
     title: 'Temporary "Goodbye"',
     description: "It was a beautiful friendship, and in a perfect world, it would have continued forever. However, as we all know, life is not always perfect, especially for two 18-year-olds finding their way through the ups and downs of college and self-discovery. Ultimately, we both chose different paths, not pursuing a romantic relationship at that time. Our friendship remained for a bit, but we eventually went our separate ways during college, only to reunite 7 years later.",
     icon: <Sunset className="w-5 h-5" />,
+    image: '/images/seperation.avif',
   },
   {
     year: '2021',
@@ -55,12 +56,14 @@ const timeline: TimelineEvent[] = [
     title: 'Engaged!',
     description: 'We took a trip to Greece for our 3-year anniversary, where Sagar proposed on our 3rd anniversary overlooking a beautiful sunset in Mykonos. Grace was totally caught of guard and shocked and elated at the same time. It was a truly magical moment that we will never forget.',
     icon: <Gem className="w-5 h-5 fill-current" />,
+    image: '/images/engaged.avif',
   },
   {
     year: '2027',
     title: 'Forever Begins',
     description: 'Our love of life, travel, and everything related to the beach, swimming, and the ocean (yes, Sagar\'s name actually means "ocean") extends to you all. We are blessed and thrilled to celebrate our marriage together in beautiful Playa Mujeres, Cancun, Mexico.',
     icon: <Waves className="w-5 h-5 fill-current" />,
+    image: '/images/forever.avif',
   },
 ];
 
