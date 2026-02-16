@@ -48,6 +48,7 @@ const timeline: TimelineEvent[] = [
     title: 'Life together in NYC',
     description: 'Over the next several years, we have grown our lives together, and our love has only continued to grow every day. We eventually made our first home in Long Island City, NYC, and have raised our sweet 4 legged boy, Cosmo. From our weekend bagels in Gantry Park (our most sacred tradition!) to our spontaneous ferry rides to explore different areas of NYC, we always treasure our adventures together. We both share a love of food, travel, and exploration. We have been fortunate to have visited various places around the country and world, including Aruba, India, Jamaica, Mexico, California, Arizona, and Greece.',
     icon: <House className="w-5 h-5 fill-current" />,
+    image: '/images/life-in-nyc.avif',
   },
   {
     year: '2024',
