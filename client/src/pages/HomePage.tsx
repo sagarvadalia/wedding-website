@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PassportCover } from '@/components/passport/PassportCover';
 import { PassportPolaroid } from '@/components/passport/PassportPolaroid';
+import { WeddingCountdown } from '@/components/layout/WeddingCountdown';
 import { Button } from '@/components/ui/button';
 import { StampCollection } from '@/components/passport/VisaStamp';
 import { FEATURED_PHOTOS } from '@/lib/constants';
@@ -132,8 +133,14 @@ export function HomePage() {
                   isOpen={isOpen}
                   onOpen={() => setIsOpen(true)}
                 />
-               
-                
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="mt-6"
+                >
+                  <WeddingCountdown variant="hero" />
+                </motion.div>
               </div>
               {/* Desktop: right polaroids column */}
               <div className="hidden md:flex flex-col justify-between items-center gap-4 py-4 min-h-[400px]">

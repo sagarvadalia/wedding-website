@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -8,12 +8,23 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { rsvpApi, type LookupGroupDto, type LookupGuestDto, type EventType } from '@/lib/api';
 import { useGuest } from '@/contexts/GuestContext';
-import { Search, Check, X, PartyPopper, Music, HelpCircle, Hotel, ExternalLink } from 'lucide-react';
+import { Search, Check, X, PartyPopper, Music, HelpCircle, Hotel, ExternalLink, AlertCircle, Eye } from 'lucide-react';
+import axios from 'axios';
 
 /** Link for guests to book their room (same as Travel page). */
 const BOOK_ROOM_URL = 'https://www.indiandestinationwedding.com/grace-sagar/';
 
-type RsvpStep = 'lookup' | 'chooseGroup' | 'form' | 'confirmation';
+type RsvpStep = 'lookup' | 'chooseGroup' | 'form' | 'review' | 'confirmation';
+
+function getApiErrorMessage(err: unknown): string {
+  if (axios.isAxiosError(err)) {
+    const data = err.response?.data as { error?: string } | undefined;
+    if (data?.error) return data.error;
+    if (err.response?.status === 403) return 'The RSVP deadline has passed.';
+    if (err.response?.status === 404) return 'No invitation found. Please check your name and try again.';
+  }
+  return 'Something went wrong. Please try again.';
+}
 
 interface GuestFormState {
   guestId: string;
@@ -88,11 +99,12 @@ export function RsvpPage() {
     }
   }, [step]);
 
-  const handleLookup = async () => {
+  const handleLookup = async (e?: FormEvent) => {
+    e?.preventDefault();
     const f = firstName.trim();
     const l = lastName.trim();
     if (!f || !l) {
-      setError('Please enter both first and last name');
+      setError('Please enter both first and last name.');
       return;
     }
     setIsLoading(true);
@@ -102,7 +114,7 @@ export function RsvpPage() {
       setRsvpOpen(res.rsvpOpen);
       setRsvpByDate(res.rsvpByDate);
       if (res.groups.length === 0) {
-        setError('No invitation found with that name.');
+        setError('No invitation found for that name. Please check spelling or contact us for help.');
         return;
       }
       if (res.groups.length === 1) {
@@ -113,8 +125,8 @@ export function RsvpPage() {
         setLookupGroups(res.groups);
         setStep('chooseGroup');
       }
-    } catch {
-      setError('Something went wrong. Please try again.');
+    } catch (err) {
+      setError(getApiErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -125,6 +137,30 @@ export function RsvpPage() {
     setLookupGroups([]);
     setStep('form');
     setGuestFormState(g.guests.map(guestToFormState));
+  };
+
+  const validateForm = (): string | null => {
+    for (const state of guestFormState) {
+      const guest = group?.guests.find((g) => g._id === state.guestId);
+      if (!guest) continue;
+      if ((state.attending === true || state.attending === 'maybe') && state.events.length === 0) {
+        return `Please select at least one event for ${guest.firstName}.`;
+      }
+      if (state.plusOne && !state.plusOne.name.trim()) {
+        return `Please enter a name for ${guest.firstName}'s plus-one, or choose "No".`;
+      }
+    }
+    return null;
+  };
+
+  const handleReview = () => {
+    setError('');
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setStep('review');
   };
 
   const handleSubmit = async () => {
@@ -145,8 +181,9 @@ export function RsvpPage() {
       });
       setConfirmationEmail(group.guests[0]?.email ?? '');
       setStep('confirmation');
-    } catch {
-      setError('Failed to submit RSVP. Please try again.');
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+      setStep('form');
     } finally {
       setIsLoading(false);
     }
@@ -166,12 +203,6 @@ export function RsvpPage() {
         : [...s.events, eventId],
     }));
   };
-
-  const anyAttending = guestFormState.some(
-    (s) => s.attending === true || s.attending === 'maybe'
-  );
-  const canSubmit =
-    !anyAttending || guestFormState.every((s) => s.attending !== true && s.attending !== 'maybe' || s.events.length > 0);
 
   const startOver = () => {
     setStep('lookup');
@@ -231,7 +262,7 @@ export function RsvpPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
+                    <form onSubmit={handleLookup} className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="firstName">First name</Label>
@@ -240,6 +271,7 @@ export function RsvpPage() {
                             placeholder="First name"
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
+                            autoComplete="given-name"
                           />
                         </div>
                         <div>
@@ -249,12 +281,18 @@ export function RsvpPage() {
                             placeholder="Last name"
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
+                            autoComplete="family-name"
                           />
                         </div>
                       </div>
-                      {error && <p className="text-coral text-sm text-center">{error}</p>}
+                      {error && (
+                        <div className="flex items-start gap-2 text-coral text-sm bg-coral/5 border border-coral/20 rounded-lg p-3">
+                          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                          <span>{error}</span>
+                        </div>
+                      )}
                       <Button
-                        onClick={handleLookup}
+                        type="submit"
                         disabled={isLoading}
                         className="w-full"
                         size="lg"
@@ -266,7 +304,7 @@ export function RsvpPage() {
                           </>
                         )}
                       </Button>
-                    </div>
+                    </form>
                     <div className="mt-6 pt-6 border-t border-sand-driftwood/20 text-center">
                       <p className="text-sm text-sand-dark">
                         Questions? Contact us at{' '}
@@ -543,21 +581,110 @@ export function RsvpPage() {
                           </div>
                         );
                       })}
-                      {error && <p className="text-coral text-sm text-center">{error}</p>}
+                      {error && (
+                        <div className="flex items-start gap-2 text-coral text-sm bg-coral/5 border border-coral/20 rounded-lg p-3">
+                          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                          <span>{error}</span>
+                        </div>
+                      )}
                       <div className="flex gap-4 pt-4">
                         <Button variant="outline" onClick={startOver}>Back</Button>
                         <Button
-                          onClick={handleSubmit}
-                          disabled={isLoading || !canSubmit}
+                          onClick={handleReview}
                           className="flex-1"
                           variant="gold"
                         >
-                          {isLoading ? 'Submitting...' : 'Submit RSVP'}
+                          <Eye className="w-4 h-4 mr-2" />
+                          Review & Submit
                         </Button>
                       </div>
                     </CardContent>
                   </Card>
                 )}
+              </motion.div>
+            )}
+
+            {step === 'review' && group && (
+              <motion.div
+                key="review"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-2xl">Review Your RSVP</CardTitle>
+                    <CardDescription>
+                      Please confirm everything looks correct before submitting.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {guestFormState.map((state) => {
+                      const guest = group.guests.find((g) => g._id === state.guestId);
+                      if (!guest) return null;
+                      const isAttending = state.attending === true || state.attending === 'maybe';
+                      const statusLabel = state.attending === true ? 'Attending' : state.attending === 'maybe' ? 'Maybe' : 'Not Attending';
+                      const statusColor = state.attending === true ? 'text-green-700 bg-green-50 border-green-200' : state.attending === 'maybe' ? 'text-gold bg-gold/5 border-gold/20' : 'text-sand-dark bg-sand-light border-sand-driftwood/20';
+                      return (
+                        <div key={state.guestId} className="p-4 border border-sand-driftwood/20 rounded-lg space-y-2">
+                          <div className="flex items-center justify-between">
+                            <p className="font-medium text-ocean-deep text-lg">
+                              {guest.firstName} {guest.lastName}
+                            </p>
+                            <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${statusColor}`}>
+                              {statusLabel}
+                            </span>
+                          </div>
+                          {isAttending && state.events.length > 0 && (
+                            <div>
+                              <p className="text-xs text-sand-dark/70 uppercase tracking-wider mb-1">Events</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {state.events.map((eid) => {
+                                  const ev = eventOptions.find((o) => o.id === eid);
+                                  return (
+                                    <span key={eid} className="text-xs bg-ocean-caribbean/10 text-ocean-deep px-2 py-0.5 rounded">
+                                      {ev?.name ?? eid}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                          {state.dietaryRestrictions.trim() && (
+                            <p className="text-sm text-sand-dark">Dietary: {state.dietaryRestrictions}</p>
+                          )}
+                          {state.plusOne?.name && (
+                            <p className="text-sm text-sand-dark">Plus-one: {state.plusOne.name}</p>
+                          )}
+                          {state.songRequest.trim() && (
+                            <p className="text-sm text-sand-dark">Song: {state.songRequest}</p>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {error && (
+                      <div className="flex items-start gap-2 text-coral text-sm bg-coral/5 border border-coral/20 rounded-lg p-3">
+                        <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                        <span>{error}</span>
+                      </div>
+                    )}
+
+                    <div className="flex gap-4 pt-4">
+                      <Button variant="outline" onClick={() => setStep('form')}>
+                        Edit
+                      </Button>
+                      <Button
+                        onClick={handleSubmit}
+                        disabled={isLoading}
+                        className="flex-1"
+                        variant="gold"
+                      >
+                        {isLoading ? 'Submitting...' : 'Confirm & Submit'}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </motion.div>
             )}
 

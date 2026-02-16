@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, Heart, X, ChevronLeft, ChevronRight, Upload, ExternalLink } from 'lucide-react';
+import { Camera, Heart, X, ChevronLeft, ChevronRight, ExternalLink, ImageIcon, Upload } from 'lucide-react';
+
+const GOOGLE_PHOTOS_ALBUM_URL = 'https://photos.app.goo.gl/bAu9CCMBZ6sw4LQH6';
 
 interface Photo {
   id: string;
@@ -180,17 +182,23 @@ export function PhotosPage() {
                     variant="secondary"
                     size="lg"
                     className="bg-white text-ocean-deep hover:bg-sand-pearl"
+                    asChild
                   >
-                    <Upload className="w-5 h-5 mr-2" />
-                    Upload Photos
+                    <a href={GOOGLE_PHOTOS_ALBUM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center">
+                      <ImageIcon className="w-5 h-5 mr-2 shrink-0" />
+                      Add Your Photos
+                    </a>
                   </Button>
                   <Button
                     variant="outline"
                     size="lg"
                     className="border-white text-white hover:bg-white/10"
+                    asChild
                   >
-                    <ExternalLink className="w-5 h-5 mr-2" />
-                    View Shared Album
+                    <a href={GOOGLE_PHOTOS_ALBUM_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center">
+                      <ExternalLink className="w-5 h-5 mr-2 shrink-0" />
+                      View Shared Album
+                    </a>
                   </Button>
                 </div>
                 <p className="text-sm text-sand-pearl/70 mt-4">
@@ -208,7 +216,7 @@ export function PhotosPage() {
           viewport={{ once: true }}
           className="mt-12 text-center"
         >
-          <p className="text-sand-dark/70 text-sm">
+          <p className="text-ocean-deep/60 text-sm">
             Photos from the wedding weekend will be uploaded after the celebration. 
             Check back soon for all the beautiful memories!
           </p>

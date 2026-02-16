@@ -1,3 +1,4 @@
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,8 +11,14 @@ import {
   Briefcase, 
   CreditCard,
   FileText,
-  ExternalLink
+  ExternalLink,
+  MapPin
 } from 'lucide-react';
+
+const RESORT_MAPS_URL = 'https://maps.google.com/?q=Dreams+Playa+Mujeres+Golf+%26+Spa+Resort,+Playa+Mujeres,+Cancun,+Mexico';
+const RESORT_MAPS_EMBED_URL = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3717.8!2d-86.8175!3d21.2589!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8f4c2c8b1c8b1c8b%3A0x8f4c2c8b1c8b1c8b!2sDreams+Playa+Mujeres+Golf+%26+Spa+Resort!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus';
+
+const CHECKLIST_STORAGE_KEY = 'wedding-packing-checklist';
 
 const travelInfo = [
   {
@@ -63,7 +70,39 @@ const packingList = [
   { category: 'Just in Case', items: ['Light jacket', 'Rain poncho', 'Hand sanitizer', 'Snacks'] },
 ];
 
+function usePackingChecklist() {
+  const [checked, setChecked] = useState<Record<string, boolean>>(() => {
+    try {
+      const stored = localStorage.getItem(CHECKLIST_STORAGE_KEY);
+      return stored ? JSON.parse(stored) as Record<string, boolean> : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CHECKLIST_STORAGE_KEY, JSON.stringify(checked));
+    } catch {
+      // localStorage unavailable
+    }
+  }, [checked]);
+
+  const toggle = useCallback((key: string) => {
+    setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
+  }, []);
+
+  const reset = useCallback(() => setChecked({}), []);
+
+  const total = packingList.reduce((sum, cat) => sum + cat.items.length, 0);
+  const done = Object.values(checked).filter(Boolean).length;
+
+  return { checked, toggle, reset, total, done };
+}
+
 export function TravelPage() {
+  const checklist = usePackingChecklist();
+
   return (
     <PassportPage pageNumber={4}>
       <PageHeader
@@ -239,16 +278,68 @@ export function TravelPage() {
           </Card>
         </motion.div>
 
+        {/* Interactive Map */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-12"
+        >
+          <h2 className="text-2xl md:text-3xl font-heading text-center text-ocean-deep mb-8">
+            <MapPin className="w-6 h-6 inline-block mr-2 mb-1" />
+            Location
+          </h2>
+          <Card className="overflow-hidden">
+            <div className="aspect-video w-full">
+              <iframe
+                src={RESORT_MAPS_EMBED_URL}
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Dreams Playa Mujeres Resort - Map"
+              />
+            </div>
+            <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="font-medium text-ocean-deep">Dreams Playa Mujeres Golf & Spa Resort</p>
+                <p className="text-sm text-sand-dark">Playa Mujeres, Cancun, Quintana Roo, Mexico</p>
+              </div>
+              <Button variant="outline" size="sm" asChild>
+                <a href={RESORT_MAPS_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center whitespace-nowrap">
+                  Open in Google Maps <ExternalLink className="w-3.5 h-3.5 ml-1.5 shrink-0" />
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
+
         {/* Packing List */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-2xl md:text-3xl font-heading text-center text-ocean-deep mb-8">
-            <Briefcase className="w-6 h-6 inline-block mr-2 mb-1" />
-            Packing Checklist
-          </h2>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
+            <h2 className="text-2xl md:text-3xl font-heading text-center text-ocean-deep">
+              <Briefcase className="w-6 h-6 inline-block mr-2 mb-1" />
+              Packing Checklist
+            </h2>
+            <span className="text-sm text-ocean-deep/80 font-medium">
+              {checklist.done}/{checklist.total} packed
+            </span>
+            {checklist.done > 0 && (
+              <button
+                type="button"
+                onClick={checklist.reset}
+                className="text-xs text-ocean-deep/70 hover:text-ocean-deep underline transition-colors"
+              >
+                Reset
+              </button>
+            )}
+          </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {packingList.map((category, index) => (
@@ -265,12 +356,21 @@ export function TravelPage() {
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-1">
-                      {category.items.map((item) => (
-                        <li key={item} className="flex items-center gap-2 text-sm text-sand-dark">
-                          <input type="checkbox" className="rounded border-sand-driftwood" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
+                      {category.items.map((item) => {
+                        const key = `${category.category}::${item}`;
+                        const isChecked = !!checklist.checked[key];
+                        return (
+                          <li key={item} className="flex items-center gap-2 text-sm text-sand-dark">
+                            <input
+                              type="checkbox"
+                              className="rounded border-sand-driftwood"
+                              checked={isChecked}
+                              onChange={() => checklist.toggle(key)}
+                            />
+                            <span className={isChecked ? 'line-through opacity-60' : ''}>{item}</span>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </CardContent>
                 </Card>
