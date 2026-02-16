@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -7,17 +8,41 @@ interface PassportCoverProps {
   className?: string;
 }
 
+function useIsTouchDevice(): boolean {
+  const [isTouch, setIsTouch] = useState(false);
+  useEffect(() => {
+    const check = (): void => {
+      setIsTouch(typeof window !== 'undefined' && 'ontouchstart' in window);
+    };
+    const id = requestAnimationFrame(check);
+    return () => cancelAnimationFrame(id);
+  }, []);
+  return isTouch;
+}
+
 export function PassportCover({ isOpen, onOpen, className }: PassportCoverProps) {
+  const isTouchDevice = useIsTouchDevice();
+
   return (
     <div className={cn('relative perspective-1000', className)}>
       {/* Passport Book */}
       <motion.div
-        className="relative cursor-pointer transform-style-3d"
+        role="button"
+        tabIndex={0}
+        className="relative cursor-pointer transform-style-3d focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 rounded-r-lg"
         onClick={onOpen}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onOpen();
+          }
+        }}
         initial={false}
         animate={{
           rotateY: isOpen ? -180 : 0,
         }}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
         transition={{
           duration: 0.8,
           ease: [0.4, 0, 0.2, 1],
@@ -172,9 +197,9 @@ export function PassportCover({ isOpen, onOpen, className }: PassportCoverProps)
             </span>
           </div>
 
-          {/* Click hint */}
+          {/* Click / tap hint */}
           <motion.div
-            className="absolute bottom-2 right-4 text-gold/50 text-xs"
+            className="absolute top-4 right-4 text-gold/90 text-sm"
             animate={{
               opacity: [0.3, 0.7, 0.3],
             }}
@@ -183,7 +208,7 @@ export function PassportCover({ isOpen, onOpen, className }: PassportCoverProps)
               repeat: Infinity,
             }}
           >
-            Click to open →
+            {isTouchDevice ? 'Tap to open →' : 'Click to open →'}
           </motion.div>
 
           {/* Spine shadow */}
