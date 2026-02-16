@@ -159,9 +159,9 @@ const stampConfigs: Record<EventType, {
 };
 
 const sizeClasses = {
-  sm: 'w-24 h-24',
-  md: 'w-36 h-36',
-  lg: 'w-48 h-48',
+  sm: 'w-20 h-20',
+  md: 'w-32 h-32',
+  lg: 'w-44 h-44',
 };
 
 export function VisaStamp({ 
@@ -183,13 +183,23 @@ export function VisaStamp({
       className={cn(sizeClasses[size], className)}
       style={{ color: config.color }}
     >
-      {/* Arc paths for curved text */}
+      {/* Arc paths for curved text — both arcs share endpoints at the
+           horizontal centre-line so title & date are equally spaced from
+           their respective dashed borders.
+           Circle: r=37 (dashed r=42 → 5 unit inset for baseline)
+           Oval:   rx=37 ry=31 (dashed ry=36 → 5 unit inset) */}
       <defs>
         {config.borderStyle === 'circle' && (
-          <path id={`${safeId}-arc`} d="M 12,50 A 38,38 0 0,1 88,50" fill="none" />
+          <>
+            <path id={`${safeId}-top`} d="M 13,50 A 37,37 0 0,1 87,50" fill="none" />
+            <path id={`${safeId}-bot`} d="M 13,50 A 37,37 0 0,0 87,50" fill="none" />
+          </>
         )}
         {config.borderStyle === 'oval' && (
-          <path id={`${safeId}-arc`} d="M 10,50 A 40,34 0 0,1 90,50" fill="none" />
+          <>
+            <path id={`${safeId}-top`} d="M 13,50 A 37,31 0 0,1 87,50" fill="none" />
+            <path id={`${safeId}-bot`} d="M 13,50 A 37,31 0 0,0 87,50" fill="none" />
+          </>
         )}
       </defs>
 
@@ -232,7 +242,7 @@ export function VisaStamp({
       {/* Title — curved along top border for circles/ovals, straight for rectangles */}
       {useCurvedText ? (
         <text fill="currentColor" fontSize="7" fontWeight="bold" fontFamily="monospace">
-          <textPath href={`#${safeId}-arc`} startOffset="50%" textAnchor="middle">
+          <textPath href={`#${safeId}-top`} startOffset="50%" textAnchor="middle">
             {config.title}
           </textPath>
         </text>
@@ -250,17 +260,25 @@ export function VisaStamp({
         </text>
       )}
 
-      {/* Date at bottom */}
-      <text
-        x="50"
-        y="92"
-        textAnchor="middle"
-        fill="currentColor"
-        fontSize="6"
-        fontFamily="monospace"
-      >
-        {date}
-      </text>
+      {/* Date — curved along bottom border for circles/ovals, straight for rectangles */}
+      {useCurvedText ? (
+        <text fill="currentColor" fontSize="6" fontFamily="monospace">
+          <textPath href={`#${safeId}-bot`} startOffset="50%" textAnchor="middle">
+            {date}
+          </textPath>
+        </text>
+      ) : (
+        <text
+          x="50"
+          y="87"
+          textAnchor="middle"
+          fill="currentColor"
+          fontSize="6"
+          fontFamily="monospace"
+        >
+          {date}
+        </text>
+      )}
     </svg>
   );
 
@@ -292,8 +310,8 @@ interface StampCollectionProps {
   className?: string;
   /** When true, lay out stamps in exactly two rows (4 + 3) to save vertical space */
   twoRows?: boolean;
-  /** When true, lay out stamps in a semi-arch across the top */
-  topArch?: boolean;
+  /** When true, scatter stamps across the container with a sequential stamp-down animation */
+  scattered?: boolean;
   /** Size of individual stamps (defaults to 'md') */
   stampSize?: 'sm' | 'md' | 'lg';
   /** When true, stamps overlap slightly with drop-shadows for a photo-overlay look */
@@ -301,21 +319,46 @@ interface StampCollectionProps {
 }
 
 /**
- * Absolute positions for each stamp along a semi-arch.
- * x = horizontal center (%), y = top edge (%), rotate = degrees.
- * The arch peaks at the center and slopes down to the sides.
+ * Absolute positions for each stamp in a deliberate scattered layout.
+ * x/y = percentage offsets from container edges, rotate = degrees.
+ * Positions avoid the centre-bottom where the couple's photo subject sits.
  */
-const ARCH_LAYOUT: { x: string; y: string; rotate: number }[] = [
-  { x: '8%',  y: '54%', rotate: -8 },
-  { x: '22%', y: '32%', rotate: -4 },
-  { x: '36%', y: '14%', rotate: -1 },
-  { x: '50%', y: '6%',  rotate: 2 },
-  { x: '64%', y: '14%', rotate: 4 },
-  { x: '78%', y: '32%', rotate: -3 },
-  { x: '92%', y: '54%', rotate: 7 },
+const SCATTERED_LAYOUT: { x: string; y: string; rotate: number }[] = [
+  { x: '5%',  y: '4%',  rotate: -6 },
+  { x: '68%', y: '2%',  rotate: 4 },
+  { x: '30%', y: '18%', rotate: -2 },
+  { x: '2%',  y: '38%', rotate: -3 },
+  { x: '65%', y: '32%', rotate: 5 },
+  { x: '8%',  y: '68%', rotate: 3 },
+  { x: '70%', y: '62%', rotate: -4 },
 ];
 
-export function StampCollection({ className, twoRows, topArch, stampSize, overlap }: StampCollectionProps) {
+/** Framer Motion variants for the scattered stamp container (orchestrates stagger). */
+const scatteredContainerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.5,
+      delayChildren: 1,
+    },
+  },
+};
+
+/** Framer Motion variants for individual stamps (stamp-down spring). */
+const stampDownVariants = {
+  hidden: { scale: 2.5, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 0.92,
+    transition: {
+      type: 'spring' as const,
+      stiffness: 400,
+      damping: 22,
+    },
+  },
+};
+
+export function StampCollection({ className, twoRows, scattered, stampSize, overlap }: StampCollectionProps) {
   const events: { event: EventType; date: string }[] = [
     { event: 'welcome', date: 'APR 2, 2027' },
     { event: 'haldi', date: 'APR 3, 2027' },
@@ -331,7 +374,7 @@ export function StampCollection({ className, twoRows, topArch, stampSize, overla
       key={e.event}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
+      transition={{ delay: index * 0.1}}
       className={overlap ? 'drop-shadow-lg' : undefined}
     >
       <Link
@@ -344,11 +387,16 @@ export function StampCollection({ className, twoRows, topArch, stampSize, overla
     </motion.div>
   );
 
-  if (topArch) {
+  if (scattered) {
     return (
-      <div className={cn('relative w-full h-48 md:h-56 overflow-hidden', className)}>
+      <motion.div
+        className={cn('relative w-full h-full', className)}
+        variants={scatteredContainerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         {events.map((e, i) => {
-          const pos = ARCH_LAYOUT[i];
+          const pos = SCATTERED_LAYOUT[i];
           return (
             <motion.div
               key={e.event}
@@ -356,16 +404,9 @@ export function StampCollection({ className, twoRows, topArch, stampSize, overla
               style={{
                 left: pos.x,
                 top: pos.y,
-                transform: `translateX(-50%) rotate(${pos.rotate}deg)`,
+                rotate: pos.rotate,
               }}
-              initial={{ opacity: 0, scale: 1.6 }}
-              animate={{ opacity: 0.88, scale: 1 }}
-              transition={{
-                type: 'spring',
-                stiffness: 280,
-                damping: 20,
-                delay: i * 0.08,
-              }}
+              variants={stampDownVariants}
               whileHover={{ scale: 1.08, opacity: 1 }}
             >
               <Link
@@ -373,12 +414,18 @@ export function StampCollection({ className, twoRows, topArch, stampSize, overla
                 className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-ocean-caribbean focus-visible:ring-offset-2 rounded"
                 aria-label={`View ${stampConfigs[e.event].title} event details`}
               >
-                <VisaStamp event={e.event} date={e.date} size={stampSize} animated={false} />
+                <VisaStamp
+                  event={e.event}
+                  date={e.date}
+                  size="sm"
+                  className="md:w-28 md:h-28"
+                  animated={false}
+                />
               </Link>
             </motion.div>
           );
         })}
-      </div>
+      </motion.div>
     );
   }
 

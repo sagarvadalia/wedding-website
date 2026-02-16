@@ -132,15 +132,10 @@ export function HomePage() {
                 {/* Dark overlay for stamp contrast */}
                 <div className="absolute inset-0 bg-black/30" />
 
-                {/* Stamps overlay — semi-arch along the top */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.4 }}
-                  className="absolute inset-x-0 top-0 z-10 px-2 pt-2 md:pt-4"
-                >
-                  <StampCollection topArch stampSize="sm" />
-                </motion.div>
+                {/* Stamps overlay — scattered across the page */}
+                <div className="absolute inset-0 z-10">
+                  <StampCollection scattered />
+                </div>
 
                 {/* Page number */}
                 <p className="absolute bottom-2 right-3 z-10 font-accent text-xs text-white/50">pg. 1</p>

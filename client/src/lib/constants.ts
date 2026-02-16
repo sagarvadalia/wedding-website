@@ -35,9 +35,9 @@ export const RSVP_BACKGROUND_PHOTO = {
 
 /** Full-bleed photo for the left page of the open passport spread. */
 export const PASSPORT_SPREAD_PHOTO = {
-  src: '/images/passport-beach.avif',
+  src: '/images/passport-screen.avif',
   alt: 'Sagar and Grace',
-  objectPosition: '50% 50%',
+  objectPosition: '80% 50%',
 };
 
 /** Featured photos for landing polaroids and open passport spread. Replace with real engagement/couple images. */
