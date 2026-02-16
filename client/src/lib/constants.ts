@@ -35,7 +35,7 @@ export const RSVP_BACKGROUND_PHOTO = {
 
 /** Full-bleed photo for the left page of the open passport spread. */
 export const PASSPORT_SPREAD_PHOTO = {
-  src: '/images/dreams-playa-mujeres.jpg',
+  src: '/images/passport-beach.avif',
   alt: 'Sagar and Grace',
   objectPosition: '50% 50%',
 };

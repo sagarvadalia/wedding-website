@@ -11,7 +11,7 @@ import { useGuest } from '@/contexts/GuestContext';
 import { RSVP_BACKGROUND_PHOTO } from '@/lib/constants';
 import { OceanBackground } from '@/components/layout/OceanBackground';
 import { HeroSection } from '@/components/home/HeroSection';
-import { Search, Check, X, PartyPopper, Music, HelpCircle, Hotel, ExternalLink, AlertCircle, Eye } from 'lucide-react';
+import { Search, Check, X, PartyPopper, Music, HelpCircle, Hotel, ExternalLink, AlertCircle, Eye, Mail } from 'lucide-react';
 import axios from 'axios';
 
 /** Link for guests to book their room (same as Travel page). */
@@ -33,6 +33,7 @@ function getApiErrorMessage(err: unknown): string {
 
 interface GuestFormState {
   guestId: string;
+  email: string;
   attending: boolean | 'maybe';
   events: EventType[];
   dietaryRestrictions: string;
@@ -63,6 +64,7 @@ function guestToFormState(g: LookupGuestDto): GuestFormState {
     g.rsvpStatus === 'confirmed' ? true : g.rsvpStatus === 'maybe' ? 'maybe' : false;
   return {
     guestId: g._id,
+    email: g.email ?? '',
     attending,
     events: (g.events as EventType[]) ?? [],
     dietaryRestrictions: g.dietaryRestrictions ?? '',
@@ -203,9 +205,16 @@ export function RsvpPage() {
   };
 
   const validateForm = (): string | null => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     for (const state of guestFormState) {
       const guest = group?.guests.find((g) => g._id === state.guestId);
       if (!guest) continue;
+      if ((state.attending === true || state.attending === 'maybe') && !state.email.trim()) {
+        return `Please enter an email address for ${guest.firstName}.`;
+      }
+      if (state.email.trim() && !emailRegex.test(state.email.trim())) {
+        return `Please enter a valid email address for ${guest.firstName}.`;
+      }
       if ((state.attending === true || state.attending === 'maybe') && state.events.length === 0) {
         return `Please select at least one event for ${guest.firstName}.`;
       }
@@ -236,13 +245,14 @@ export function RsvpPage() {
         guests: guestFormState.map((s) => ({
           guestId: s.guestId,
           attending: s.attending === true ? true : s.attending === 'maybe' ? 'maybe' : false,
+          email: s.email.trim() || undefined,
           events: s.attending === true || s.attending === 'maybe' ? s.events : [],
           dietaryRestrictions: s.dietaryRestrictions,
           plusOne: s.plusOne,
           songRequest: s.songRequest,
         })),
       });
-      setConfirmationEmail(group.guests[0]?.email ?? '');
+      setConfirmationEmail(guestFormState[0]?.email ?? '');
       setStep('confirmation');
     } catch (err) {
       setError(getApiErrorMessage(err));
@@ -486,6 +496,26 @@ export function RsvpPage() {
                               {guest.firstName} {guest.lastName}
                             </p>
                             <div>
+                              <Label className="flex items-center gap-1">
+                                <Mail className="w-4 h-4" /> Email address
+                              </Label>
+                              <Input
+                                type="email"
+                                placeholder="email@example.com"
+                                value={state.email}
+                                onChange={(e) =>
+                                  updateGuestState(state.guestId, (s) => ({
+                                    ...s,
+                                    email: e.target.value,
+                                  }))
+                                }
+                                autoComplete="email"
+                              />
+                              <p className="text-xs text-sand-dark mt-1">
+                                We&apos;ll send a confirmation to this address.
+                              </p>
+                            </div>
+                            <div>
                               <Label className="text-base mb-2 block">Will they be attending?</Label>
                               <div className="flex flex-wrap gap-2">
                                 <Button
@@ -696,6 +726,9 @@ export function RsvpPage() {
                               {statusLabel}
                             </span>
                           </div>
+                          {state.email.trim() && (
+                            <p className="text-sm text-sand-dark">Email: {state.email.trim()}</p>
+                          )}
                           {isAttending && state.events.length > 0 && (
                             <div>
                               <p className="text-xs text-sand-dark/70 uppercase tracking-wider mb-1">Events</p>

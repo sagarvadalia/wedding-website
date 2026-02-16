@@ -32,15 +32,19 @@ export const addGuest = async (req: Request, res: Response): Promise<void> => {
   try {
     const { firstName, lastName, email, groupId, allowedPlusOne, hasBooked } = req.body;
 
-    if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !groupId) {
-      res.status(400).json({ error: 'firstName, lastName, email, and groupId are required' });
+    if (!firstName?.trim() || !lastName?.trim() || !groupId) {
+      res.status(400).json({ error: 'firstName, lastName, and groupId are required' });
       return;
     }
 
-    const existingGuest = await Guest.findOne({ email: email.trim().toLowerCase() });
-    if (existingGuest) {
-      res.status(400).json({ error: 'Guest with this email already exists' });
-      return;
+    const trimmedEmail = typeof email === 'string' ? email.trim().toLowerCase() : undefined;
+
+    if (trimmedEmail) {
+      const existingGuest = await Guest.findOne({ email: trimmedEmail });
+      if (existingGuest) {
+        res.status(400).json({ error: 'Guest with this email already exists' });
+        return;
+      }
     }
 
     const group = await Group.findById(groupId);
@@ -49,17 +53,20 @@ export const addGuest = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const guest = new Guest({
+    const guestData: Record<string, unknown> = {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
-      email: email.trim().toLowerCase(),
       groupId: new mongoose.Types.ObjectId(groupId),
       allowedPlusOne: allowedPlusOne ?? false,
       hasBooked: hasBooked ?? false,
       rsvpStatus: 'pending',
       events: []
-    });
+    };
+    if (trimmedEmail) {
+      guestData.email = trimmedEmail;
+    }
 
+    const guest = new Guest(guestData);
     await guest.save();
 
     const populated = await Guest.findById(guest._id).populate('groupId', 'name').lean();

@@ -92,12 +92,21 @@ export function AdminPage() {
   }, [isAuthenticated]);
 
   const handleAddGuest = async () => {
-    if (!newGuest.firstName?.trim() || !newGuest.lastName?.trim() || !newGuest.email?.trim() || !newGuest.groupId) {
-      alert('First name, last name, email, and group are required');
+    if (!newGuest.firstName?.trim() || !newGuest.lastName?.trim() || !newGuest.groupId) {
+      alert('First name, last name, and group are required');
       return;
     }
     try {
-      await adminApi.addGuest(newGuest);
+      const payload: Parameters<typeof adminApi.addGuest>[0] = {
+        firstName: newGuest.firstName,
+        lastName: newGuest.lastName,
+        groupId: newGuest.groupId,
+        allowedPlusOne: newGuest.allowedPlusOne,
+      };
+      if (newGuest.email.trim()) {
+        payload.email = newGuest.email.trim();
+      }
+      await adminApi.addGuest(payload);
       setNewGuest({ firstName: '', lastName: '', email: '', groupId: '', allowedPlusOne: false });
       setShowAddGuest(false);
       fetchData();
@@ -113,7 +122,7 @@ export function AdminPage() {
       await adminApi.updateGuest(editingGuestId, {
         firstName: editGuest.firstName.trim(),
         lastName: editGuest.lastName.trim(),
-        email: editGuest.email.trim(),
+        email: editGuest.email.trim() || undefined,
         groupId: editGuest.groupId || undefined,
         allowedPlusOne: editGuest.allowedPlusOne,
         hasBooked: editGuest.hasBooked,
@@ -143,7 +152,7 @@ export function AdminPage() {
     setEditGuest({
       firstName: g.firstName,
       lastName: g.lastName,
-      email: g.email,
+      email: g.email ?? '',
       groupId: g.groupId,
       allowedPlusOne: g.allowedPlusOne,
       hasBooked: g.hasBooked ?? false,
@@ -202,7 +211,7 @@ export function AdminPage() {
     const rows = guests.map((g) => [
       g.firstName,
       g.lastName,
-      g.email,
+      g.email ?? '',
       (g as Guest & { groupName?: string }).groupName ?? '',
       g.rsvpStatus,
       g.events.join('; '),
@@ -496,12 +505,12 @@ export function AdminPage() {
                       />
                     </div>
                     <div>
-                      <Label>Email</Label>
+                      <Label>Email <span className="text-sand-dark font-normal">(optional)</span></Label>
                       <Input
                         type="email"
                         value={newGuest.email}
                         onChange={(e) => setNewGuest({ ...newGuest, email: e.target.value })}
-                        placeholder="Email"
+                        placeholder="Guests provide this during RSVP"
                       />
                     </div>
                     <div>
@@ -647,7 +656,7 @@ export function AdminPage() {
                               <p className="text-xs text-sand-dark">+1: {guest.plusOne.name}</p>
                             )}
                           </td>
-                          <td className="py-3 px-2 text-sm text-sand-dark">{guest.email}</td>
+                          <td className="py-3 px-2 text-sm text-sand-dark">{guest.email || <span className="text-sand-driftwood italic">—</span>}</td>
                           <td className="py-3 px-2 text-sm">
                             {(guest as Guest & { groupName?: string }).groupName || '-'}
                           </td>

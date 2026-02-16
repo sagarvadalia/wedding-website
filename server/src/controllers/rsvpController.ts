@@ -12,7 +12,7 @@ export interface LookupGuestDto {
   _id: string;
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string;
   rsvpStatus: string;
   events: string[];
   dietaryRestrictions: string;
@@ -29,11 +29,10 @@ export interface LookupGroupDto {
 }
 
 function guestToDto(o: Record<string, unknown>): LookupGuestDto {
-  return {
+  const dto: LookupGuestDto = {
     _id: String(o._id),
     firstName: (o.firstName as string) ?? '',
     lastName: (o.lastName as string) ?? '',
-    email: (o.email as string) ?? '',
     rsvpStatus: (o.rsvpStatus as string) ?? 'pending',
     events: (o.events as string[]) ?? [],
     dietaryRestrictions: (o.dietaryRestrictions as string) ?? '',
@@ -42,6 +41,10 @@ function guestToDto(o: Record<string, unknown>): LookupGuestDto {
     allowedPlusOne: (o.allowedPlusOne as boolean) ?? false,
     rsvpDate: o.rsvpDate ? new Date(o.rsvpDate as string).toISOString() : null
   };
+  if (typeof o.email === 'string' && o.email) {
+    dto.email = o.email;
+  }
+  return dto;
 }
 
 /**
@@ -137,6 +140,7 @@ function toEventTypes(arr: unknown): EventType[] {
 interface GuestUpdatePayload {
   guestId: string;
   attending: AttendingPayload;
+  email?: string;
   events?: string[];
   dietaryRestrictions?: string;
   plusOne?: { name: string; dietaryRestrictions: string } | null;
@@ -183,6 +187,18 @@ export const submitRsvp = async (req: Request, res: Response): Promise<void> => 
     for (const payload of guestsPayload) {
       const guest = guestsInGroup.find((g) => String(g._id) === payload.guestId);
       if (!guest) continue;
+
+      if (payload.email !== undefined) {
+        const trimmedEmail = payload.email.trim().toLowerCase();
+        if (trimmedEmail) {
+          const existing = await Guest.findOne({ email: trimmedEmail, _id: { $ne: guest._id } });
+          if (existing) {
+            res.status(400).json({ error: `Email "${trimmedEmail}" is already in use by another guest` });
+            return;
+          }
+          guest.email = trimmedEmail;
+        }
+      }
 
       const status = attendingToStatus(payload.attending);
       guest.rsvpStatus = status;

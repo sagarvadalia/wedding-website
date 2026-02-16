@@ -48,7 +48,7 @@ const stampConfigs: Record<EventType, {
   },
   haldi: {
     title: 'HALDI',
-    color: '#F4C430',
+    color: '#B8860B',
     borderStyle: 'circle',
     icon: (
       <g>
@@ -66,7 +66,7 @@ const stampConfigs: Record<EventType, {
   },
   mehndi: {
     title: 'MEHNDI',
-    color: '#C4A77D',
+    color: '#8B5E3C',
     borderStyle: 'oval',
     icon: (
       <g>
@@ -83,7 +83,7 @@ const stampConfigs: Record<EventType, {
   },
   baraat: {
     title: 'BARAAT',
-    color: '#FF6B6B',
+    color: '#CC3333',
     borderStyle: 'rectangle',
     icon: (
       <g>
@@ -100,7 +100,7 @@ const stampConfigs: Record<EventType, {
   },
   wedding: {
     title: 'WEDDING CEREMONY',
-    color: '#D4AF37',
+    color: '#A67C00',
     borderStyle: 'circle',
     icon: (
       <g>
@@ -138,7 +138,7 @@ const stampConfigs: Record<EventType, {
   },
   reception: {
     title: 'RECEPTION',
-    color: '#87CEEB',
+    color: '#2874A6',
     borderStyle: 'oval',
     icon: (
       <g>
@@ -173,23 +173,35 @@ export function VisaStamp({
 }: VisaStampProps) {
   const config = stampConfigs[event];
   const id = useId();
+  const safeId = id.replace(/:/g, '');
   const randomRotation = seededRotation(id + event);
-  
+  const useCurvedText = config.borderStyle === 'circle' || config.borderStyle === 'oval';
+
   const StampContent = (
-    <svg 
-      viewBox="0 0 100 100" 
+    <svg
+      viewBox="0 0 100 100"
       className={cn(sizeClasses[size], className)}
       style={{ color: config.color }}
     >
+      {/* Arc paths for curved text */}
+      <defs>
+        {config.borderStyle === 'circle' && (
+          <path id={`${safeId}-arc`} d="M 12,50 A 38,38 0 0,1 88,50" fill="none" />
+        )}
+        {config.borderStyle === 'oval' && (
+          <path id={`${safeId}-arc`} d="M 10,50 A 40,34 0 0,1 90,50" fill="none" />
+        )}
+      </defs>
+
       {/* Background fill so stamps are legible on photo backgrounds */}
       {config.borderStyle === 'circle' && (
-        <circle cx="50" cy="50" r="46" fill="rgba(250,248,245,0.88)" />
+        <circle cx="50" cy="50" r="46" fill="rgba(250,248,245,0.92)" />
       )}
       {config.borderStyle === 'rectangle' && (
-        <rect x="4" y="4" width="92" height="92" rx="4" fill="rgba(250,248,245,0.88)" />
+        <rect x="4" y="4" width="92" height="92" rx="4" fill="rgba(250,248,245,0.92)" />
       )}
       {config.borderStyle === 'oval' && (
-        <ellipse cx="50" cy="50" rx="46" ry="40" fill="rgba(250,248,245,0.88)" />
+        <ellipse cx="50" cy="50" rx="46" ry="40" fill="rgba(250,248,245,0.92)" />
       )}
 
       {/* Border based on style */}
@@ -211,50 +223,43 @@ export function VisaStamp({
           <ellipse cx="50" cy="50" rx="42" ry="36" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 2" />
         </>
       )}
-      
-      {/* Icon */}
-      <g transform="translate(0, -8)">
+
+      {/* Icon — centered in stamp */}
+      <g transform="translate(0, -2)">
         {config.icon}
       </g>
-      
-      {/* Title - curved at top */}
-      <text
-        x="50"
-        y="18"
-        textAnchor="middle"
-        fill="currentColor"
-        fontSize="7"
-        fontWeight="bold"
-        fontFamily="monospace"
-        letterSpacing="1"
-      >
-        {config.title}
-      </text>
-      
+
+      {/* Title — curved along top border for circles/ovals, straight for rectangles */}
+      {useCurvedText ? (
+        <text fill="currentColor" fontSize="7" fontWeight="bold" fontFamily="monospace">
+          <textPath href={`#${safeId}-arc`} startOffset="50%" textAnchor="middle">
+            {config.title}
+          </textPath>
+        </text>
+      ) : (
+        <text
+          x="50"
+          y="16"
+          textAnchor="middle"
+          fill="currentColor"
+          fontSize="7"
+          fontWeight="bold"
+          fontFamily="monospace"
+        >
+          {config.title}
+        </text>
+      )}
+
       {/* Date at bottom */}
       <text
         x="50"
-        y="90"
+        y="92"
         textAnchor="middle"
         fill="currentColor"
         fontSize="6"
         fontFamily="monospace"
       >
         {date}
-      </text>
-      
-      {/* APPROVED text */}
-      <text
-        x="50"
-        y="82"
-        textAnchor="middle"
-        fill="currentColor"
-        fontSize="5"
-        fontFamily="monospace"
-        letterSpacing="2"
-        opacity="0.8"
-      >
-        ✓ ENTRY GRANTED
       </text>
     </svg>
   );
@@ -287,13 +292,30 @@ interface StampCollectionProps {
   className?: string;
   /** When true, lay out stamps in exactly two rows (4 + 3) to save vertical space */
   twoRows?: boolean;
+  /** When true, lay out stamps in a semi-arch across the top */
+  topArch?: boolean;
   /** Size of individual stamps (defaults to 'md') */
   stampSize?: 'sm' | 'md' | 'lg';
   /** When true, stamps overlap slightly with drop-shadows for a photo-overlay look */
   overlap?: boolean;
 }
 
-export function StampCollection({ className, twoRows, stampSize, overlap }: StampCollectionProps) {
+/**
+ * Absolute positions for each stamp along a semi-arch.
+ * x = horizontal center (%), y = top edge (%), rotate = degrees.
+ * The arch peaks at the center and slopes down to the sides.
+ */
+const ARCH_LAYOUT: { x: string; y: string; rotate: number }[] = [
+  { x: '8%',  y: '54%', rotate: -8 },
+  { x: '22%', y: '32%', rotate: -4 },
+  { x: '36%', y: '14%', rotate: -1 },
+  { x: '50%', y: '6%',  rotate: 2 },
+  { x: '64%', y: '14%', rotate: 4 },
+  { x: '78%', y: '32%', rotate: -3 },
+  { x: '92%', y: '54%', rotate: 7 },
+];
+
+export function StampCollection({ className, twoRows, topArch, stampSize, overlap }: StampCollectionProps) {
   const events: { event: EventType; date: string }[] = [
     { event: 'welcome', date: 'APR 2, 2027' },
     { event: 'haldi', date: 'APR 3, 2027' },
@@ -321,6 +343,44 @@ export function StampCollection({ className, twoRows, stampSize, overlap }: Stam
       </Link>
     </motion.div>
   );
+
+  if (topArch) {
+    return (
+      <div className={cn('relative w-full h-48 md:h-56 overflow-hidden', className)}>
+        {events.map((e, i) => {
+          const pos = ARCH_LAYOUT[i];
+          return (
+            <motion.div
+              key={e.event}
+              className="absolute drop-shadow-lg"
+              style={{
+                left: pos.x,
+                top: pos.y,
+                transform: `translateX(-50%) rotate(${pos.rotate}deg)`,
+              }}
+              initial={{ opacity: 0, scale: 1.6 }}
+              animate={{ opacity: 0.88, scale: 1 }}
+              transition={{
+                type: 'spring',
+                stiffness: 280,
+                damping: 20,
+                delay: i * 0.08,
+              }}
+              whileHover={{ scale: 1.08, opacity: 1 }}
+            >
+              <Link
+                to={`/events#${e.event}`}
+                className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-ocean-caribbean focus-visible:ring-offset-2 rounded"
+                aria-label={`View ${stampConfigs[e.event].title} event details`}
+              >
+                <VisaStamp event={e.event} date={e.date} size={stampSize} animated={false} />
+              </Link>
+            </motion.div>
+          );
+        })}
+      </div>
+    );
+  }
 
   if (twoRows) {
     const row1 = events.slice(0, 4);

@@ -6,7 +6,7 @@ export type RsvpStatus = 'pending' | 'confirmed' | 'maybe' | 'declined';
 export interface IGuest extends Document {
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string;
   groupId: mongoose.Types.ObjectId;
   events: EventType[];
   dietaryRestrictions: string;
@@ -38,11 +38,8 @@ const GuestSchema = new Schema<IGuest>({
   },
   email: {
     type: String,
-    required: true,
-    unique: true,
     lowercase: true,
     trim: true,
-    index: true
   },
   groupId: {
     type: Schema.Types.ObjectId,
@@ -90,6 +87,7 @@ const GuestSchema = new Schema<IGuest>({
 
 GuestSchema.index({ firstName: 1, lastName: 1 });
 GuestSchema.index({ rsvpStatus: 1, updatedAt: -1 });
+GuestSchema.index({ email: 1 }, { unique: true, sparse: true });
 
 const Guest = mongoose.model<IGuest>('Guest', GuestSchema);
 export default Guest;

@@ -21,7 +21,7 @@ export interface Guest {
   _id: string;
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string;
   groupId: string;
   groupName?: string;
   events: EventType[];
@@ -64,7 +64,7 @@ export interface LookupGuestDto {
   _id: string;
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string;
   rsvpStatus: string;
   events: string[];
   dietaryRestrictions: string;
@@ -88,6 +88,7 @@ export interface RsvpStatusResponse {
 export interface GroupRsvpGuestPayload {
   guestId: string;
   attending: boolean | 'maybe';
+  email?: string;
   events?: EventType[];
   dietaryRestrictions?: string;
   plusOne?: { name: string; dietaryRestrictions: string } | null;
@@ -139,7 +140,7 @@ export const adminApi = {
   addGuest: (data: {
     firstName: string;
     lastName: string;
-    email: string;
+    email?: string;
     groupId: string;
     allowedPlusOne?: boolean;
   }) => api.post<{ success: boolean; guest: Guest }>('/admin/guests', data).then((res) => res.data),
