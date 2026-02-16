@@ -4,11 +4,32 @@ import { Volume2, VolumeX, Music, AlertCircle } from 'lucide-react';
 
 export function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showPrompt, setShowPrompt] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [audioError, setAudioError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+
+  // Minimize (dismiss prompt) when user clicks outside the player UI (e.g. passport, navbar)
+  useEffect(() => {
+    if (!showPrompt || hasInteracted) return;
+
+    const handlePointerDownOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target instanceof Node ? e.target : null;
+      if (playerContainerRef.current && target && !playerContainerRef.current.contains(target)) {
+        setShowPrompt(false);
+        setHasInteracted(true);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDownOutside);
+    document.addEventListener('touchstart', handlePointerDownOutside);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDownOutside);
+      document.removeEventListener('touchstart', handlePointerDownOutside);
+    };
+  }, [showPrompt, hasInteracted]);
 
   // Handle audio loading and errors
   useEffect(() => {
@@ -117,15 +138,21 @@ export function AudioPlayer() {
         src="/music/lucky.mp3"
       />
 
-      {/* Initial prompt to enable music */}
-      <AnimatePresence>
-        {showPrompt && !hasInteracted && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50"
-          >
+      {/* Wrapper for click-outside: only the prompt and button are "inside"; pointer-events-none so wrapper doesn't block clicks */}
+      <div
+        ref={playerContainerRef}
+        className="fixed inset-0 pointer-events-none z-50"
+        aria-hidden
+      >
+        {/* Initial prompt to enable music */}
+        <AnimatePresence>
+          {showPrompt && !hasInteracted && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              className="fixed bottom-24 left-1/2 -translate-x-1/2 pointer-events-auto"
+            >
             <div className="bg-ocean-deep/95 backdrop-blur-sm text-white px-6 py-4 rounded-2xl shadow-xl flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center">
                 {audioError ? (
@@ -177,13 +204,13 @@ export function AudioPlayer() {
         )}
       </AnimatePresence>
 
-      {/* Floating control button */}
-      {hasInteracted && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          onClick={togglePlay}
-          className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-ocean-deep/90 backdrop-blur-sm text-white shadow-lg hover:bg-ocean-deep transition-colors flex items-center justify-center group"
+        {/* Floating control button */}
+        {hasInteracted && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            onClick={togglePlay}
+            className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-ocean-deep/90 backdrop-blur-sm text-white shadow-lg hover:bg-ocean-deep transition-colors flex items-center justify-center group pointer-events-auto"
           aria-label={isPlaying ? 'Mute music' : 'Play music'}
         >
           {isPlaying ? (
@@ -206,7 +233,8 @@ export function AudioPlayer() {
             />
           )}
         </motion.button>
-      )}
+        )}
+      </div>
     </>
   );
 }
