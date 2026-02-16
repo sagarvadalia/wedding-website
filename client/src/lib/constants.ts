@@ -33,6 +33,13 @@ export const RSVP_BACKGROUND_PHOTO = {
   mobileObjectPosition: '80% 50%',
 };
 
+/** Full-bleed photo for the left page of the open passport spread. */
+export const PASSPORT_SPREAD_PHOTO = {
+  src: '/images/dreams-playa-mujeres.jpg',
+  alt: 'Sagar and Grace',
+  objectPosition: '50% 50%',
+};
+
 /** Featured photos for landing polaroids and open passport spread. Replace with real engagement/couple images. */
 export interface FeaturedPhoto {
   src: string;
@@ -41,11 +48,11 @@ export interface FeaturedPhoto {
 
 export const FEATURED_PHOTOS: FeaturedPhoto[] = [
   { src: '/images/dreams-playa-mujeres.jpg', alt: 'Dreams Playa Mujeres resort' },
-  { src: '', alt: 'Engagement photo 1' },
-  { src: '', alt: 'Engagement photo 2' },
-  { src: '', alt: 'Couple photo 1' },
-  { src: '', alt: 'Couple photo 2' },
-  { src: '', alt: 'Couple photo 3' },
+  { src: '/images/hero-wedding-photo.avif', alt: 'Engagement photo 1' },
+  { src: '/images/hero-wedding-photo.avif', alt: 'Engagement photo 2' },
+  { src: '/images/hero-wedding-photo.avif', alt: 'Couple photo 1' },
+  { src: '/images/hero-wedding-photo.avif', alt: 'Couple photo 2' },
+  { src: '/images/hero-wedding-photo.avif', alt: 'Couple photo 3' },
 ];
 
 /** Cast / wedding party for The Cast page. Update names, roles, photos, and blurbs. */

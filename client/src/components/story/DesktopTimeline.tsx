@@ -122,11 +122,19 @@ export function DesktopTimeline({ events }: DesktopTimelineProps) {
                   className="shrink-0"
                 >
                   <div className="bg-sand-pearl px-4 pt-4 pb-12 shadow-lg rounded-sm hover:shadow-xl transition-shadow">
-                    <div className="w-72 h-72 bg-sand-warm/50 flex items-center justify-center border border-sand-driftwood/20">
-                      <div className="text-center text-sand-dark/50">
-                        <Heart className="w-12 h-12 mx-auto mb-1" />
-                        <p className="text-sm">Photo {index + 1}</p>
-                      </div>
+                    <div className="w-72 h-72 bg-sand-warm/50 flex items-center justify-center border border-sand-driftwood/20 overflow-hidden">
+                      {event.image ? (
+                        <img
+                          src={event.image}
+                          alt={event.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="text-center text-sand-dark/50">
+                          <Heart className="w-12 h-12 mx-auto mb-1" />
+                          <p className="text-sm">Photo {index + 1}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>

@@ -181,6 +181,17 @@ export function VisaStamp({
       className={cn(sizeClasses[size], className)}
       style={{ color: config.color }}
     >
+      {/* Background fill so stamps are legible on photo backgrounds */}
+      {config.borderStyle === 'circle' && (
+        <circle cx="50" cy="50" r="46" fill="rgba(250,248,245,0.88)" />
+      )}
+      {config.borderStyle === 'rectangle' && (
+        <rect x="4" y="4" width="92" height="92" rx="4" fill="rgba(250,248,245,0.88)" />
+      )}
+      {config.borderStyle === 'oval' && (
+        <ellipse cx="50" cy="50" rx="46" ry="40" fill="rgba(250,248,245,0.88)" />
+      )}
+
       {/* Border based on style */}
       {config.borderStyle === 'circle' && (
         <>
@@ -276,9 +287,13 @@ interface StampCollectionProps {
   className?: string;
   /** When true, lay out stamps in exactly two rows (4 + 3) to save vertical space */
   twoRows?: boolean;
+  /** Size of individual stamps (defaults to 'md') */
+  stampSize?: 'sm' | 'md' | 'lg';
+  /** When true, stamps overlap slightly with drop-shadows for a photo-overlay look */
+  overlap?: boolean;
 }
 
-export function StampCollection({ className, twoRows }: StampCollectionProps) {
+export function StampCollection({ className, twoRows, stampSize, overlap }: StampCollectionProps) {
   const events: { event: EventType; date: string }[] = [
     { event: 'welcome', date: 'APR 2, 2027' },
     { event: 'haldi', date: 'APR 3, 2027' },
@@ -295,13 +310,14 @@ export function StampCollection({ className, twoRows }: StampCollectionProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
+      className={overlap ? 'drop-shadow-lg' : undefined}
     >
       <Link
         to={`/events#${e.event}`}
         className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-ocean-caribbean focus-visible:ring-offset-2 rounded"
         aria-label={`View ${stampConfigs[e.event].title} event details`}
       >
-        <VisaStamp event={e.event} date={e.date} />
+        <VisaStamp event={e.event} date={e.date} size={stampSize} />
       </Link>
     </motion.div>
   );
@@ -310,11 +326,11 @@ export function StampCollection({ className, twoRows }: StampCollectionProps) {
     const row1 = events.slice(0, 4);
     const row2 = events.slice(4, 7);
     return (
-      <div className={cn('flex flex-col gap-3 justify-center items-center', className)}>
-        <div className="flex flex-wrap gap-3 justify-center">
+      <div className={cn('flex flex-col justify-center items-center', overlap ? '-space-y-2' : stampSize === 'sm' ? 'gap-1' : 'gap-3', className)}>
+        <div className={cn('flex flex-wrap justify-center', overlap ? '-space-x-2' : stampSize === 'sm' ? 'gap-1' : 'gap-3')}>
           {row1.map((e, i) => renderStamp(e, i))}
         </div>
-        <div className="flex flex-wrap gap-3 justify-center">
+        <div className={cn('flex flex-wrap justify-center', overlap ? '-space-x-2' : stampSize === 'sm' ? 'gap-1' : 'gap-3')}>
           {row2.map((e, i) => renderStamp(e, 4 + i))}
         </div>
       </div>

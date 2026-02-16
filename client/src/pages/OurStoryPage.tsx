@@ -10,6 +10,8 @@ export interface TimelineEvent {
   title: string;
   description: string;
   icon: React.ReactNode;
+  /** Path to a photo shown in the polaroid frame (relative to /images/) */
+  image?: string;
 }
 
 const timeline: TimelineEvent[] = [
@@ -17,6 +19,7 @@ const timeline: TimelineEvent[] = [
     year: '2014',
     title: 'First Connection',
     description: "In Fall 2014, we were two wide-eyed college freshmen at Cornell eager to start a new chapter in our lives. We both lived in a freshman dorm across the hallway from one another. Because of that, we would share frequent dining hall meals together and go to the typical college parties and events as a large group. One night in early November, the two of us attended a sorority paint party together- the first event we attended just the two of us. The night was filled with goofy pictures, endless dancing, colorful paint throwing, and undeniable chemistry between the two of us. In the days and weeks following the paint party, we were inseparable. We spent late nights chatting and getting to know each other, binging How I Met Your Mother (which became one of Grace's favorite shows), playing piano in the dorm lounge, studying (and flirting) in the library, and gaining the freshman 15 at the dining hall. We eventually had our first \"date\" watching Interstellar at the Ithaca mall - a night to remember, where we got stuck in the mall at 2 am after the movie ended (our age is showing-this was pre-uber!). Even though our majors were different and we didn't share any classes, we loved spending time together. Those few months were a spark-filled, beautiful yet fleeting time in both of our lives.",
+    image: '/images/first-connection.avif',
     icon: (
       <span className="relative inline-block w-5 h-5">
         <Sparkle className="w-5 h-5 fill-current relative z-10" />
@@ -38,6 +41,7 @@ const timeline: TimelineEvent[] = [
     title: 'Second Chance',
     description: 'In 2021, the world was coming out of the harshest COVID lockdowns. This was also the time when people longed for human connection. What better reason to reach out to that "one that got away" from nearly a decade ago\u2026  And that\'s what we did in June 2021, both single and starting our careers. A simple, innocent Facebook message out of the blue turned into a reunion dinner with an old friend in Long Island City, NY. We shared guac and chips, life stories from the past 7 years, growing butterflies, and by the end of the night, we both realized that night was not the last we would see of one another. We both went home excited, hopeful, and in awe of what fate had handed to us- a second chance at falling in love with that one that got away all those years ago. And yes, we FINALLY took that chance together, and it has been the best and most beautiful decision we made.',
     icon: <Heart className="w-5 h-5 fill-current" />,
+    image: '/images/second-chance.avif',
   },
   {
     year: '2021-present',

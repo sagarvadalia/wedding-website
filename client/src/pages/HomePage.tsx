@@ -5,7 +5,7 @@ import { PassportCover } from '@/components/passport/PassportCover';
 import { PassportPolaroid } from '@/components/passport/PassportPolaroid';
 import { Button } from '@/components/ui/button';
 import { StampCollection } from '@/components/passport/VisaStamp';
-import { FEATURED_PHOTOS, HERO_PHOTO } from '@/lib/constants';
+import { FEATURED_PHOTOS, HERO_PHOTO, PASSPORT_SPREAD_PHOTO } from '@/lib/constants';
 import { WeddingCountdown } from '@/components/layout/WeddingCountdown';
 import { Calendar, MapPin } from 'lucide-react';
 import { OceanBackground } from '@/components/layout/OceanBackground';
@@ -16,6 +16,7 @@ const PASSPORT_SECTION_ID = 'passport-section';
 export function HomePage() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const availablePhotos = FEATURED_PHOTOS.slice(2, 6).filter(p => p.src);
 
   return (
     <div className="relative">
@@ -116,56 +117,55 @@ export function HomePage() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3 }}
-              className="w-full max-w-6xl flex flex-col md:flex-row items-stretch shadow-2xl rounded-lg overflow-hidden my-6 md:my-8"
+              className="w-full max-w-6xl flex flex-col md:flex-row items-stretch shadow-2xl rounded-lg overflow-hidden my-6 md:my-8 border border-gold/20"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Left page (passport-style) */}
-              <div className="w-full md:w-1/2 min-h-[60vh] md:min-h-[80vh] max-h-[85vh] overflow-y-auto paper-texture bg-sand-pearl p-4 md:p-6 flex flex-col rounded-t-lg md:rounded-l-lg md:rounded-r-none border border-b-0 md:border-b md:border-r-0 border-sand-driftwood/20">
-                {/* Passport photo slot (compact to avoid scroll) */}
+              {/* ── Left page — photo with scattered stamps ── */}
+              <div className="relative w-full md:w-1/2 min-h-[60vh] md:min-h-[80vh] max-h-[85vh] overflow-hidden rounded-t-lg md:rounded-l-lg md:rounded-r-none">
+                {/* Full-bleed background image */}
+                <img
+                  src={PASSPORT_SPREAD_PHOTO.src}
+                  alt={PASSPORT_SPREAD_PHOTO.alt}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ objectPosition: PASSPORT_SPREAD_PHOTO.objectPosition }}
+                />
+                {/* Dark overlay for stamp contrast */}
+                <div className="absolute inset-0 bg-black/30" />
+
+                {/* Stamps overlay — loose organic grid */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="flex justify-center mb-3"
+                  transition={{ delay: 0.2, duration: 0.4 }}
+                  className="relative z-10 h-full flex flex-col items-center justify-center p-4 md:p-6"
                 >
-                  <div className="w-28 h-36 md:w-32 md:h-40 border-2 border-ocean-deep/30 overflow-hidden bg-sand-warm/30">
-                    {FEATURED_PHOTOS[0]?.src ? (
-                      <img
-                        src={FEATURED_PHOTOS[0].src}
-                        alt={FEATURED_PHOTOS[0].alt}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-linear-to-br from-ocean-deep to-ocean-caribbean flex items-center justify-center">
-                        <span className="text-white/60 text-xs">Photo</span>
-                      </div>
-                    )}
-                  </div>
+                  <StampCollection twoRows stampSize="sm" overlap />
                 </motion.div>
-                <p className="text-center text-[10px] md:text-xs text-sand-dark/70 uppercase tracking-widest mb-2">Type: P · Destination: Mexico</p>
-                {/* Visa stamps */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <p className="text-center text-xs text-sand-dark mb-2 uppercase tracking-widest">Collect all your stamps</p>
-                  <div className="scale-[0.65] origin-center md:scale-75">
-                    <StampCollection twoRows />
-                  </div>
-                </motion.div>
+
+                {/* Page number */}
+                <p className="absolute bottom-2 right-3 z-10 font-accent text-xs text-white/50">pg. 1</p>
               </div>
 
-              {/* Book spine (desktop) / divider (mobile) */}
+              {/* ── Book spine ── */}
               <div
-                className="w-full h-2 md:h-full md:w-2 shrink-0 md:min-h-0"
+                className="w-full h-3 md:h-full md:w-3 shrink-0 md:min-h-0"
                 style={{
-                  background: 'linear-gradient(90deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.08) 100%)',
+                  background: 'linear-gradient(90deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.15) 100%)',
                 }}
               />
 
-              {/* Right page (invite + CTAs) */}
-              <div className="w-full md:w-1/2 min-h-[60vh] md:min-h-[80vh] max-h-[85vh] overflow-y-auto paper-texture bg-sand-pearl p-4 md:p-6 flex flex-col rounded-b-lg md:rounded-r-lg md:rounded-l-none border border-t-0 md:border-t md:border-l-0 border-sand-driftwood/20">
+              {/* ── Right page — invitation ── */}
+              <div
+                className="relative w-full md:w-1/2 min-h-[60vh] md:min-h-[80vh] max-h-[85vh] overflow-y-auto paper-texture p-5 md:p-8 flex flex-col items-center justify-center rounded-b-lg md:rounded-r-lg md:rounded-l-none"
+                style={{ boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.05)' }}
+              >
+                {/* Corner ornaments */}
+                <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-gold/30" />
+                <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-gold/30" />
+                <div className="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-gold/30" />
+                <div className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-gold/30" />
+
+                <div className="text-center flex flex-col items-center justify-center flex-1 py-6">
                 <motion.div
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -182,62 +182,90 @@ export function HomePage() {
                   </p>
                  
                 </motion.div>
-                <motion.div
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="h-[2px] w-32 mx-auto mb-3"
-                  style={{ background: 'linear-gradient(90deg, transparent, #D4AF37, transparent)' }}
-                />
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.25 }}
-                  className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-6 mb-3"
-                >
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-gold" />
-                    <span className="text-ocean-deep text-sm">April 2-5, 2027</span>
-                  </div>
-                  <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-gold" />
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-gold" />
-                    <span className="text-ocean-deep text-sm">Cancun, Mexico</span>
-                  </div>
-                </motion.div>
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-center text-sand-dark text-sm mb-4"
-                >
-                  Dreams Playa Mujeres Golf & Spa Resort
-                </motion.p>
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.35 }}
-                  className="flex flex-col sm:flex-row items-center justify-center gap-2 mb-4"
-                >
-                  <Button variant="gold" onClick={() => navigate('/rsvp')} className="w-full sm:w-auto">
-                    RSVP Now
-                  </Button>
-                  <Button variant="outline" onClick={() => navigate('/our-story')} className="w-full sm:w-auto">
-                    Our Story
-                  </Button>
-                </motion.div>
-                {/* Polaroids on right page (2x2 grid, larger to fill page) */}
-                <div className="grid grid-cols-2 gap-3 justify-items-center mt-4">
-                  {FEATURED_PHOTOS.slice(2, 6).map((photo, i) => (
-                    <PassportPolaroid
-                      key={i}
-                      src={photo.src}
-                      alt={photo.alt}
-                      size="md"
-                      rotate={[-3, 2, 3, -2][i]}
-                    />
-                  ))}
+                  
+
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ delay: 0.3, duration: 0.5 }}
+                    className="h-[2px] w-32 md:w-40 mb-6"
+                    style={{ background: 'linear-gradient(90deg, transparent, #D4AF37, transparent)' }}
+                  />
+
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.35 }}
+                    className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-6 mb-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-gold" />
+                      <span className="text-ocean-deep text-base md:text-lg font-medium">April 2&#x2013;5, 2027</span>
+                    </div>
+                    <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-gold" />
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-gold" />
+                      <span className="text-ocean-deep text-base md:text-lg font-medium">Cancun, Mexico</span>
+                    </div>
+                  </motion.div>
+
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="font-accent text-sm text-sand-dark/70 tracking-wider mb-8"
+                  >
+                    Dreams Playa Mujeres Golf &amp; Spa Resort
+                  </motion.p>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.45 }}
+                    className="flex flex-col sm:flex-row items-center justify-center gap-3"
+                  >
+                    <Button variant="gold" size="lg" onClick={() => navigate('/rsvp')} className="w-full sm:w-auto">
+                      RSVP Now
+                    </Button>
+                    <Button variant="outline" size="lg" onClick={() => navigate('/our-story')} className="w-full sm:w-auto">
+                      Our Story
+                    </Button>
+                  </motion.div>
+
+                  {availablePhotos.length > 0 ? (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.55 }}
+                      className="mt-8"
+                    >
+                      <div className="grid grid-cols-2 gap-3 justify-items-center">
+                        {availablePhotos.map((photo, i) => (
+                          <PassportPolaroid
+                            key={photo.alt}
+                            src={photo.src}
+                            alt={photo.alt}
+                            size="sm"
+                            rotate={[-3, 2, 3, -2][i]}
+                          />
+                        ))}
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.55 }}
+                      className="mt-8 flex items-center gap-3"
+                    >
+                      <div className="h-px w-8" style={{ background: 'linear-gradient(90deg, transparent, #D4AF37)' }} />
+                      <span className="text-gold/50 text-lg">{'\u2665'}</span>
+                      <div className="h-px w-8" style={{ background: 'linear-gradient(90deg, #D4AF37, transparent)' }} />
+                    </motion.div>
+                  )}
                 </div>
+
+                <p className="text-right w-full font-accent text-xs text-gold/50">pg. 2</p>
               </div>
             </motion.div>
           )}

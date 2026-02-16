@@ -102,13 +102,21 @@ export function MobileTimeline({ events }: MobileTimelineProps) {
                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                         className="overflow-hidden"
                       >
-                        <div className="mt-4 flex justify-center">
+                        <div className="mt-4">
                           <div className="bg-sand-pearl px-3 pt-3 pb-8 shadow-md rounded-sm">
-                            <div className="w-36 h-36 bg-sand-warm/50 flex items-center justify-center border border-sand-driftwood/20">
-                              <div className="text-center text-sand-dark/50">
-                                <Heart className="w-8 h-8 mx-auto mb-1" />
-                                <p className="text-xs">Photo {index + 1}</p>
-                              </div>
+                            <div className="w-full aspect-square bg-sand-warm/50 flex items-center justify-center border border-sand-driftwood/20 overflow-hidden">
+                              {event.image ? (
+                                <img
+                                  src={event.image}
+                                  alt={event.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="text-center text-sand-dark/50">
+                                  <Heart className="w-8 h-8 mx-auto mb-1" />
+                                  <p className="text-xs">Photo {index + 1}</p>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
