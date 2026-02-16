@@ -1,4 +1,5 @@
 import { useId, type JSX } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { EventType } from '@/types';
@@ -295,7 +296,13 @@ export function StampCollection({ className, twoRows }: StampCollectionProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
     >
-      <VisaStamp event={e.event} date={e.date} />
+      <Link
+        to={`/events#${e.event}`}
+        className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-ocean-caribbean focus-visible:ring-offset-2 rounded"
+        aria-label={`View ${stampConfigs[e.event].title} event details`}
+      >
+        <VisaStamp event={e.event} date={e.date} />
+      </Link>
     </motion.div>
   );
 

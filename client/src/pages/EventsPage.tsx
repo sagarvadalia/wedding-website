@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
 import { VisaStamp } from '@/components/passport/VisaStamp';
@@ -89,6 +91,19 @@ const stampThemeToEventType: Record<string, EventType> = {
 };
 
 export function EventsPage() {
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      const id = hash.slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        // Center the event card in the viewport and account for fixed nav (avoid overshooting)
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [hash]);
+
   return (
     <PassportPage pageNumber={3}>
       <PageHeader
@@ -102,6 +117,8 @@ export function EventsPage() {
           {events.map((event, index) => (
             <motion.div
               key={event.id}
+              id={event.id}
+              className="scroll-mt-24"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
