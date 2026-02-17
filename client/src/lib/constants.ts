@@ -47,12 +47,10 @@ export interface FeaturedPhoto {
 }
 
 export const FEATURED_PHOTOS: FeaturedPhoto[] = [
-  { src: '/images/dreams-playa-mujeres.jpg', alt: 'Dreams Playa Mujeres resort' },
-  { src: '/images/hero-wedding-photo.avif', alt: 'Engagement photo 1' },
-  { src: '/images/hero-wedding-photo.avif', alt: 'Engagement photo 2' },
-  { src: '/images/hero-wedding-photo.avif', alt: 'Couple photo 1' },
-  { src: '/images/hero-wedding-photo.avif', alt: 'Couple photo 2' },
-  { src: '/images/hero-wedding-photo.avif', alt: 'Couple photo 3' },
+  { src: '/images/passport-beach.avif', alt: 'Us at the beach' },
+  { src: '/images/restaurant.avif', alt: 'A dinner for two' },
+  { src: '/images/ova.avif', alt: 'The Summit Opening' },
+  { src: '/images/just-us.avif', alt: 'Just us!' },
 ];
 
 /** Cast / wedding party for The Cast page. Update names, roles, photos, and blurbs. */

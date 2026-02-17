@@ -16,7 +16,7 @@ const PASSPORT_SECTION_ID = 'passport-section';
 export function HomePage() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const availablePhotos = FEATURED_PHOTOS.slice(2, 6).filter(p => p.src);
+  const availablePhotos = FEATURED_PHOTOS.filter(p => p.src);
 
   return (
     <div className="relative">
@@ -141,66 +141,50 @@ export function HomePage() {
                 <p className="absolute bottom-2 right-3 z-10 font-accent text-xs text-white/50">pg. 1</p>
               </div>
 
-              {/* ── Book spine ── */}
-              <div
-                className="w-full h-3 md:h-full md:w-3 shrink-0 md:min-h-0"
-                style={{
-                  background: 'linear-gradient(90deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 40%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.15) 100%)',
-                }}
-              />
+           
 
               {/* ── Right page — invitation ── */}
               <div
-                className="relative w-full md:w-1/2 min-h-[60vh] md:min-h-[80vh] max-h-[85vh] overflow-y-auto paper-texture p-5 md:p-8 flex flex-col items-center justify-center rounded-b-lg md:rounded-r-lg md:rounded-l-none"
+                className="relative w-full md:w-1/2 min-h-[60vh] md:min-h-[80vh] max-h-[85vh] min-h-0 overflow-hidden paper-texture p-5 md:p-8 flex flex-col items-center justify-center rounded-b-lg md:rounded-r-lg md:rounded-l-none"
                 style={{ boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.05)' }}
               >
-                {/* Corner ornaments */}
-                <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-gold/30" />
-                <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-gold/30" />
-                <div className="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-gold/30" />
-                <div className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-gold/30" />
+           
+               
 
-                <div className="text-center flex flex-col items-center justify-center flex-1 py-6">
+                <div className="text-center flex flex-col items-center justify-center flex-1 min-h-0 py-4">
                 <motion.div
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="text-center mb-3"
                 >
-                  <h1 className="text-2xl md:text-4xl font-heading text-ocean-deep mb-1">
+                  <h1 className="text-xl md:text-3xl font-heading text-ocean-deep mb-1">
                     Sagar & Grace
                   </h1>
-                  <p className="text-lg md:text-xl text-sand-dark font-light">
+                  <p className="text-lg md:text-lg text-sand-dark font-light">
                     are getting married!
                   </p>
-                  <p className="text-sand-dark/90 text-sm mt-1 italic">
+                  <p className="text-sand-dark/90 text-xs mt-1 italic">
                     We can't wait to celebrate with you!
                   </p>
                  
                 </motion.div>
                   
 
-                  <motion.div
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ delay: 0.3, duration: 0.5 }}
-                    className="h-[2px] w-32 md:w-40 mb-6"
-                    style={{ background: 'linear-gradient(90deg, transparent, #D4AF37, transparent)' }}
-                  />
 
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.35 }}
-                    className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-6 mb-2"
+                    className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-4 mb-2"
                   >
                     <div className="flex items-center gap-2">
                       <Calendar className="w-5 h-5 text-gold" />
-                      <span className="text-ocean-deep text-base md:text-lg font-medium">April 2&#x2013;5, 2027</span>
+                      <span className="text-ocean-deep text-base md:text-md font-medium">April 2&#x2013;5, 2027</span>
                     </div>
                     <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-gold" />
                     <div className="flex items-center gap-2">
                       <MapPin className="w-5 h-5 text-gold" />
-                      <span className="text-ocean-deep text-base md:text-lg font-medium">Cancun, Mexico</span>
+                      <span className="text-ocean-deep text-base md:text-md font-medium">Cancun, Mexico</span>
                     </div>
                   </motion.div>
 
@@ -208,7 +192,7 @@ export function HomePage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
-                    className="font-accent text-sm text-sand-dark/70 tracking-wider mb-8"
+                    className="font-accent text-sm text-sand-dark/70 tracking-wider mb-2"
                   >
                     Dreams Playa Mujeres Golf &amp; Spa Resort
                   </motion.p>
@@ -232,15 +216,15 @@ export function HomePage() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.55 }}
-                      className="mt-8"
+                      className="mt-6"
                     >
-                      <div className="grid grid-cols-2 gap-3 justify-items-center">
+                      <div className="grid grid-cols-2 gap-1.5 md:gap-2 justify-items-center">
                         {availablePhotos.map((photo, i) => (
                           <PassportPolaroid
                             key={photo.alt}
                             src={photo.src}
                             alt={photo.alt}
-                            size="sm"
+                            size="md"
                             rotate={[-3, 2, 3, -2][i]}
                           />
                         ))}
@@ -260,7 +244,7 @@ export function HomePage() {
                   )}
                 </div>
 
-                <p className="text-right w-full font-accent text-xs text-gold/50">pg. 2</p>
+                <p className="absolute bottom-4 right-4 font-accent text-xs text-gold/50">pg. 2</p>
               </div>
             </motion.div>
           )}
