@@ -15,6 +15,18 @@ export const lookupQuerySchema = z.object({
     .max(100, 'lastName is too long'),
 });
 
+const mailingAddressSchema = z
+  .object({
+    addressLine1: z.string().trim().max(200, 'Address line too long').optional(),
+    addressLine2: z.string().trim().max(200).optional(),
+    city: z.string().trim().max(100, 'City too long').optional(),
+    stateOrProvince: z.string().trim().max(100, 'State/province too long').optional(),
+    postalCode: z.string().trim().max(20, 'Postal code too long').optional(),
+    country: z.string().trim().max(100, 'Country too long').optional(),
+  })
+  .nullable()
+  .optional();
+
 const guestUpdateSchema = z.object({
   guestId: z.string().min(1, 'guestId is required'),
   attending: z.union([z.boolean(), z.literal('maybe')]),
@@ -29,6 +41,7 @@ const guestUpdateSchema = z.object({
     .nullable()
     .optional(),
   songRequest: z.string().max(500, 'Song request too long').optional(),
+  mailingAddress: mailingAddressSchema,
 });
 
 export const submitRsvpSchema = z.object({

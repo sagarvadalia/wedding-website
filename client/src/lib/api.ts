@@ -31,6 +31,7 @@ export interface Guest {
     dietaryRestrictions: string;
   } | null;
   songRequest: string;
+  mailingAddress: MailingAddressDto | null;
   rsvpStatus: 'pending' | 'confirmed' | 'maybe' | 'declined';
   rsvpDate: string | null;
   allowedPlusOne: boolean;
@@ -60,6 +61,15 @@ export interface LookupResponse {
   rsvpByDate: string | null;
 }
 
+export interface MailingAddressDto {
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  stateOrProvince: string;
+  postalCode: string;
+  country: string;
+}
+
 export interface LookupGuestDto {
   _id: string;
   firstName: string;
@@ -70,6 +80,7 @@ export interface LookupGuestDto {
   dietaryRestrictions: string;
   plusOne: { name: string; dietaryRestrictions: string } | null;
   songRequest: string;
+  mailingAddress: MailingAddressDto | null;
   allowedPlusOne: boolean;
   rsvpDate: string | null;
 }
@@ -93,6 +104,7 @@ export interface GroupRsvpGuestPayload {
   dietaryRestrictions?: string;
   plusOne?: { name: string; dietaryRestrictions: string } | null;
   songRequest?: string;
+  mailingAddress?: MailingAddressDto | null;
 }
 
 export interface GroupRsvpPayload {
@@ -143,10 +155,11 @@ export const adminApi = {
     email?: string;
     groupId: string;
     allowedPlusOne?: boolean;
+    mailingAddress?: MailingAddressDto | null;
   }) => api.post<{ success: boolean; guest: Guest }>('/admin/guests', data).then((res) => res.data),
   updateGuest: (
     id: string,
-    data: Partial<{ firstName: string; lastName: string; email: string; groupId: string; allowedPlusOne: boolean; hasBooked: boolean }>
+    data: Partial<{ firstName: string; lastName: string; email: string; groupId: string; allowedPlusOne: boolean; hasBooked: boolean; mailingAddress: MailingAddressDto | null }>
   ) => api.put<{ success: boolean; guest: Guest }>(`/admin/guests/${id}`, data).then((res) => res.data),
   deleteGuest: (id: string) => api.delete(`/admin/guests/${id}`).then((res) => res.data),
 

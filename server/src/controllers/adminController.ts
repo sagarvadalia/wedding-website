@@ -28,9 +28,30 @@ export const getAllGuests = async (_req: Request, res: Response): Promise<void> 
   }
 };
 
+function normalizeMailingAddress(ma: unknown): { addressLine1: string; addressLine2?: string; city: string; stateOrProvince: string; postalCode: string; country: string } | null {
+  if (!ma || typeof ma !== 'object') return null;
+  const a = ma as Record<string, unknown>;
+  const line1 = typeof a.addressLine1 === 'string' ? a.addressLine1.trim() : '';
+  const city = typeof a.city === 'string' ? a.city.trim() : '';
+  const state = typeof a.stateOrProvince === 'string' ? a.stateOrProvince.trim() : '';
+  const postal = typeof a.postalCode === 'string' ? a.postalCode.trim() : '';
+  const country = typeof a.country === 'string' ? a.country.trim() : '';
+  if (!line1 && !city && !state && !postal && !country) return null;
+  const result: { addressLine1: string; addressLine2?: string; city: string; stateOrProvince: string; postalCode: string; country: string } = {
+    addressLine1: line1,
+    city,
+    stateOrProvince: state,
+    postalCode: postal,
+    country
+  };
+  const line2 = typeof a.addressLine2 === 'string' ? a.addressLine2.trim() : '';
+  if (line2) result.addressLine2 = line2;
+  return result;
+}
+
 export const addGuest = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { firstName, lastName, email, groupId, allowedPlusOne, hasBooked } = req.body;
+    const { firstName, lastName, email, groupId, allowedPlusOne, hasBooked, mailingAddress } = req.body;
 
     if (!firstName?.trim() || !lastName?.trim() || !groupId) {
       res.status(400).json({ error: 'firstName, lastName, and groupId are required' });
@@ -65,6 +86,8 @@ export const addGuest = async (req: Request, res: Response): Promise<void> => {
     if (trimmedEmail) {
       guestData.email = trimmedEmail;
     }
+    const ma = normalizeMailingAddress(mailingAddress);
+    if (ma) guestData.mailingAddress = ma;
 
     const guest = new Guest(guestData);
     await guest.save();
@@ -84,7 +107,7 @@ export const addGuest = async (req: Request, res: Response): Promise<void> => {
 export const updateGuest = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, email, groupId, allowedPlusOne, hasBooked } = req.body;
+    const { firstName, lastName, email, groupId, allowedPlusOne, hasBooked, mailingAddress } = req.body;
 
     const guest = await Guest.findById(id);
     if (!guest) {
@@ -121,6 +144,7 @@ export const updateGuest = async (req: Request, res: Response): Promise<void> =>
     }
     if (allowedPlusOne !== undefined) guest.allowedPlusOne = Boolean(allowedPlusOne);
     if (hasBooked !== undefined) guest.hasBooked = Boolean(hasBooked);
+    if (mailingAddress !== undefined) guest.mailingAddress = normalizeMailingAddress(mailingAddress);
 
     await guest.save();
     const populated = await Guest.findById(guest._id).populate('groupId', 'name').lean();

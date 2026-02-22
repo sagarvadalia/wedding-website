@@ -3,6 +3,15 @@ import mongoose, { Document, Schema } from 'mongoose';
 export type EventType = 'welcome' | 'haldi' | 'mehndi' | 'baraat' | 'wedding' | 'cocktail' | 'reception';
 export type RsvpStatus = 'pending' | 'confirmed' | 'maybe' | 'declined';
 
+export interface IMailingAddress {
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  stateOrProvince: string;
+  postalCode: string;
+  country: string;
+}
+
 export interface IGuest extends Document {
   firstName: string;
   lastName: string;
@@ -15,6 +24,7 @@ export interface IGuest extends Document {
     dietaryRestrictions: string;
   } | null;
   songRequest: string;
+  mailingAddress: IMailingAddress | null;
   rsvpStatus: RsvpStatus;
   rsvpDate: Date | null;
   allowedPlusOne: boolean;
@@ -62,6 +72,14 @@ const GuestSchema = new Schema<IGuest>({
   songRequest: {
     type: String,
     default: ''
+  },
+  mailingAddress: {
+    addressLine1: String,
+    addressLine2: String,
+    city: String,
+    stateOrProvince: String,
+    postalCode: String,
+    country: String
   },
   rsvpStatus: {
     type: String,

@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { rsvpApi, type LookupGroupDto, type LookupGuestDto, type EventType } from '@/lib/api';
+import { rsvpApi, type LookupGroupDto, type LookupGuestDto, type EventType, type MailingAddressDto } from '@/lib/api';
 import { useGuest } from '@/contexts/GuestContext';
 import { RSVP_BACKGROUND_PHOTO } from '@/lib/constants';
 import { OceanBackground } from '@/components/layout/OceanBackground';
 import { HeroSection } from '@/components/home/HeroSection';
-import { Search, Check, X, PartyPopper, Music, HelpCircle, Hotel, ExternalLink, AlertCircle, Eye, Mail } from 'lucide-react';
+import { Search, Check, X, PartyPopper, Music, HelpCircle, Hotel, ExternalLink, AlertCircle, Eye, Mail, MapPin } from 'lucide-react';
 import axios from 'axios';
 
 /** Link for guests to book their room (same as Travel page). */
@@ -39,6 +39,14 @@ interface GuestFormState {
   dietaryRestrictions: string;
   plusOne: { name: string; dietaryRestrictions: string } | null;
   songRequest: string;
+  mailingAddress: {
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    stateOrProvince: string;
+    postalCode: string;
+    country: string;
+  } | null;
 }
 
 const eventOptions: {
@@ -59,6 +67,24 @@ const eventOptions: {
 
 const ALL_EVENT_IDS: EventType[] = eventOptions.map((e) => e.id);
 
+function toFormMailingAddress(ma: MailingAddressDto | null | undefined): GuestFormState['mailingAddress'] {
+  if (!ma) return null;
+  const line1 = ma.addressLine1?.trim() ?? '';
+  const city = ma.city?.trim() ?? '';
+  const state = ma.stateOrProvince?.trim() ?? '';
+  const postal = ma.postalCode?.trim() ?? '';
+  const country = ma.country?.trim() ?? '';
+  if (!line1 && !city && !state && !postal && !country) return null;
+  return {
+    addressLine1: line1,
+    addressLine2: ma.addressLine2?.trim() ?? '',
+    city,
+    stateOrProvince: state,
+    postalCode: postal,
+    country
+  };
+}
+
 function guestToFormState(g: LookupGuestDto): GuestFormState {
   const attending: boolean | 'maybe' =
     g.rsvpStatus === 'confirmed' ? true : g.rsvpStatus === 'maybe' ? 'maybe' : false;
@@ -70,6 +96,7 @@ function guestToFormState(g: LookupGuestDto): GuestFormState {
     dietaryRestrictions: g.dietaryRestrictions ?? '',
     plusOne: g.plusOne ?? null,
     songRequest: g.songRequest ?? '',
+    mailingAddress: toFormMailingAddress(g.mailingAddress ?? null),
   };
 }
 
@@ -221,6 +248,24 @@ export function RsvpPage() {
       if (state.plusOne && !state.plusOne.name.trim()) {
         return `Please enter a name for ${guest.firstName}'s plus-one, or choose "No".`;
       }
+      if (state.attending === true || state.attending === 'maybe') {
+        const ma = state.mailingAddress;
+        if (!ma?.addressLine1?.trim()) {
+          return `Please enter a mailing address (street) for ${guest.firstName}.`;
+        }
+        if (!ma.city?.trim()) {
+          return `Please enter a city for ${guest.firstName}'s mailing address.`;
+        }
+        if (!ma.stateOrProvince?.trim()) {
+          return `Please enter state/province for ${guest.firstName}'s mailing address.`;
+        }
+        if (!ma.postalCode?.trim()) {
+          return `Please enter a postal code for ${guest.firstName}'s mailing address.`;
+        }
+        if (!ma.country?.trim()) {
+          return `Please enter a country for ${guest.firstName}'s mailing address.`;
+        }
+      }
     }
     return null;
   };
@@ -242,15 +287,30 @@ export function RsvpPage() {
     try {
       await rsvpApi.submit({
         groupId: group._id,
-        guests: guestFormState.map((s) => ({
-          guestId: s.guestId,
-          attending: s.attending === true ? true : s.attending === 'maybe' ? 'maybe' : false,
-          email: s.email.trim() || undefined,
-          events: s.attending === true || s.attending === 'maybe' ? s.events : [],
-          dietaryRestrictions: s.dietaryRestrictions,
-          plusOne: s.plusOne,
-          songRequest: s.songRequest,
-        })),
+        guests: guestFormState.map((s) => {
+          const ma = s.mailingAddress;
+          const mailingAddress: MailingAddressDto | null =
+            ma && (ma.addressLine1.trim() || ma.city.trim() || ma.stateOrProvince.trim() || ma.postalCode.trim() || ma.country.trim())
+              ? {
+                  addressLine1: ma.addressLine1.trim(),
+                  addressLine2: ma.addressLine2.trim() || undefined,
+                  city: ma.city.trim(),
+                  stateOrProvince: ma.stateOrProvince.trim(),
+                  postalCode: ma.postalCode.trim(),
+                  country: ma.country.trim(),
+                }
+              : null;
+          return {
+            guestId: s.guestId,
+            attending: s.attending === true ? true : s.attending === 'maybe' ? 'maybe' : false,
+            email: s.email.trim() || undefined,
+            events: s.attending === true || s.attending === 'maybe' ? s.events : [],
+            dietaryRestrictions: s.dietaryRestrictions,
+            plusOne: s.plusOne,
+            songRequest: s.songRequest,
+            mailingAddress,
+          };
+        }),
       });
       setConfirmationEmail(guestFormState[0]?.email ?? '');
       setStep('confirmation');
@@ -458,6 +518,11 @@ export function RsvpPage() {
                           {g.plusOne?.name && (
                             <p className="text-sm text-sand-dark">Plus one: {g.plusOne.name}</p>
                           )}
+                          {g.mailingAddress && (g.mailingAddress.addressLine1 || g.mailingAddress.city) && (
+                            <p className="text-sm text-sand-dark">
+                              Address: {[g.mailingAddress.addressLine1, g.mailingAddress.addressLine2, g.mailingAddress.city, g.mailingAddress.stateOrProvince, g.mailingAddress.postalCode, g.mailingAddress.country].filter(Boolean).join(', ')}
+                            </p>
+                          )}
                         </div>
                       ))}
                       <Button variant="outline" onClick={startOver}>Look up another name</Button>
@@ -514,6 +579,93 @@ export function RsvpPage() {
                               <p className="text-xs text-sand-dark mt-1">
                                 We&apos;ll send a confirmation to this address.
                               </p>
+                            </div>
+                            <div>
+                              <Label className="flex items-center gap-1">
+                                <MapPin className="w-4 h-4" /> Mailing address
+                              </Label>
+                              <div className="space-y-2 mt-2">
+                                <Input
+                                  placeholder="Address line 1"
+                                  value={state.mailingAddress?.addressLine1 ?? ''}
+                                  onChange={(e) =>
+                                    updateGuestState(state.guestId, (s) => ({
+                                      ...s,
+                                      mailingAddress: {
+                                        ...(s.mailingAddress ?? { addressLine1: '', addressLine2: '', city: '', stateOrProvince: '', postalCode: '', country: '' }),
+                                        addressLine1: e.target.value,
+                                      },
+                                    }))
+                                  }
+                                />
+                                <Input
+                                  placeholder="Address line 2 (apt, suite)"
+                                  value={state.mailingAddress?.addressLine2 ?? ''}
+                                  onChange={(e) =>
+                                    updateGuestState(state.guestId, (s) => ({
+                                      ...s,
+                                      mailingAddress: {
+                                        ...(s.mailingAddress ?? { addressLine1: '', addressLine2: '', city: '', stateOrProvince: '', postalCode: '', country: '' }),
+                                        addressLine2: e.target.value,
+                                      },
+                                    }))
+                                  }
+                                />
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                  <Input
+                                    placeholder="City"
+                                    value={state.mailingAddress?.city ?? ''}
+                                    onChange={(e) =>
+                                      updateGuestState(state.guestId, (s) => ({
+                                        ...s,
+                                        mailingAddress: {
+                                          ...(s.mailingAddress ?? { addressLine1: '', addressLine2: '', city: '', stateOrProvince: '', postalCode: '', country: '' }),
+                                          city: e.target.value,
+                                        },
+                                      }))
+                                    }
+                                  />
+                                  <Input
+                                    placeholder="State / Province"
+                                    value={state.mailingAddress?.stateOrProvince ?? ''}
+                                    onChange={(e) =>
+                                      updateGuestState(state.guestId, (s) => ({
+                                        ...s,
+                                        mailingAddress: {
+                                          ...(s.mailingAddress ?? { addressLine1: '', addressLine2: '', city: '', stateOrProvince: '', postalCode: '', country: '' }),
+                                          stateOrProvince: e.target.value,
+                                        },
+                                      }))
+                                    }
+                                  />
+                                  <Input
+                                    placeholder="Postal code"
+                                    value={state.mailingAddress?.postalCode ?? ''}
+                                    onChange={(e) =>
+                                      updateGuestState(state.guestId, (s) => ({
+                                        ...s,
+                                        mailingAddress: {
+                                          ...(s.mailingAddress ?? { addressLine1: '', addressLine2: '', city: '', stateOrProvince: '', postalCode: '', country: '' }),
+                                          postalCode: e.target.value,
+                                        },
+                                      }))
+                                    }
+                                  />
+                                </div>
+                                <Input
+                                  placeholder="Country"
+                                  value={state.mailingAddress?.country ?? ''}
+                                  onChange={(e) =>
+                                    updateGuestState(state.guestId, (s) => ({
+                                      ...s,
+                                      mailingAddress: {
+                                        ...(s.mailingAddress ?? { addressLine1: '', addressLine2: '', city: '', stateOrProvince: '', postalCode: '', country: '' }),
+                                        country: e.target.value,
+                                      },
+                                    }))
+                                  }
+                                />
+                              </div>
                             </div>
                             <div>
                               <Label className="text-base mb-2 block">Will they be attending?</Label>
@@ -752,6 +904,11 @@ export function RsvpPage() {
                           )}
                           {state.songRequest.trim() && (
                             <p className="text-sm text-sand-dark">Song: {state.songRequest}</p>
+                          )}
+                          {state.mailingAddress && (state.mailingAddress.addressLine1.trim() || state.mailingAddress.city.trim()) && (
+                            <p className="text-sm text-sand-dark">
+                              Address: {[state.mailingAddress.addressLine1, state.mailingAddress.addressLine2, state.mailingAddress.city, state.mailingAddress.stateOrProvince, state.mailingAddress.postalCode, state.mailingAddress.country].filter((s) => s?.trim()).join(', ')}
+                            </p>
                           )}
                         </div>
                       );

@@ -9,6 +9,7 @@ import {
   type Guest,
   type Group,
   type Stats,
+  type MailingAddressDto,
 } from '@/lib/api';
 import {
   Users,
@@ -24,6 +25,7 @@ import {
   HelpCircle,
   Calendar,
   Hotel,
+  MapPin,
 } from 'lucide-react';
 
 type Tab = 'guests' | 'groups' | 'stats';
@@ -40,12 +42,21 @@ export function AdminPage() {
   const [showAddGroup, setShowAddGroup] = useState(false);
   const [editingGuestId, setEditingGuestId] = useState<string | null>(null);
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
+  const emptyMailingAddress = (): { addressLine1: string; addressLine2: string; city: string; stateOrProvince: string; postalCode: string; country: string } => ({
+    addressLine1: '',
+    addressLine2: '',
+    city: '',
+    stateOrProvince: '',
+    postalCode: '',
+    country: '',
+  });
   const [newGuest, setNewGuest] = useState({
     firstName: '',
     lastName: '',
     email: '',
     groupId: '',
     allowedPlusOne: false,
+    mailingAddress: emptyMailingAddress(),
   });
   const [editGuest, setEditGuest] = useState({
     firstName: '',
@@ -54,6 +65,7 @@ export function AdminPage() {
     groupId: '',
     allowedPlusOne: false,
     hasBooked: false,
+    mailingAddress: emptyMailingAddress(),
   });
   const [newGroupName, setNewGroupName] = useState('');
   const [editGroupName, setEditGroupName] = useState('');
@@ -91,6 +103,19 @@ export function AdminPage() {
     }
   }, [isAuthenticated]);
 
+  const toMailingAddressPayload = (ma: { addressLine1: string; addressLine2: string; city: string; stateOrProvince: string; postalCode: string; country: string }): MailingAddressDto | null => {
+    const a1 = ma.addressLine1.trim();
+    const city = ma.city.trim();
+    const state = ma.stateOrProvince.trim();
+    const postal = ma.postalCode.trim();
+    const country = ma.country.trim();
+    if (!a1 && !city && !state && !postal && !country) return null;
+    const payload: MailingAddressDto = { addressLine1: a1, city, stateOrProvince: state, postalCode: postal, country };
+    const a2 = ma.addressLine2.trim();
+    if (a2) payload.addressLine2 = a2;
+    return payload;
+  };
+
   const handleAddGuest = async () => {
     if (!newGuest.firstName?.trim() || !newGuest.lastName?.trim() || !newGuest.groupId) {
       alert('First name, last name, and group are required');
@@ -106,8 +131,10 @@ export function AdminPage() {
       if (newGuest.email.trim()) {
         payload.email = newGuest.email.trim();
       }
+      const ma = toMailingAddressPayload(newGuest.mailingAddress);
+      if (ma) payload.mailingAddress = ma;
       await adminApi.addGuest(payload);
-      setNewGuest({ firstName: '', lastName: '', email: '', groupId: '', allowedPlusOne: false });
+      setNewGuest({ firstName: '', lastName: '', email: '', groupId: '', allowedPlusOne: false, mailingAddress: emptyMailingAddress() });
       setShowAddGuest(false);
       fetchData();
     } catch (error) {
@@ -126,6 +153,7 @@ export function AdminPage() {
         groupId: editGuest.groupId || undefined,
         allowedPlusOne: editGuest.allowedPlusOne,
         hasBooked: editGuest.hasBooked,
+        mailingAddress: toMailingAddressPayload(editGuest.mailingAddress),
       });
       setEditingGuestId(null);
       fetchData();
@@ -149,6 +177,7 @@ export function AdminPage() {
 
   const openEditGuest = (g: Guest) => {
     setEditingGuestId(g._id);
+    const ma = g.mailingAddress;
     setEditGuest({
       firstName: g.firstName,
       lastName: g.lastName,
@@ -156,6 +185,16 @@ export function AdminPage() {
       groupId: g.groupId,
       allowedPlusOne: g.allowedPlusOne,
       hasBooked: g.hasBooked ?? false,
+      mailingAddress: ma
+        ? {
+            addressLine1: ma.addressLine1 ?? '',
+            addressLine2: ma.addressLine2 ?? '',
+            city: ma.city ?? '',
+            stateOrProvince: ma.stateOrProvince ?? '',
+            postalCode: ma.postalCode ?? '',
+            country: ma.country ?? '',
+          }
+        : emptyMailingAddress(),
     });
   };
 
@@ -195,6 +234,12 @@ export function AdminPage() {
     }
   };
 
+  const formatMailingAddress = (g: Guest): string => {
+    const ma = g.mailingAddress;
+    if (!ma || (!ma.addressLine1 && !ma.city && !ma.country)) return '';
+    return [ma.addressLine1, ma.addressLine2, ma.city, ma.stateOrProvince, ma.postalCode, ma.country].filter(Boolean).join(', ');
+  };
+
   const exportToCsv = () => {
     const headers = [
       'First Name',
@@ -206,6 +251,7 @@ export function AdminPage() {
       'Dietary',
       'Plus One',
       'Song Request',
+      'Mailing Address',
       'Has Booked',
     ];
     const rows = guests.map((g) => [
@@ -218,6 +264,7 @@ export function AdminPage() {
       g.dietaryRestrictions ?? '',
       g.plusOne?.name ?? '',
       g.songRequest ?? '',
+      formatMailingAddress(g),
       g.hasBooked ? 'Yes' : 'No',
     ]);
     const csv = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
@@ -528,6 +575,73 @@ export function AdminPage() {
                         ))}
                       </select>
                     </div>
+                    <div className="md:col-span-2">
+                      <Label className="flex items-center gap-1">
+                        <MapPin className="w-4 h-4" /> Mailing address
+                      </Label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+                        <Input
+                          placeholder="Address line 1"
+                          value={newGuest.mailingAddress.addressLine1}
+                          onChange={(e) =>
+                            setNewGuest({
+                              ...newGuest,
+                              mailingAddress: { ...newGuest.mailingAddress, addressLine1: e.target.value },
+                            })
+                          }
+                        />
+                        <Input
+                          placeholder="Address line 2"
+                          value={newGuest.mailingAddress.addressLine2}
+                          onChange={(e) =>
+                            setNewGuest({
+                              ...newGuest,
+                              mailingAddress: { ...newGuest.mailingAddress, addressLine2: e.target.value },
+                            })
+                          }
+                        />
+                        <Input
+                          placeholder="City"
+                          value={newGuest.mailingAddress.city}
+                          onChange={(e) =>
+                            setNewGuest({
+                              ...newGuest,
+                              mailingAddress: { ...newGuest.mailingAddress, city: e.target.value },
+                            })
+                          }
+                        />
+                        <Input
+                          placeholder="State / Province"
+                          value={newGuest.mailingAddress.stateOrProvince}
+                          onChange={(e) =>
+                            setNewGuest({
+                              ...newGuest,
+                              mailingAddress: { ...newGuest.mailingAddress, stateOrProvince: e.target.value },
+                            })
+                          }
+                        />
+                        <Input
+                          placeholder="Postal code"
+                          value={newGuest.mailingAddress.postalCode}
+                          onChange={(e) =>
+                            setNewGuest({
+                              ...newGuest,
+                              mailingAddress: { ...newGuest.mailingAddress, postalCode: e.target.value },
+                            })
+                          }
+                        />
+                        <Input
+                          placeholder="Country"
+                          value={newGuest.mailingAddress.country}
+                          onChange={(e) =>
+                            setNewGuest({
+                              ...newGuest,
+                              mailingAddress: { ...newGuest.mailingAddress, country: e.target.value },
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
                     <div className="flex items-end gap-2">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -591,6 +705,73 @@ export function AdminPage() {
                           </option>
                         ))}
                       </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label className="flex items-center gap-1">
+                        <MapPin className="w-4 h-4" /> Mailing address
+                      </Label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+                        <Input
+                          placeholder="Address line 1"
+                          value={editGuest.mailingAddress.addressLine1}
+                          onChange={(e) =>
+                            setEditGuest({
+                              ...editGuest,
+                              mailingAddress: { ...editGuest.mailingAddress, addressLine1: e.target.value },
+                            })
+                          }
+                        />
+                        <Input
+                          placeholder="Address line 2"
+                          value={editGuest.mailingAddress.addressLine2}
+                          onChange={(e) =>
+                            setEditGuest({
+                              ...editGuest,
+                              mailingAddress: { ...editGuest.mailingAddress, addressLine2: e.target.value },
+                            })
+                          }
+                        />
+                        <Input
+                          placeholder="City"
+                          value={editGuest.mailingAddress.city}
+                          onChange={(e) =>
+                            setEditGuest({
+                              ...editGuest,
+                              mailingAddress: { ...editGuest.mailingAddress, city: e.target.value },
+                            })
+                          }
+                        />
+                        <Input
+                          placeholder="State / Province"
+                          value={editGuest.mailingAddress.stateOrProvince}
+                          onChange={(e) =>
+                            setEditGuest({
+                              ...editGuest,
+                              mailingAddress: { ...editGuest.mailingAddress, stateOrProvince: e.target.value },
+                            })
+                          }
+                        />
+                        <Input
+                          placeholder="Postal code"
+                          value={editGuest.mailingAddress.postalCode}
+                          onChange={(e) =>
+                            setEditGuest({
+                              ...editGuest,
+                              mailingAddress: { ...editGuest.mailingAddress, postalCode: e.target.value },
+                            })
+                          }
+                        />
+                        <Input
+                          placeholder="Country"
+                          value={editGuest.mailingAddress.country}
+                          onChange={(e) =>
+                            setEditGuest({
+                              ...editGuest,
+                              mailingAddress: { ...editGuest.mailingAddress, country: e.target.value },
+                            })
+                          }
+                        />
+                      </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-4">
                       <label className="flex items-center gap-2 cursor-pointer">

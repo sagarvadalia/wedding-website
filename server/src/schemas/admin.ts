@@ -4,6 +4,18 @@ export const mongoIdParamsSchema = z.object({
   id: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid ID format'),
 });
 
+const mailingAddressSchema = z
+  .object({
+    addressLine1: z.string().trim().max(200).optional(),
+    addressLine2: z.string().trim().max(200).optional(),
+    city: z.string().trim().max(100).optional(),
+    stateOrProvince: z.string().trim().max(100).optional(),
+    postalCode: z.string().trim().max(20).optional(),
+    country: z.string().trim().max(100).optional(),
+  })
+  .nullable()
+  .optional();
+
 export const addGuestSchema = z.object({
   firstName: z.string().trim().min(1, 'First name is required').max(100),
   lastName: z.string().trim().min(1, 'Last name is required').max(100),
@@ -11,6 +23,7 @@ export const addGuestSchema = z.object({
   groupId: z.string().min(1, 'Group ID is required'),
   allowedPlusOne: z.boolean().optional(),
   hasBooked: z.boolean().optional(),
+  mailingAddress: mailingAddressSchema,
 });
 
 export const updateGuestSchema = z.object({
@@ -23,6 +36,7 @@ export const updateGuestSchema = z.object({
   ]).optional(),
   allowedPlusOne: z.boolean().optional(),
   hasBooked: z.boolean().optional(),
+  mailingAddress: mailingAddressSchema,
 });
 
 export const createGroupSchema = z.object({

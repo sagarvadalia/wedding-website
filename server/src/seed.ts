@@ -49,6 +49,14 @@ async function seed() {
       allowedPlusOne: false,
       hasBooked: true,
       songRequest: 'September - Earth, Wind & Fire',
+      mailingAddress: {
+        addressLine1: '123 Oak Street',
+        addressLine2: 'Apt 4B',
+        city: 'Boston',
+        stateOrProvince: 'MA',
+        postalCode: '02101',
+        country: 'USA',
+      },
     },
     {
       firstName: 'Jane',
@@ -62,6 +70,14 @@ async function seed() {
       allowedPlusOne: false,
       hasBooked: true,
       songRequest: '',
+      mailingAddress: {
+        addressLine1: '123 Oak Street',
+        addressLine2: 'Apt 4B',
+        city: 'Boston',
+        stateOrProvince: 'MA',
+        postalCode: '02101',
+        country: 'USA',
+      },
     },
     {
       firstName: 'Emily',
@@ -75,6 +91,13 @@ async function seed() {
       allowedPlusOne: true,
       plusOne: { name: 'Alex Rivera', dietaryRestrictions: '' },
       songRequest: 'Levitating - Dua Lipa',
+      mailingAddress: {
+        addressLine1: '456 Elm Ave',
+        city: 'Cambridge',
+        stateOrProvince: 'MA',
+        postalCode: '02139',
+        country: 'USA',
+      },
     },
   ]);
 
@@ -90,6 +113,7 @@ async function seed() {
       rsvpDate: new Date('2027-02-01'),
       events: [],
       allowedPlusOne: false,
+      mailingAddress: null,
     },
     {
       firstName: 'Lisa',
@@ -100,6 +124,7 @@ async function seed() {
       rsvpDate: new Date('2027-02-01'),
       events: [],
       allowedPlusOne: false,
+      mailingAddress: null,
     },
   ]);
 
@@ -119,6 +144,13 @@ async function seed() {
       hasBooked: true,
       plusOne: { name: 'Priya Sharma', dietaryRestrictions: 'No shellfish' },
       songRequest: 'Chaiyya Chaiyya',
+      mailingAddress: {
+        addressLine1: '789 Patel Lane',
+        city: 'Houston',
+        stateOrProvince: 'TX',
+        postalCode: '77001',
+        country: 'USA',
+      },
     },
     {
       firstName: 'Anita',
@@ -131,6 +163,13 @@ async function seed() {
       dietaryRestrictions: 'Vegan',
       allowedPlusOne: false,
       songRequest: '',
+      mailingAddress: {
+        addressLine1: '789 Patel Lane',
+        city: 'Houston',
+        stateOrProvince: 'TX',
+        postalCode: '77001',
+        country: 'USA',
+      },
     },
     {
       firstName: 'Vikram',
@@ -140,6 +179,7 @@ async function seed() {
       rsvpStatus: 'pending',
       events: [],
       allowedPlusOne: false,
+      mailingAddress: null,
     },
   ]);
 
@@ -153,6 +193,7 @@ async function seed() {
     rsvpStatus: 'pending',
     events: [],
     allowedPlusOne: true,
+    mailingAddress: null,
   });
 
   // ─── Group 5: Solo guest, confirmed with plus one ─────────────
@@ -170,6 +211,13 @@ async function seed() {
     hasBooked: true,
     plusOne: { name: 'Tom Williams', dietaryRestrictions: '' },
     songRequest: "Don't Stop Me Now - Queen",
+    mailingAddress: {
+      addressLine1: '321 Pine Rd',
+      city: 'San Francisco',
+      stateOrProvince: 'CA',
+      postalCode: '94102',
+      country: 'USA',
+    },
   });
 
   // ─── Group 6: Solo guest, confirmed coming alone ──────────────
@@ -186,6 +234,13 @@ async function seed() {
     allowedPlusOne: true,
     plusOne: null,
     songRequest: 'Uptown Funk - Bruno Mars',
+    mailingAddress: {
+      addressLine1: '555 Kim Blvd',
+      city: 'Seattle',
+      stateOrProvince: 'WA',
+      postalCode: '98101',
+      country: 'USA',
+    },
   });
 
   // ─── Group 7: Couple, one confirmed one declined ──────────────
@@ -203,6 +258,13 @@ async function seed() {
       allowedPlusOne: false,
       hasBooked: true,
       songRequest: '',
+      mailingAddress: {
+        addressLine1: '100 Brown St',
+        city: 'Chicago',
+        stateOrProvince: 'IL',
+        postalCode: '60601',
+        country: 'USA',
+      },
     },
     {
       firstName: 'Dana',
@@ -213,6 +275,7 @@ async function seed() {
       rsvpDate: new Date('2027-02-05'),
       events: [],
       allowedPlusOne: false,
+      mailingAddress: null,
     },
   ]);
 
@@ -227,6 +290,7 @@ async function seed() {
       rsvpStatus: 'pending',
       events: [],
       allowedPlusOne: true,
+      mailingAddress: null,
     },
     {
       firstName: 'Maria',
@@ -236,6 +300,7 @@ async function seed() {
       rsvpStatus: 'pending',
       events: [],
       allowedPlusOne: false,
+      mailingAddress: null,
     },
     {
       firstName: 'Sofia',
@@ -245,6 +310,7 @@ async function seed() {
       rsvpStatus: 'pending',
       events: [],
       allowedPlusOne: false,
+      mailingAddress: null,
     },
     {
       firstName: 'Marco',
@@ -254,6 +320,7 @@ async function seed() {
       rsvpStatus: 'pending',
       events: [],
       allowedPlusOne: true,
+      mailingAddress: null,
     },
   ]);
 
@@ -272,6 +339,13 @@ async function seed() {
       allowedPlusOne: false,
       hasBooked: true,
       songRequest: 'Shake It Off - Taylor Swift',
+      mailingAddress: {
+        addressLine1: '200 Taylor Way',
+        city: 'Nashville',
+        stateOrProvince: 'TN',
+        postalCode: '37201',
+        country: 'USA',
+      },
     },
     {
       firstName: 'Morgan',
@@ -283,6 +357,13 @@ async function seed() {
       events: ['wedding', 'reception'],
       dietaryRestrictions: '',
       allowedPlusOne: false,
+      mailingAddress: {
+        addressLine1: '200 Taylor Way',
+        city: 'Nashville',
+        stateOrProvince: 'TN',
+        postalCode: '37201',
+        country: 'USA',
+      },
     },
   ]);
 
@@ -300,6 +381,13 @@ async function seed() {
     allowedPlusOne: false,
     hasBooked: true,
     songRequest: 'Jai Ho',
+    mailingAddress: {
+      addressLine1: '888 Kapoor Dr',
+      city: 'Austin',
+      stateOrProvince: 'TX',
+      postalCode: '78701',
+      country: 'USA',
+    },
   });
 
   // Summary

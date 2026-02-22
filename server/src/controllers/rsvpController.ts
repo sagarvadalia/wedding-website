@@ -8,6 +8,15 @@ import { loggers } from '../utils/logger.js';
 
 const log = loggers.app;
 
+export interface MailingAddressDto {
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  stateOrProvince: string;
+  postalCode: string;
+  country: string;
+}
+
 export interface LookupGuestDto {
   _id: string;
   firstName: string;
@@ -18,6 +27,7 @@ export interface LookupGuestDto {
   dietaryRestrictions: string;
   plusOne: { name: string; dietaryRestrictions: string } | null;
   songRequest: string;
+  mailingAddress: MailingAddressDto | null;
   allowedPlusOne: boolean;
   rsvpDate: string | null;
 }
@@ -26,6 +36,25 @@ export interface LookupGroupDto {
   _id: string;
   name?: string;
   guests: LookupGuestDto[];
+}
+
+function toMailingAddressDto(o: unknown): LookupGuestDto['mailingAddress'] {
+  if (!o || typeof o !== 'object') return null;
+  const a = o as Record<string, unknown>;
+  const line1 = typeof a.addressLine1 === 'string' ? a.addressLine1.trim() : '';
+  const city = typeof a.city === 'string' ? a.city.trim() : '';
+  const state = typeof a.stateOrProvince === 'string' ? a.stateOrProvince.trim() : '';
+  const postal = typeof a.postalCode === 'string' ? a.postalCode.trim() : '';
+  const country = typeof a.country === 'string' ? a.country.trim() : '';
+  if (!line1 && !city && !state && !postal && !country) return null;
+  return {
+    addressLine1: line1,
+    addressLine2: typeof a.addressLine2 === 'string' ? a.addressLine2.trim() : undefined,
+    city,
+    stateOrProvince: state,
+    postalCode: postal,
+    country
+  };
 }
 
 function guestToDto(o: Record<string, unknown>): LookupGuestDto {
@@ -38,6 +67,7 @@ function guestToDto(o: Record<string, unknown>): LookupGuestDto {
     dietaryRestrictions: (o.dietaryRestrictions as string) ?? '',
     plusOne: (o.plusOne as LookupGuestDto['plusOne']) ?? null,
     songRequest: (o.songRequest as string) ?? '',
+    mailingAddress: toMailingAddressDto(o.mailingAddress),
     allowedPlusOne: (o.allowedPlusOne as boolean) ?? false,
     rsvpDate: o.rsvpDate ? new Date(o.rsvpDate as string).toISOString() : null
   };
@@ -145,6 +175,7 @@ interface GuestUpdatePayload {
   dietaryRestrictions?: string;
   plusOne?: { name: string; dietaryRestrictions: string } | null;
   songRequest?: string;
+  mailingAddress?: MailingAddressDto | null;
 }
 
 /**
@@ -183,6 +214,17 @@ export const submitRsvp = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
+    for (const payload of guestsPayload) {
+      const isAttending = payload.attending === true || payload.attending === 'maybe';
+      if (isAttending) {
+        const ma = payload.mailingAddress;
+        if (!ma?.addressLine1?.trim() || !ma?.city?.trim() || !ma?.stateOrProvince?.trim() || !ma?.postalCode?.trim() || !ma?.country?.trim()) {
+          res.status(400).json({ error: 'Mailing address (street, city, state/province, postal code, and country) is required for attending guests.' });
+          return;
+        }
+      }
+    }
+
     const now = new Date();
     for (const payload of guestsPayload) {
       const guest = guestsInGroup.find((g) => String(g._id) === payload.guestId);
@@ -207,6 +249,22 @@ export const submitRsvp = async (req: Request, res: Response): Promise<void> => 
       if (payload.dietaryRestrictions !== undefined) guest.dietaryRestrictions = payload.dietaryRestrictions;
       if (payload.plusOne !== undefined) guest.plusOne = payload.plusOne ?? null;
       if (payload.songRequest !== undefined) guest.songRequest = payload.songRequest;
+      if (payload.mailingAddress !== undefined) {
+        const ma = payload.mailingAddress;
+        if (ma && (ma.addressLine1?.trim() || ma.city?.trim() || ma.stateOrProvince?.trim() || ma.postalCode?.trim() || ma.country?.trim())) {
+          const a2 = ma.addressLine2?.trim();
+          guest.mailingAddress = {
+            addressLine1: ma.addressLine1?.trim() ?? '',
+            ...(a2 ? { addressLine2: a2 } : {}),
+            city: ma.city?.trim() ?? '',
+            stateOrProvince: ma.stateOrProvince?.trim() ?? '',
+            postalCode: ma.postalCode?.trim() ?? '',
+            country: ma.country?.trim() ?? ''
+          };
+        } else {
+          guest.mailingAddress = null;
+        }
+      }
       await guest.save();
     }
 
