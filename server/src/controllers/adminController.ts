@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import Guest from '../models/Guest.js';
 import Group from '../models/Group.js';
 import { getRsvpByDate, isRsvpOpen } from '../config.js';
+import { sendRsvpReminder, sendTravelReminder } from '../services/emailService.js';
 
 export const getAllGuests = async (_req: Request, res: Response): Promise<void> => {
   try {
@@ -372,5 +373,35 @@ export const getStats = async (_req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error('Get stats error:', error);
     res.status(500).json({ error: 'Failed to retrieve statistics' });
+  }
+};
+
+export const sendRsvpReminderHandler = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { guestIds } = req.body as { guestIds: string[] };
+    const result = await sendRsvpReminder(guestIds);
+    res.json(result);
+  } catch (error) {
+    console.error('Send RSVP reminder error:', error);
+    res.status(500).json({
+      sent: 0,
+      skipped: 0,
+      errors: [{ guestId: '', name: '', email: '', reason: error instanceof Error ? error.message : 'Failed to send RSVP reminders' }]
+    });
+  }
+};
+
+export const sendTravelReminderHandler = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { guestIds } = req.body as { guestIds: string[] };
+    const result = await sendTravelReminder(guestIds);
+    res.json(result);
+  } catch (error) {
+    console.error('Send travel reminder error:', error);
+    res.status(500).json({
+      sent: 0,
+      skipped: 0,
+      errors: [{ guestId: '', name: '', email: '', reason: error instanceof Error ? error.message : 'Failed to send travel reminders' }]
+    });
   }
 };

@@ -29,6 +29,8 @@ export interface IGuest extends Document {
   rsvpDate: Date | null;
   allowedPlusOne: boolean;
   hasBooked: boolean;
+  lastRsvpReminderAt: Date | null;
+  lastTravelReminderAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -98,6 +100,14 @@ const GuestSchema = new Schema<IGuest>({
   hasBooked: {
     type: Boolean,
     default: false
+  },
+  lastRsvpReminderAt: {
+    type: Date,
+    default: null
+  },
+  lastTravelReminderAt: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true

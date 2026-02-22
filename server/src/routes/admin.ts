@@ -9,7 +9,9 @@ import {
   createGroup,
   updateGroup,
   deleteGroup,
-  getStats
+  getStats,
+  sendRsvpReminderHandler,
+  sendTravelReminderHandler,
 } from '../controllers/adminController.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
@@ -19,6 +21,7 @@ import {
   updateGuestSchema,
   createGroupSchema,
   updateGroupSchema,
+  sendReminderSchema,
 } from '../schemas/admin.js';
 
 const router = Router();
@@ -40,5 +43,9 @@ router.delete('/groups/:id', validate({ params: mongoIdParamsSchema }), deleteGr
 
 // Stats
 router.get('/stats', getStats);
+
+// Reminders
+router.post('/reminders/rsvp', validate({ body: sendReminderSchema }), sendRsvpReminderHandler);
+router.post('/reminders/travel', validate({ body: sendReminderSchema }), sendTravelReminderHandler);
 
 export default router;

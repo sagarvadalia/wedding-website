@@ -36,6 +36,8 @@ export interface Guest {
   rsvpDate: string | null;
   allowedPlusOne: boolean;
   hasBooked: boolean;
+  lastRsvpReminderAt?: string | null;
+  lastTravelReminderAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -172,6 +174,17 @@ export const adminApi = {
   deleteGroup: (id: string) => api.delete(`/admin/groups/${id}`).then((res) => res.data),
 
   getStats: () => api.get<Stats>('/admin/stats').then((res) => res.data),
+
+  sendRsvpReminder: (guestIds: string[]) =>
+    api.post<ReminderResult>('/admin/reminders/rsvp', { guestIds }).then((res) => res.data),
+  sendTravelReminder: (guestIds: string[]) =>
+    api.post<ReminderResult>('/admin/reminders/travel', { guestIds }).then((res) => res.data),
 };
+
+export interface ReminderResult {
+  sent: number;
+  skipped: number;
+  errors: { guestId: string; name: string; email: string; reason: string }[];
+}
 
 export default api;

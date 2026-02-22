@@ -10,6 +10,7 @@ import {
   type Group,
   type Stats,
   type MailingAddressDto,
+  type ReminderResult,
 } from '@/lib/api';
 import {
   Users,
@@ -26,6 +27,8 @@ import {
   Calendar,
   Hotel,
   MapPin,
+  Mail,
+  AlertCircle,
 } from 'lucide-react';
 
 type Tab = 'guests' | 'groups' | 'stats';
@@ -69,6 +72,9 @@ export function AdminPage() {
   });
   const [newGroupName, setNewGroupName] = useState('');
   const [editGroupName, setEditGroupName] = useState('');
+  const [selectedGuestIds, setSelectedGuestIds] = useState<Set<string>>(new Set());
+  const [reminderResult, setReminderResult] = useState<ReminderResult | null>(null);
+  const [reminderSending, setReminderSending] = useState(false);
 
   const handleLogin = () => {
     if (password === 'wedding2027') {
@@ -283,6 +289,71 @@ export function AdminPage() {
     if (status === 'maybe') return base + 'bg-amber-100 text-amber-800';
     if (status === 'declined') return base + 'bg-red-100 text-red-800';
     return base + 'bg-yellow-100 text-yellow-800';
+  };
+
+  const formatReminderDate = (date: string | null | undefined) => {
+    if (!date) return '—';
+    const d = new Date(date);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const toggleGuestSelection = (id: string) => {
+    setSelectedGuestIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAllGuests = () => {
+    if (selectedGuestIds.size === guests.length) {
+      setSelectedGuestIds(new Set());
+    } else {
+      setSelectedGuestIds(new Set(guests.map((g) => g._id)));
+    }
+  };
+
+  const handleSendRsvpReminder = async () => {
+    const ids = Array.from(selectedGuestIds);
+    if (ids.length === 0) return;
+    setReminderSending(true);
+    setReminderResult(null);
+    try {
+      const result = await adminApi.sendRsvpReminder(ids);
+      setReminderResult(result);
+      fetchData();
+    } catch (err) {
+      const data = (err as { response?: { data?: ReminderResult } })?.response?.data;
+      setReminderResult(
+        data && Array.isArray(data.errors)
+          ? data
+          : { sent: 0, skipped: 0, errors: [{ guestId: '', name: '', email: '', reason: (err as Error).message }] },
+      );
+    } finally {
+      setReminderSending(false);
+    }
+  };
+
+  const handleSendTravelReminder = async () => {
+    const ids = Array.from(selectedGuestIds);
+    if (ids.length === 0) return;
+    setReminderSending(true);
+    setReminderResult(null);
+    try {
+      const result = await adminApi.sendTravelReminder(ids);
+      setReminderResult(result);
+      fetchData();
+    } catch (err) {
+      const data = (err as { response?: { data?: ReminderResult } })?.response?.data;
+      setReminderResult(
+        data && Array.isArray(data.errors)
+          ? data
+          : { sent: 0, skipped: 0, errors: [{ guestId: '', name: '', email: '', reason: (err as Error).message }] },
+      );
+    } finally {
+      setReminderSending(false);
+    }
   };
 
   if (!isAuthenticated) {
@@ -522,12 +593,83 @@ export function AdminPage() {
 
         {tab === 'guests' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <div className="flex flex-wrap gap-4 mb-6">
+            <div className="flex flex-wrap gap-4 mb-6 items-center">
               <Button onClick={() => setShowAddGuest(true)}>
                 <UserPlus className="w-4 h-4 mr-2" />
                 Add Guest
               </Button>
+              <div className="flex items-center gap-2 ml-4 pl-4 border-l border-sand-driftwood/30">
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selectedGuestIds.size === guests.length && guests.length > 0}
+                    onChange={selectAllGuests}
+                    className="rounded"
+                  />
+                  <span className="text-sand-dark">Select all</span>
+                </label>
+                <span className="text-sand-dark text-sm">{selectedGuestIds.size} selected</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSendRsvpReminder}
+                  disabled={selectedGuestIds.size === 0 || reminderSending}
+                >
+                  <Mail className="w-4 h-4 mr-1" />
+                  Send RSVP reminder
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSendTravelReminder}
+                  disabled={selectedGuestIds.size === 0 || reminderSending}
+                >
+                  <Mail className="w-4 h-4 mr-1" />
+                  Send travel reminder
+                </Button>
+              </div>
             </div>
+            {reminderResult && (
+              <div
+                className={`mb-6 p-4 rounded-lg border-2 ${
+                  reminderResult.errors.length > 0
+                    ? 'bg-red-50 border-red-300 text-red-900'
+                    : 'bg-green-50 border-green-300 text-green-900'
+                }`}
+              >
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                  <div>
+                    {reminderResult.sent > 0 && (
+                      <p className="font-medium">Sent to {reminderResult.sent} guest{reminderResult.sent !== 1 ? 's' : ''}.</p>
+                    )}
+                    {reminderResult.skipped > 0 && (
+                      <p className="text-sm">Skipped {reminderResult.skipped} (no email).</p>
+                    )}
+                    {reminderResult.errors.length > 0 && (
+                      <>
+                        <p className="font-medium mt-2">Failed for {reminderResult.errors.length} guest{reminderResult.errors.length !== 1 ? 's' : ''}:</p>
+                        <ul className="mt-1 text-sm list-disc list-inside space-y-0.5">
+                          {reminderResult.errors.map((e, i) => (
+                            <li key={i}>
+                              {e.name || e.email ? `${e.name || e.email}: ` : ''}{e.reason}
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-auto shrink-0"
+                    onClick={() => setReminderResult(null)}
+                  >
+                    Dismiss
+                  </Button>
+                </div>
+              </div>
+            )}
             {showAddGuest && (
               <Card className="mb-6">
                 <CardHeader>
@@ -814,12 +956,22 @@ export function AdminPage() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-sand-driftwood/30">
+                        <th className="text-left py-3 px-2 font-medium text-sand-dark w-10">
+                          <input
+                            type="checkbox"
+                            checked={guests.length > 0 && selectedGuestIds.size === guests.length}
+                            onChange={selectAllGuests}
+                            className="rounded"
+                          />
+                        </th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Name</th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Email</th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Group</th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Status</th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Events</th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Booked</th>
+                        <th className="text-left py-3 px-2 font-medium text-sand-dark">RSVP rem.</th>
+                        <th className="text-left py-3 px-2 font-medium text-sand-dark">Travel rem.</th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Actions</th>
                       </tr>
                     </thead>
@@ -829,6 +981,14 @@ export function AdminPage() {
                           key={guest._id}
                           className="border-b border-sand-driftwood/10 hover:bg-sand-light/50"
                         >
+                          <td className="py-3 px-2">
+                            <input
+                              type="checkbox"
+                              checked={selectedGuestIds.has(guest._id)}
+                              onChange={() => toggleGuestSelection(guest._id)}
+                              className="rounded"
+                            />
+                          </td>
                           <td className="py-3 px-2">
                             <p className="font-medium text-ocean-deep">
                               {guest.firstName} {guest.lastName}
@@ -861,6 +1021,8 @@ export function AdminPage() {
                               <span className="text-sand-dark text-sm">—</span>
                             )}
                           </td>
+                          <td className="py-3 px-2 text-xs text-sand-dark">{formatReminderDate(guest.lastRsvpReminderAt)}</td>
+                          <td className="py-3 px-2 text-xs text-sand-dark">{formatReminderDate(guest.lastTravelReminderAt)}</td>
                           <td className="py-3 px-2">
                             <div className="flex gap-1">
                               <Button
@@ -884,7 +1046,7 @@ export function AdminPage() {
                       ))}
                       {guests.length === 0 && (
                         <tr>
-                          <td colSpan={6} className="py-8 text-center text-sand-dark">
+                          <td colSpan={10} className="py-8 text-center text-sand-dark">
                             No guests. Create a group first, then add guests.
                           </td>
                         </tr>

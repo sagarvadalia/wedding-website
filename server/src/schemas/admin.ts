@@ -47,7 +47,14 @@ export const updateGroupSchema = z.object({
   name: z.string().trim().max(200).optional(),
 });
 
+const mongoIdSchema = z.string().regex(/^[a-f\d]{24}$/i, 'Invalid ID format');
+
+export const sendReminderSchema = z.object({
+  guestIds: z.array(mongoIdSchema).min(1, 'At least one guest ID is required').max(500),
+});
+
 export type AddGuestBody = z.infer<typeof addGuestSchema>;
 export type UpdateGuestBody = z.infer<typeof updateGuestSchema>;
 export type CreateGroupBody = z.infer<typeof createGroupSchema>;
 export type UpdateGroupBody = z.infer<typeof updateGroupSchema>;
+export type SendReminderBody = z.infer<typeof sendReminderSchema>;

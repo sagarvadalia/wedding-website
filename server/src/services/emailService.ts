@@ -27,6 +27,8 @@ const WEDDING_NAME = process.env.WEDDING_NAME ?? 'Sagar & Grace';
 const CONFIRMATION_EMAIL_ENABLED = process.env.CONFIRMATION_EMAIL_ENABLED !== 'false';
 /** Base URL for email images (hosted); use CLIENT_URL so production emails show site assets. */
 const EMAIL_IMAGES_BASE_URL = (process.env.CLIENT_URL ?? '').replace(/\/$/, '');
+const RSVP_URL = EMAIL_IMAGES_BASE_URL ? `${EMAIL_IMAGES_BASE_URL}/rsvp` : '#';
+const TRAVEL_BOOKING_URL = (process.env.TRAVEL_BOOKING_URL ?? 'https://www.indiandestinationwedding.com/grace-sagar/').replace(/\/$/, '') || '#';
 
 interface GuestForEmail {
   firstName: string;
@@ -283,4 +285,223 @@ export async function sendRsvpConfirmation(groupId: string): Promise<void> {
   } catch (err) {
     log.error({ err, groupId }, 'Error sending RSVP confirmation email');
   }
+}
+
+export interface ReminderResult {
+  sent: number;
+  skipped: number;
+  errors: { guestId: string; name: string; email: string; reason: string }[];
+}
+
+function buildReminderHtml(
+  _firstName: string,
+  headline: string,
+  bodyParagraphs: string[],
+  ctaLabel: string,
+  ctaUrl: string,
+  bannerCid: string | null
+): string {
+  const siteUrl = EMAIL_IMAGES_BASE_URL || '#';
+  const bannerUrl = !bannerCid && EMAIL_IMAGES_BASE_URL ? `${EMAIL_IMAGES_BASE_URL}/images/email-image.jpg` : '';
+  const bannerImg = bannerCid
+    ? `<img src="cid:${bannerCid}" alt="Destination wedding" width="600" style="display:block;width:100%;max-width:600px;height:auto;" />`
+    : bannerUrl
+      ? `<img src="${bannerUrl}" alt="Destination wedding" width="600" style="display:block;width:100%;max-width:600px;height:auto;" />`
+      : '';
+  const body = bodyParagraphs.map((p) => `<p style="margin:0 0 16px 0;font-size:17px;color:${SAND_DARK};line-height:1.6;">${escapeHtml(p)}</p>`).join('');
+  const ctaHtml = ctaUrl !== '#'
+    ? `<p style="margin:20px 0 0 0;"><a href="${escapeHtml(ctaUrl)}" style="display:inline-block;background:${OCEAN_CARIBBEAN};color:${SAND_PEARL};padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">${escapeHtml(ctaLabel)}</a></p>`
+    : '';
+
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background-color:${SAND_PEARL};font-family:Georgia,'Times New Roman',serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${SAND_PEARL};">
+    <tr><td align="center" style="padding:24px 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
+        <tr>
+          <td style="background:${OCEAN_DEEP};color:${SAND_PEARL};padding:28px 24px;text-align:center;">
+            <h1 style="margin:0 0 8px 0;font-size:24px;font-weight:600;letter-spacing:0.5px;">${escapeHtml(headline)}</h1>
+            <p style="margin:0;font-size:16px;opacity:0.95;">${WEDDING_NAME}</p>
+          </td>
+        </tr>
+        ${bannerImg ? `<tr><td style="padding:0;">${bannerImg}</td></tr>` : ''}
+        <tr>
+          <td style="padding:28px 24px;">
+            ${body}
+            ${ctaHtml}
+          </td>
+        </tr>
+        <tr>
+          <td style="background:${OCEAN_DEEP};color:${SAND_PEARL};padding:20px 24px;text-align:center;">
+            <p style="margin:0;font-size:14px;opacity:0.9;">See you at the ocean</p>
+            ${siteUrl !== '#' ? `<p style="margin:8px 0 0 0;font-size:13px;"><a href="${siteUrl}" style="color:${GOLD};text-decoration:none;">Visit our wedding site</a></p>` : ''}
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+function loadBannerAttachment(): { cid: string | null; attachments: nodemailer.SendMailOptions['attachments'] } {
+  const bannerPath = path.join(__dirname, '..', '..', 'public', 'images', 'email-image.jpg');
+  try {
+    const bannerBuffer = fs.readFileSync(bannerPath);
+    return {
+      cid: 'banner',
+      attachments: [{ filename: 'banner.jpg', content: bannerBuffer, cid: 'banner' }]
+    };
+  } catch {
+    log.debug({ bannerPath }, 'Banner image not found; reminder email will use hosted URL or no image');
+    return { cid: null, attachments: [] };
+  }
+}
+
+/**
+ * Send RSVP reminder emails to selected guests (Option A content).
+ * Updates lastRsvpReminderAt on successful send. Returns per-guest results and errors.
+ */
+export async function sendRsvpReminder(guestIds: string[]): Promise<ReminderResult> {
+  const result: ReminderResult = { sent: 0, skipped: 0, errors: [] };
+
+  if (!GMAIL_USER.trim() || !GMAIL_APP_PASSWORD.trim()) {
+    result.errors.push({ guestId: '', name: '', email: '', reason: 'Email not configured: missing GMAIL_USER or GMAIL_APP_PASSWORD' });
+    return result;
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: GMAIL_USER.trim(), pass: GMAIL_APP_PASSWORD }
+  });
+
+  const { cid: bannerCid, attachments } = loadBannerAttachment();
+
+  for (const id of guestIds) {
+    let guest: { _id: mongoose.Types.ObjectId; firstName: string; lastName: string; email?: string } | null = null;
+    try {
+      guest = await Guest.findById(id).lean();
+    } catch {
+      result.errors.push({ guestId: id, name: '', email: '', reason: 'Invalid guest ID' });
+      continue;
+    }
+    if (!guest) {
+      result.errors.push({ guestId: id, name: '', email: '', reason: 'Guest not found' });
+      continue;
+    }
+    const email = guest.email?.trim();
+    const name = `${guest.firstName} ${guest.lastName}`;
+    if (!email) {
+      result.skipped++;
+      result.errors.push({ guestId: id, name, email: '', reason: 'No email address' });
+      continue;
+    }
+
+    const text = `Hey ${guest.firstName},\n\nWe're so excited to celebrate our wedding with you! A quick reminder to RSVP if you haven't already — we'd love to know if you can make it.\n\nRSVP here: ${RSVP_URL}\n\nAnd don't forget: this is a destination wedding, so start thinking about travel. We can't wait to see you there!`;
+    const html = buildReminderHtml(
+      guest.firstName,
+      "We'd love to have you!",
+      [
+        `Hey ${guest.firstName},`,
+        "We're so excited to celebrate our wedding with you! A quick reminder to RSVP if you haven't already — we'd love to know if you can make it.",
+        "And don't forget: this is a destination wedding, so start thinking about travel. We can't wait to see you there!"
+      ],
+      'RSVP here',
+      RSVP_URL,
+      bannerCid
+    );
+
+    try {
+      await transporter.sendMail({
+        from: `"${WEDDING_NAME} Wedding" <${GMAIL_USER.trim()}>`,
+        to: email,
+        subject: `Don't forget to RSVP – ${WEDDING_NAME}`,
+        text,
+        html,
+        attachments: (attachments ?? []).length > 0 ? attachments : undefined
+      });
+      await Guest.findByIdAndUpdate(id, { lastRsvpReminderAt: new Date() });
+      result.sent++;
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      result.errors.push({ guestId: id, name, email, reason: `Send failed: ${errMsg}` });
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Send travel reminder emails to selected guests (Option A content).
+ * Updates lastTravelReminderAt on successful send. Returns per-guest results and errors.
+ */
+export async function sendTravelReminder(guestIds: string[]): Promise<ReminderResult> {
+  const result: ReminderResult = { sent: 0, skipped: 0, errors: [] };
+
+  if (!GMAIL_USER.trim() || !GMAIL_APP_PASSWORD.trim()) {
+    result.errors.push({ guestId: '', name: '', email: '', reason: 'Email not configured: missing GMAIL_USER or GMAIL_APP_PASSWORD' });
+    return result;
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: GMAIL_USER.trim(), pass: GMAIL_APP_PASSWORD }
+  });
+
+  const { cid: bannerCid, attachments } = loadBannerAttachment();
+
+  for (const id of guestIds) {
+    let guest: { _id: mongoose.Types.ObjectId; firstName: string; lastName: string; email?: string } | null = null;
+    try {
+      guest = await Guest.findById(id).lean();
+    } catch {
+      result.errors.push({ guestId: id, name: '', email: '', reason: 'Invalid guest ID' });
+      continue;
+    }
+    if (!guest) {
+      result.errors.push({ guestId: id, name: '', email: '', reason: 'Guest not found' });
+      continue;
+    }
+    const email = guest.email?.trim();
+    const name = `${guest.firstName} ${guest.lastName}`;
+    if (!email) {
+      result.skipped++;
+      result.errors.push({ guestId: id, name, email: '', reason: 'No email address' });
+      continue;
+    }
+
+    const text = `Hey ${guest.firstName},\n\nThank you for RSVPing! We're thrilled you're coming.\n\nA friendly reminder: please book your hotel and travel soon. Use our group link to reserve your room:\n\n${TRAVEL_BOOKING_URL}\n\nCan't wait to celebrate with you!`;
+    const html = buildReminderHtml(
+      guest.firstName,
+      'Time to book your travel!',
+      [
+        `Hey ${guest.firstName},`,
+        "Thank you for RSVPing! We're thrilled you're coming.",
+        "A friendly reminder: please book your hotel and travel soon. Use our group link to reserve your room."
+      ],
+      'Book your travel',
+      TRAVEL_BOOKING_URL,
+      bannerCid
+    );
+
+    try {
+      await transporter.sendMail({
+        from: `"${WEDDING_NAME} Wedding" <${GMAIL_USER.trim()}>`,
+        to: email,
+        subject: `Book your travel – ${WEDDING_NAME}`,
+        text,
+        html,
+        attachments: (attachments ?? []).length > 0 ? attachments : undefined
+      });
+      await Guest.findByIdAndUpdate(id, { lastTravelReminderAt: new Date() });
+      result.sent++;
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      result.errors.push({ guestId: id, name, email, reason: `Send failed: ${errMsg}` });
+    }
+  }
+
+  return result;
 }
