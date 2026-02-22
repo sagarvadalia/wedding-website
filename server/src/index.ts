@@ -1,6 +1,9 @@
+import './loadEnv.js';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import rsvpRoutes from './routes/rsvp.js';
 import adminRoutes from './routes/admin.js';
 import { initDb } from './db.js';
@@ -9,8 +12,6 @@ import { requestIdMiddleware } from './middleware/requestId.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 const log = loggers.app;
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT ?? 5001;
@@ -33,9 +34,6 @@ app.get('/api/health', (_req, res) => {
 });
 
 // Serve client SPA from server/public when present (populated by deploy build)
-const path = await import('path');
-const fs = await import('fs');
-const { fileURLToPath } = await import('url');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, '..', 'public');
 if (fs.existsSync(publicDir)) {

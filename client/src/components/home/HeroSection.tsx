@@ -36,7 +36,6 @@ interface HeroSectionProps {
 export function HeroSection({
   photo,
   scrollTargetId,
-  hasNavbar = false,
   children,
 }: HeroSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
