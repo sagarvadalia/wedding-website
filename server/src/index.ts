@@ -13,23 +13,27 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 const log = loggers.app;
 
-/** Build allowed CORS origins: CLIENT_URL plus www/non-www variant for production. */
+/** Build allowed CORS origins: CLIENT_URL plus www/non-www and http/https variants. */
 function getAllowedOrigins(): string[] {
   const url = process.env.CLIENT_URL ?? 'http://localhost:5173';
   const base = url.replace(/\/$/, '');
-  const origins: string[] = [base];
+  const origins = new Set<string>([base]);
   try {
     const parsed = new URL(base);
     const host = parsed.hostname;
-    if (host.startsWith('www.')) {
-      origins.push(`${parsed.protocol}//${host.slice(4)}`);
-    } else if (!host.includes('localhost') && !host.startsWith('127.')) {
-      origins.push(`${parsed.protocol}//www.${host}`);
+    const hosts: string[] = [host];
+    if (host.startsWith('www.')) hosts.push(host.slice(4));
+    else if (!host.includes('localhost') && !host.startsWith('127.')) hosts.push(`www.${host}`);
+    const schemes: [string, string] = ['http:', 'https:'];
+    for (const scheme of schemes) {
+      for (const h of hosts) {
+        origins.add(`${scheme}//${h}`);
+      }
     }
   } catch {
     // invalid URL, use base only
   }
-  return origins;
+  return [...origins];
 }
 
 const app = express();
