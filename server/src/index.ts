@@ -13,13 +13,32 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 const log = loggers.app;
 
+/** Build allowed CORS origins: CLIENT_URL plus www/non-www variant for production. */
+function getAllowedOrigins(): string[] {
+  const url = process.env.CLIENT_URL ?? 'http://localhost:5173';
+  const base = url.replace(/\/$/, '');
+  const origins: string[] = [base];
+  try {
+    const parsed = new URL(base);
+    const host = parsed.hostname;
+    if (host.startsWith('www.')) {
+      origins.push(`${parsed.protocol}//${host.slice(4)}`);
+    } else if (!host.includes('localhost') && !host.startsWith('127.')) {
+      origins.push(`${parsed.protocol}//www.${host}`);
+    }
+  } catch {
+    // invalid URL, use base only
+  }
+  return origins;
+}
+
 const app = express();
 const PORT = process.env.PORT ?? 5001;
 
 // Middleware
 app.use(requestIdMiddleware);
 app.use(cors({
-  origin: process.env.CLIENT_URL ?? 'http://localhost:5173',
+  origin: getAllowedOrigins(),
   credentials: true
 }));
 app.use(express.json());
