@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Sentry } from '../instrument';
 
 const api = axios.create({
   baseURL: '/api',
@@ -12,8 +13,44 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  Sentry.addBreadcrumb({
+    category: 'api',
+    message: `${config.method?.toUpperCase()} ${config.url}`,
+    level: 'info',
+  });
+
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error)) {
+      Sentry.addBreadcrumb({
+        category: 'api',
+        message: `API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url} - ${error.response?.status}`,
+        level: 'error',
+        data: {
+          status: error.response?.status,
+          url: error.config?.url,
+        },
+      });
+
+      if (error.response && error.response.status >= 500) {
+        Sentry.captureException(error, {
+          extra: {
+            url: error.config?.url,
+            method: error.config?.method,
+            status: error.response.status,
+            responseData: error.response.data,
+          },
+        });
+      }
+    }
+    return Promise.reject(error);
+  },
+);
 
 export type EventType = 'welcome' | 'haldi' | 'mehndi' | 'baraat' | 'wedding' | 'cocktail' | 'reception';
 

@@ -1,32 +1,26 @@
 import { ErrorRequestHandler, Request, Response, NextFunction } from "express";
-import { loggers } from "../utils/logger.js";
+import { loggers, enrichWideEvent } from "../utils/logger.js";
+import { captureAnonymousEvent } from "../utils/posthog.js";
 
-// Custom error interface for HTTP errors
 interface HttpError extends Error {
   statusCode?: number;
   status?: number;
   expose?: boolean;
 }
 
-/**
- * Centralized Error Handler Middleware
- *
- * Handles all errors thrown in route handlers and middleware.
- * - Logs errors with structured logging
- * - Returns appropriate HTTP status codes
- * - Hides internal error details in production
- */
+interface SentryResponse extends Response {
+  sentry?: string;
+}
+
 export const errorHandler: ErrorRequestHandler = (
   err: HttpError,
   req: Request,
-  res: Response,
+  res: SentryResponse,
   _next: NextFunction,
 ) => {
-  // Determine status code
   const statusCode = err.statusCode ?? err.status ?? 500;
   const isServerError = statusCode >= 500;
 
-  // Log errors with structured logger
   if (isServerError) {
     loggers.http.error(
       { err, path: req.path, method: req.method, statusCode, requestId: req.requestId },
@@ -39,23 +33,40 @@ export const errorHandler: ErrorRequestHandler = (
     );
   }
 
-  // Send response - don't expose internal error details in production
+  enrichWideEvent(res, {
+    error: {
+      type: err.name ?? "Error",
+      message: err.message,
+      category: isServerError ? "system" : "validation",
+      slug: `error.${req.path.replace(/^\/api\//, "").replace(/\//g, ".")}`,
+      retriable: false,
+    },
+  });
+
+  captureAnonymousEvent("api_error", {
+    path: req.path,
+    method: req.method,
+    status_code: statusCode,
+    error_name: err.name,
+    error_message: err.message,
+    is_server_error: isServerError,
+    request_id: req.requestId,
+  });
+
+  const sentryEventId = res.sentry;
   const isDevelopment = process.env.NODE_ENV !== "production";
+
   res.status(statusCode).json({
     error: err.name ?? "Internal Server Error",
     message:
       isDevelopment || err.expose || !isServerError
         ? err.message
         : "An unexpected error occurred",
+    ...(sentryEventId && { eventId: sentryEventId }),
     ...(isDevelopment && { stack: err.stack }),
   });
 };
 
-/**
- * Not Found Handler
- *
- * Returns 404 for unmatched routes
- */
 export const notFoundHandler = (
   req: Request,
   res: Response,

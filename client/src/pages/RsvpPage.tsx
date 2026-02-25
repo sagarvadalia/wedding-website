@@ -13,6 +13,7 @@ import { OceanBackground } from '@/components/layout/OceanBackground';
 import { HeroSection } from '@/components/home/HeroSection';
 import { Search, Check, X, PartyPopper, Music, HelpCircle, Hotel, ExternalLink, AlertCircle, Eye, Mail, MapPin } from 'lucide-react';
 import axios from 'axios';
+import { Analytics } from '@/utils/analytics';
 
 /** Link for guests to book their room (same as Travel page). */
 const BOOK_ROOM_URL = 'https://www.indiandestinationwedding.com/grace-sagar/';
@@ -201,16 +202,21 @@ export function RsvpPage() {
     }
     setIsLoading(true);
     setError('');
+    Analytics.rsvp.lookupStarted(f, l);
     try {
       const res = await rsvpApi.lookup(f, l);
       setRsvpOpen(res.rsvpOpen);
       setRsvpByDate(res.rsvpByDate);
       if (res.groups.length === 0) {
+        Analytics.rsvp.lookupNotFound();
         setError('No invitation found for that name. Please check spelling or contact us for help.');
         return;
       }
+      const totalGuests = res.groups.reduce((sum, g) => sum + g.guests.length, 0);
+      Analytics.rsvp.lookupFound(res.groups.length, totalGuests);
       if (res.groups.length === 1) {
         guestContext.setGroup(res.groups[0]);
+        Analytics.rsvp.formOpened(res.groups[0]._id);
         setStep('form');
         setGuestFormState(res.groups[0].guests.map(guestToFormState));
       } else {
@@ -227,6 +233,7 @@ export function RsvpPage() {
   const handleChooseGroup = (g: LookupGroupDto) => {
     guestContext.setGroup(g);
     setLookupGroups([]);
+    Analytics.rsvp.formOpened(g._id);
     setStep('form');
     setGuestFormState(g.guests.map(guestToFormState));
   };
@@ -312,10 +319,15 @@ export function RsvpPage() {
           };
         }),
       });
+      const confirmCount = guestFormState.filter((s) => s.attending === true).length;
+      const declineCount = guestFormState.filter((s) => s.attending === false).length;
+      Analytics.rsvp.submitted(group._id, guestFormState.length, confirmCount, declineCount);
       setConfirmationEmail(guestFormState[0]?.email ?? '');
       setStep('confirmation');
     } catch (err) {
-      setError(getApiErrorMessage(err));
+      const errMsg = getApiErrorMessage(err);
+      Analytics.rsvp.submissionFailed(errMsg);
+      setError(errMsg);
       setStep('form');
     } finally {
       setIsLoading(false);

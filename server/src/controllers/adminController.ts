@@ -4,6 +4,9 @@ import Guest from '../models/Guest.js';
 import Group from '../models/Group.js';
 import { getRsvpByDate, isRsvpOpen } from '../config.js';
 import { sendRsvpReminder, sendTravelReminder } from '../services/emailService.js';
+import { loggers, enrichWideEvent } from '../utils/logger.js';
+
+const log = loggers.app;
 
 export const getAllGuests = async (_req: Request, res: Response): Promise<void> => {
   try {
@@ -24,7 +27,7 @@ export const getAllGuests = async (_req: Request, res: Response): Promise<void> 
     });
     res.json(serialized);
   } catch (error) {
-    console.error('Get all guests error:', error);
+    log.error({ err: error }, 'Get all guests error');
     res.status(500).json({ error: 'Failed to retrieve guests' });
   }
 };
@@ -100,7 +103,7 @@ export const addGuest = async (req: Request, res: Response): Promise<void> => {
       guest: populated
     });
   } catch (error) {
-    console.error('Add guest error:', error);
+    log.error({ err: error }, 'Add guest error');
     res.status(500).json({ error: 'Failed to add guest' });
   }
 };
@@ -155,7 +158,7 @@ export const updateGuest = async (req: Request, res: Response): Promise<void> =>
       guest: populated
     });
   } catch (error) {
-    console.error('Update guest error:', error);
+    log.error({ err: error }, 'Update guest error');
     res.status(500).json({ error: 'Failed to update guest' });
   }
 };
@@ -176,7 +179,7 @@ export const deleteGuest = async (req: Request, res: Response): Promise<void> =>
       message: 'Guest deleted successfully'
     });
   } catch (error) {
-    console.error('Delete guest error:', error);
+    log.error({ err: error }, 'Delete guest error');
     res.status(500).json({ error: 'Failed to delete guest' });
   }
 };
@@ -216,7 +219,7 @@ export const getAllGroups = async (_req: Request, res: Response): Promise<void> 
     });
     res.json(result);
   } catch (error) {
-    console.error('Get all groups error:', error);
+    log.error({ err: error }, 'Get all groups error');
     res.status(500).json({ error: 'Failed to retrieve groups' });
   }
 };
@@ -236,7 +239,7 @@ export const getGroup = async (req: Request, res: Response): Promise<void> => {
       guests
     });
   } catch (error) {
-    console.error('Get group error:', error);
+    log.error({ err: error }, 'Get group error');
     res.status(500).json({ error: 'Failed to retrieve group' });
   }
 };
@@ -252,7 +255,7 @@ export const createGroup = async (req: Request, res: Response): Promise<void> =>
       group: group.toObject()
     });
   } catch (error) {
-    console.error('Create group error:', error);
+    log.error({ err: error }, 'Create group error');
     res.status(500).json({ error: 'Failed to create group' });
   }
 };
@@ -272,7 +275,7 @@ export const updateGroup = async (req: Request, res: Response): Promise<void> =>
       group: group.toObject()
     });
   } catch (error) {
-    console.error('Update group error:', error);
+    log.error({ err: error }, 'Update group error');
     res.status(500).json({ error: 'Failed to update group' });
   }
 };
@@ -292,7 +295,7 @@ export const deleteGroup = async (req: Request, res: Response): Promise<void> =>
       message: 'Group and its guests deleted successfully'
     });
   } catch (error) {
-    console.error('Delete group error:', error);
+    log.error({ err: error }, 'Delete group error');
     res.status(500).json({ error: 'Failed to delete group' });
   }
 };
@@ -349,6 +352,18 @@ export const getStats = async (_req: Request, res: Response): Promise<void> => {
 
     const hasBookedCount = await Guest.countDocuments({ hasBooked: true });
 
+    enrichWideEvent(res, {
+      business: {
+        operation: 'admin_stats',
+        guest_count: totalGuests,
+        group_count: totalGroups,
+        confirmed,
+        declined,
+        pending,
+        response_rate: responseRate,
+      },
+    });
+
     res.json({
       total: totalGuests,
       totalGroups,
@@ -371,7 +386,7 @@ export const getStats = async (_req: Request, res: Response): Promise<void> => {
       hasBookedCount
     });
   } catch (error) {
-    console.error('Get stats error:', error);
+    log.error({ err: error }, 'Get stats error');
     res.status(500).json({ error: 'Failed to retrieve statistics' });
   }
 };
@@ -380,9 +395,20 @@ export const sendRsvpReminderHandler = async (req: Request, res: Response): Prom
   try {
     const { guestIds } = req.body as { guestIds: string[] };
     const result = await sendRsvpReminder(guestIds);
+
+    enrichWideEvent(res, {
+      business: {
+        operation: 'send_rsvp_reminder',
+        reminder_type: 'rsvp',
+        guest_count: guestIds.length,
+        sent: result.sent,
+        skipped: result.skipped,
+      },
+    });
+
     res.json(result);
   } catch (error) {
-    console.error('Send RSVP reminder error:', error);
+    log.error({ err: error }, 'Send RSVP reminder error');
     res.status(500).json({
       sent: 0,
       skipped: 0,
@@ -395,9 +421,20 @@ export const sendTravelReminderHandler = async (req: Request, res: Response): Pr
   try {
     const { guestIds } = req.body as { guestIds: string[] };
     const result = await sendTravelReminder(guestIds);
+
+    enrichWideEvent(res, {
+      business: {
+        operation: 'send_travel_reminder',
+        reminder_type: 'travel',
+        guest_count: guestIds.length,
+        sent: result.sent,
+        skipped: result.skipped,
+      },
+    });
+
     res.json(result);
   } catch (error) {
-    console.error('Send travel reminder error:', error);
+    log.error({ err: error }, 'Send travel reminder error');
     res.status(500).json({
       sent: 0,
       skipped: 0,

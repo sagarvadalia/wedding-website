@@ -1,4 +1,4 @@
-import './loadEnv.js';
+import { Sentry } from './instrument.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -9,7 +9,9 @@ import adminRoutes from './routes/admin.js';
 import { initDb } from './db.js';
 import { loggers } from './utils/logger.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
+import { wideEventMiddleware, wideEventErrorMiddleware } from './middleware/wideEvent.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import { shutdownPostHog } from './utils/posthog.js';
 
 const log = loggers.app;
 
@@ -41,6 +43,7 @@ const PORT = process.env.PORT ?? 5001;
 
 // Middleware
 app.use(requestIdMiddleware);
+app.use(wideEventMiddleware);
 app.use(cors({
   origin: getAllowedOrigins(),
   credentials: true
@@ -68,7 +71,19 @@ if (fs.existsSync(publicDir)) {
 
 // Error handling (must be after routes)
 app.use(notFoundHandler);
+app.use(wideEventErrorMiddleware);
+Sentry.setupExpressErrorHandler(app);
 app.use(errorHandler);
+
+// Graceful shutdown
+async function gracefulShutdown(signal: string) {
+  log.info({ signal }, 'Received shutdown signal');
+  await shutdownPostHog();
+  process.exit(0);
+}
+
+process.on('SIGTERM', () => { gracefulShutdown('SIGTERM').catch(() => process.exit(1)); });
+process.on('SIGINT', () => { gracefulShutdown('SIGINT').catch(() => process.exit(1)); });
 
 // Start server
 const startServer = async () => {
@@ -79,7 +94,6 @@ const startServer = async () => {
     });
   } catch (error) {
     log.warn({ err: error }, 'Failed to connect to MongoDB, starting server anyway');
-    // Start server anyway for development
     app.listen(PORT, () => {
       log.info({ port: PORT }, 'Server started (without MongoDB)');
     });

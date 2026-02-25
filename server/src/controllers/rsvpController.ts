@@ -4,7 +4,7 @@ import Guest, { type EventType } from '../models/Guest.js';
 import Group from '../models/Group.js';
 import { getRsvpByDate, isRsvpOpen } from '../config.js';
 import { sendRsvpConfirmation } from '../services/emailService.js';
-import { loggers } from '../utils/logger.js';
+import { loggers, enrichWideEvent } from '../utils/logger.js';
 
 const log = loggers.app;
 
@@ -125,6 +125,19 @@ export const lookupByName = async (req: Request, res: Response): Promise<void> =
 
     const result: LookupGroupDto[] = Array.from(groupMap.values());
     const rsvpBy = getRsvpByDate();
+    const totalGuests = result.reduce((sum, g) => sum + g.guests.length, 0);
+
+    enrichWideEvent(res, {
+      business: {
+        operation: 'rsvp_lookup',
+        guest_count: totalGuests,
+        group_count: result.length,
+      },
+      guest: {
+        first_name: firstName,
+        last_name: lastName,
+      },
+    });
 
     res.json({
       groups: result,
@@ -132,7 +145,7 @@ export const lookupByName = async (req: Request, res: Response): Promise<void> =
       rsvpByDate: rsvpBy ? rsvpBy.toISOString().slice(0, 10) : null
     });
   } catch (error) {
-    console.error('Lookup error:', error);
+    log.error({ err: error, path: '/api/rsvp/lookup' }, 'Lookup error');
     res.status(500).json({ error: 'Failed to lookup guest' });
   }
 };
@@ -153,7 +166,7 @@ export const getRsvpStatus = (_req: Request, res: Response): void => {
       rsvpByDate: rsvpBy ? rsvpBy.toISOString().slice(0, 10) : null
     });
   } catch (error) {
-    console.error('RSVP status error:', error);
+    log.error({ err: error, path: '/api/rsvp/status' }, 'RSVP status error');
     res.status(500).json({ error: 'Failed to get RSVP status' });
   }
 };
@@ -268,6 +281,26 @@ export const submitRsvp = async (req: Request, res: Response): Promise<void> => 
       await guest.save();
     }
 
+    const statusCounts = guestsPayload.reduce(
+      (acc, p) => {
+        const s = attendingToStatus(p.attending);
+        acc[s] = (acc[s] ?? 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
+    enrichWideEvent(res, {
+      business: {
+        operation: 'rsvp_submit',
+        guest_count: guestsPayload.length,
+        group_id: groupId,
+        confirmed: statusCounts.confirmed ?? 0,
+        maybe: statusCounts.maybe ?? 0,
+        declined: statusCounts.declined ?? 0,
+      },
+    });
+
     res.json({
       success: true,
       message: 'RSVP submitted successfully'
@@ -277,7 +310,7 @@ export const submitRsvp = async (req: Request, res: Response): Promise<void> => 
       log.error({ err, groupId }, 'RSVP confirmation email failed');
     });
   } catch (error) {
-    console.error('RSVP submission error:', error);
+    log.error({ err: error, path: '/api/rsvp' }, 'RSVP submission error');
     res.status(500).json({ error: 'Failed to submit RSVP' });
   }
 };

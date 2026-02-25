@@ -12,6 +12,36 @@ services:
 
     healthCheckPath: /api/health
 
+    envVars:
+      # Sentry (backend)
+      - key: SENTRY_DSN
+        sync: false
+      - key: SENTRY_ENVIRONMENT
+        value: production
+      - key: APP_VERSION
+        sync: false
+      # Sentry (frontend, embedded at build time via VITE_ prefix)
+      - key: VITE_SENTRY_DSN
+        sync: false
+      - key: VITE_APP_VERSION
+        sync: false
+      # Sentry source map uploads
+      - key: SENTRY_AUTH_TOKEN
+        sync: false
+      - key: SENTRY_ORG
+        sync: false
+      - key: SENTRY_PROJECT
+        sync: false
+      # PostHog
+      - key: POSTHOG_KEY
+        sync: false
+      - key: POSTHOG_HOST
+        value: https://us.i.posthog.com
+      - key: VITE_POSTHOG_KEY
+        sync: false
+      - key: VITE_POSTHOG_HOST
+        value: https://us.i.posthog.com
+
     # Only redeploy when relevant paths change (monorepo)
     buildFilter:
       paths:
