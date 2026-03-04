@@ -151,7 +151,7 @@ export function AudioPlayer() {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
-              className="fixed bottom-24 left-1/2 -translate-x-1/2 pointer-events-auto"
+              className="fixed bottom-35 left-1/2 -translate-x-1/2 pointer-events-auto"
             >
             <div className="bg-ocean-deep/95 backdrop-blur-sm text-white px-6 py-4 rounded-2xl shadow-xl flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center">

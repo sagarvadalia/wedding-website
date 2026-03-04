@@ -113,7 +113,7 @@ export function HeroSection({
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <ChevronDown className="h-8 w-8 md:h-10 md:w-10" />
+          <ChevronDown className="h-8 w-8 md:h-15 md:w-15" />
         </motion.div>
       </motion.button>
     </section>
