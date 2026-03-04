@@ -166,7 +166,7 @@ export function TravelPage() {
                   </a>
                 </Button>
                 <Button variant="outline" size="lg" className="border-sand-pearl/30 text-sand-pearl hover:bg-sand-pearl/10" asChild>
-                  <a href="https://www.dreamsresorts.com/playa-mujeres" target="_blank" rel="noopener noreferrer" className="inline-flex items-center whitespace-nowrap">
+                  <a href="https://www.hyattinclusivecollection.com/en/resorts-hotels/dreams/mexico/playa-mujeres-golf-spa-resort/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center whitespace-nowrap">
                     View Resort <ExternalLink className="w-4 h-4 ml-2 flex-shrink-0" />
                   </a>
                 </Button>
