@@ -163,10 +163,7 @@ export function PhotosPage() {
         >
           <Card className="bg-gradient-to-r from-ocean-deep to-ocean-caribbean text-white overflow-hidden">
             <CardContent className="p-8 md:p-12 text-center relative">
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-4 left-4 w-32 h-32 border-2 border-white rounded-full" />
-                <div className="absolute bottom-4 right-4 w-24 h-24 border-2 border-white rounded-full" />
-              </div>
+            
               
               <div className="relative z-10">
                 <Camera className="w-16 h-16 mx-auto mb-4 opacity-80" />
@@ -209,18 +206,7 @@ export function PhotosPage() {
           </Card>
         </motion.div>
 
-        {/* Photo Tips */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="mt-12 text-center"
-        >
-          <p className="text-ocean-deep/60 text-sm">
-            Photos from the wedding weekend will be uploaded after the celebration. 
-            Check back soon for all the beautiful memories!
-          </p>
-        </motion.div>
+        
       </Section>
 
       {/* Lightbox */}

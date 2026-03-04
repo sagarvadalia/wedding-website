@@ -1,30 +1,27 @@
 import { Heart } from 'lucide-react';
-import { WeddingCountdown } from './WeddingCountdown';
 import { HONEYMOON_FUND_VENMO_URL } from '@/lib/constants';
 
 export function Footer() {
   return (
-    <footer className="relative bg-ocean-deep text-sand-pearl overflow-hidden">
-      {/* Wave decoration */}
-      <div className="absolute top-0 left-0 right-0 h-16 overflow-hidden">
+    <footer className="relative bg-ocean-deep text-sand-pearl">
+      {/* Wavy top edge — extends above the footer boundary into the content area */}
+      <div className="absolute -top-14 left-0 right-0 h-16 pointer-events-none z-10">
         <svg
           viewBox="0 0 1440 100"
-          className="absolute bottom-0 w-full h-full"
+          className="w-full h-full"
           preserveAspectRatio="none"
         >
           <path
             d="M0,50 C360,100 720,0 1080,50 C1260,75 1380,50 1440,50 L1440,100 L0,100 Z"
-            fill="currentColor"
-            className="text-sand-pearl"
+            fill="#1E3A5F"
           />
         </svg>
       </div>
 
-      <div className="relative pt-24 px-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
+      <div className="relative pt-16 px-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
         <div className="max-w-4xl mx-auto text-center">
           {/* Tagline */}
           
-          <WeddingCountdown className="mb-4" />
 
           {/* Names with heart */}
           <div className="flex items-center justify-center gap-4 mb-6">
@@ -68,10 +65,7 @@ export function Footer() {
             .
           </p>
 
-          {/* Copyright */}
-          <p className="text-sm text-sand-pearl/40">
-            © 2027 Sagar & Grace Wedding
-          </p>
+         
         </div>
       </div>
     </footer>

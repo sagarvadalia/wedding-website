@@ -10,6 +10,7 @@ import { WeddingCountdown } from '@/components/layout/WeddingCountdown';
 import { Calendar, MapPin } from 'lucide-react';
 import { OceanBackground } from '@/components/layout/OceanBackground';
 import { HeroSection } from '@/components/home/HeroSection';
+import { Footer } from '@/components/layout/Footer';
 
 const PASSPORT_SECTION_ID = 'passport-section';
 
@@ -62,7 +63,7 @@ export function HomePage() {
       <div id={PASSPORT_SECTION_ID} className="relative min-h-screen overflow-hidden">
         <OceanBackground variant="surface" />
         {/* Wave decoration at bottom (layered over ocean background) */}
-        <div className="fixed bottom-0 left-0 right-0 h-32 overflow-hidden pointer-events-none" style={{ zIndex: 6 }}>
+        <div className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden pointer-events-none" style={{ zIndex: 6 }}>
           <svg
             viewBox="0 0 1440 100"
             className="absolute bottom-0 w-full"
@@ -251,6 +252,7 @@ export function HomePage() {
         </AnimatePresence>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

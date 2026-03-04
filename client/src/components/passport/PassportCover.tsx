@@ -199,7 +199,7 @@ export function PassportCover({ isOpen, onOpen, className }: PassportCoverProps)
 
           {/* Click / tap hint */}
           <motion.div
-            className="absolute top-4 right-4 text-gold/90 text-sm"
+            className="absolute top-4 right-4 text-gold/90 text-2xl"
             animate={{
               opacity: [0.3, 0.7, 0.3],
             }}

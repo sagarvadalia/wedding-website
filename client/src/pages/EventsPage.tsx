@@ -130,7 +130,7 @@ const events: WeddingEvent[] = [
     time: '11:00 AM - 1:00 PM',
     location: 'Garden Pavilion',
     dressCode: 'Yellow / White Attire (clothes may get stained!)',
-    description: 'A joyful pre-wedding ritual where turmeric paste is applied to the bride and groom for blessings of prosperity and to give their skin a beautiful glow. Wear clothes you don\'t mind getting messy - it\'s part of the fun!',
+    description: 'A pre-wedding ritual where turmeric paste is applied to the bride and groom for blessings of prosperity and to give their skin a beautiful glow. Wear clothes you don\'t mind getting messy/wet - it\'s part of the fun!',
     stampTheme: 'haldi',
   },
   {
@@ -140,7 +140,7 @@ const events: WeddingEvent[] = [
     time: '3:00 PM - 7:00 PM',
     location: 'Garden Pavilion',
     dressCode: 'Colorful Indian Attire',
-    description: 'Experience the beautiful tradition of Mehndi, where intricate henna designs are applied to the bride\'s hands and feet. Enjoy music, dancing, and traditional Indian snacks while celebrating this joyful pre-wedding ritual.',
+    description: 'Experience the beautiful tradition of Mehndi, where intricate henna designs are applied to the bride\'s hands and feet. Enjoy music, dancing, gharba, and dinner.',
     stampTheme: 'henna',
   },
   {
@@ -160,7 +160,7 @@ const events: WeddingEvent[] = [
     time: '4:00 PM - 6:00 PM',
     location: 'Oceanfront Mandap',
     dressCode: 'Formal Indian Attire',
-    description: 'The moment we\'ve been waiting for! Witness Sagar and Grace exchange vows in a traditional Hindu ceremony under a beautiful mandap overlooking the Caribbean Sea. This sacred ceremony will unite our families forever.',
+    description: 'The moment we\'ve been waiting for! Witness Sagar and Grace exchange vows under a beautiful mandap overlooking the Caribbean Sea. This sacred ceremony will unite our families forever.',
     stampTheme: 'mandap',
   },
   {
