@@ -241,6 +241,10 @@ export function ThingsToDoPage() {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-gold">★</span>
+                  <span>Dreams Playa Mujeres is known for its incredible spa services - they are worth the splurge!</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-gold">★</span>
                   <span>Consider extending your stay a few days before or after the wedding to fully enjoy the destination</span>
                 </li>
               </ul>

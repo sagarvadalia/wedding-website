@@ -576,6 +576,9 @@ export function RsvpPage() {
                               <Label className="flex items-center gap-1">
                                 <Mail className="w-4 h-4" /> Email address
                               </Label>
+                              <p className="text-xs text-sand-dark mt-1">
+                                We&apos;ll send a confirmation to this address.
+                              </p>
                               <Input
                                 type="email"
                                 placeholder="email@example.com"
@@ -588,14 +591,15 @@ export function RsvpPage() {
                                 }
                                 autoComplete="email"
                               />
-                              <p className="text-xs text-sand-dark mt-1">
-                                We&apos;ll send a confirmation to this address.
-                              </p>
+                              
                             </div>
                             <div>
                               <Label className="flex items-center gap-1">
                                 <MapPin className="w-4 h-4" /> Mailing address
                               </Label>
+                              <p className="text-xs text-sand-dark mt-1">
+                                We&apos;ll send wedding updates, important information, and more to this address.
+                              </p>
                               <div className="space-y-2 mt-2">
                                 <Input
                                   placeholder="Address line 1"

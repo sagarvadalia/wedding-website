@@ -151,18 +151,18 @@ export function FaqPage() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                 <a 
-                  href="mailto:wedding@sagarandgrace.com"
+                  href="mailto:sagarandgrace@gmail.com"
                   className="flex items-center gap-2 text-gold hover:text-gold-light transition-colors"
                 >
                   <Mail className="w-5 h-5" />
-                  <span>wedding@sagarandgrace.com</span>
+                  <span>sagarandgrace@gmail.com</span>
                 </a>
                 <a 
-                  href="tel:+1234567890"
+                  href="tel:+5163048498"
                   className="flex items-center gap-2 text-gold hover:text-gold-light transition-colors"
                 >
                   <Phone className="w-5 h-5" />
-                  <span>(123) 456-7890</span>
+                  <span>(516) 304-8498</span>
                 </a>
               </div>
             </CardContent>
