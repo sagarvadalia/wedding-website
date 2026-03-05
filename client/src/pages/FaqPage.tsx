@@ -90,7 +90,7 @@ const faqs: FAQ[] = [
   {
     category: 'general',
     question: 'Who can I contact with questions?',
-    answer: 'Feel free to reach out to us directly! Email us at wedding@sagarandgrace.com or use the contact information provided below.',
+    answer: 'Feel free to reach out to us directly! Email us at sagarandgrace@gmail.com.',
   },
 ];
 
