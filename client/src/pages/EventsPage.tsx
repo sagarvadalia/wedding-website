@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
+import { NextPageCTA } from '@/components/layout/NextPageCTA';
 import { VisaStamp } from '@/components/passport/VisaStamp';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -494,6 +495,12 @@ export function EventsPage() {
             ))}
           </div>
         </motion.div>
+
+        <NextPageCTA
+          nextPath="/travel"
+          nextLabel="Plan Your Travel"
+          teaser="Plan your trip to Cancun"
+        />
       </Section>
     </PassportPage>
   );

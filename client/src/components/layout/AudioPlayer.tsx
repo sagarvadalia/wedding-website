@@ -151,41 +151,43 @@ export function AudioPlayer() {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
-              className="fixed bottom-35 left-1/2 -translate-x-1/2 pointer-events-auto"
+              className="fixed bottom-35 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm sm:w-auto sm:max-w-none pointer-events-auto"
             >
-            <div className="bg-ocean-deep/95 backdrop-blur-sm text-white px-6 py-4 rounded-2xl shadow-xl flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center">
-                {audioError ? (
-                  <AlertCircle className="w-6 h-6 text-coral" />
-                ) : (
-                  <Music className="w-6 h-6 text-gold" />
-                )}
-              </div>
-              <div className="text-left">
-                {audioError ? (
-                  <>
-                    <p className="font-medium text-coral">Audio not available</p>
-                    <p className="text-sm text-sand-pearl/70">Add lucky.mp3 to public/music/</p>
-                  </>
-                ) : (
-                  <>
-                    <p className="font-medium">Play our song?</p>
-                    <p className="text-sm text-sand-pearl/70">"Lucky" by Jason Mraz</p>
-                  </>
-                )}
+            <div className="bg-ocean-deep/95 backdrop-blur-md border border-white/10 text-white px-5 py-4 rounded-2xl shadow-2xl flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 sm:w-12 sm:h-12 shrink-0 rounded-full bg-gold/20 flex items-center justify-center">
+                  {audioError ? (
+                    <AlertCircle className="w-4 h-4 sm:w-6 sm:h-6 text-coral" />
+                  ) : (
+                    <Music className="w-4 h-4 sm:w-6 sm:h-6 text-gold" />
+                  )}
+                </div>
+                <div className="flex-1 text-left">
+                  {audioError ? (
+                    <>
+                      <p className="font-semibold text-coral text-sm sm:text-base leading-tight">Audio not available</p>
+                      <p className="text-xs sm:text-sm text-sand-pearl/60">Add lucky.mp3 to public/music/</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-semibold text-sm sm:text-base leading-tight">Play our song?</p>
+                      <p className="text-xs sm:text-sm text-sand-pearl/60">&ldquo;Lucky&rdquo; by Jason Mraz</p>
+                    </>
+                  )}
+                </div>
               </div>
               {!audioError && (
-                <div className="flex gap-2 ml-2">
+                <div className="flex gap-2.5 w-full sm:w-auto sm:ml-2">
                   <button
                     onClick={handlePromptClick}
                     disabled={!isLoaded}
-                    className="px-4 py-2 bg-gold text-ocean-deep rounded-full text-sm font-medium hover:bg-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-[3] sm:flex-initial px-5 py-2 bg-gold text-ocean-deep rounded-full text-sm font-semibold hover:bg-gold-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoaded ? 'Play' : 'Loading...'}
                   </button>
                   <button
                     onClick={dismissPrompt}
-                    className="px-4 py-2 bg-white/10 text-white rounded-full text-sm font-medium hover:bg-white/20 transition-colors"
+                    className="flex-[2] sm:flex-initial px-4 py-2 bg-white/10 text-white/80 rounded-full text-sm font-medium hover:bg-white/20 transition-colors"
                   >
                     No thanks
                   </button>
@@ -194,7 +196,7 @@ export function AudioPlayer() {
               {audioError && (
                 <button
                   onClick={dismissPrompt}
-                  className="px-4 py-2 bg-white/10 text-white rounded-full text-sm font-medium hover:bg-white/20 transition-colors ml-2"
+                  className="w-full sm:w-auto px-4 py-2 bg-white/10 text-white rounded-full text-sm font-medium hover:bg-white/20 transition-colors sm:ml-2"
                 >
                   Dismiss
                 </button>

@@ -1,4 +1,5 @@
 import { PageHeader, PassportPage, Section } from '@/components/passport/PassportPage';
+import { NextPageCTA } from '@/components/layout/NextPageCTA';
 import { DesktopTimeline } from '@/components/story/DesktopTimeline';
 import { MobileTimeline } from '@/components/story/MobileTimeline';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -54,7 +55,7 @@ const timeline: TimelineEvent[] = [
   {
     year: '2024',
     title: 'Engaged!',
-    description: 'We took a trip to Greece for our 3-year anniversary, where Sagar proposed on our 3rd anniversary overlooking a beautiful sunset in Mykonos. Grace was totally caught of guard and shocked and elated at the same time. It was a truly magical moment that we will never forget.',
+    description: 'For our 3-year anniversary, we traveled to the beautiful islands of Greece, visiting Athens, Mykonos, and Santorini. On the evening of June 11, Sagar popped the big question just as the sun was setting along the Mykonos coastline. Grace was surprised, shocked, and elated at the same time. It was a magical moment that we will never forget.',
     icon: <Gem className="w-5 h-5 fill-current" />,
     image: '/images/engaged.avif',
   },
@@ -132,6 +133,12 @@ export function OurStoryPage() {
         ) : (
           <MobileTimeline events={timeline} />
         )}
+
+        <NextPageCTA
+          nextPath="/the-cast"
+          nextLabel="Meet The Cast"
+          teaser="Meet our favorite people"
+        />
       </Section>
     </PassportPage>
   );

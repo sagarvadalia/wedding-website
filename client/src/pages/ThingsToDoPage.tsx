@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
+import { NextPageCTA } from '@/components/layout/NextPageCTA';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Waves, 
@@ -246,6 +247,12 @@ export function ThingsToDoPage() {
             </CardContent>
           </Card>
         </motion.div>
+
+        <NextPageCTA
+          nextPath="/photos"
+          nextLabel="View the Photos"
+          teaser="Check out our photos"
+        />
       </Section>
     </PassportPage>
   );

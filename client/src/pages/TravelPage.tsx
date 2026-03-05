@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
+import { NextPageCTA } from '@/components/layout/NextPageCTA';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -378,6 +379,12 @@ export function TravelPage() {
             ))}
           </div>
         </motion.div>
+
+        <NextPageCTA
+          nextPath="/things-to-do"
+          nextLabel="Explore Things to Do"
+          teaser="Explore the area"
+        />
       </Section>
     </PassportPage>
   );

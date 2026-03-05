@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
+import { NextPageCTA } from '@/components/layout/NextPageCTA';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Mail, Phone } from 'lucide-react';
@@ -167,6 +168,12 @@ export function FaqPage() {
             </CardContent>
           </Card>
         </motion.div>
+
+        <NextPageCTA
+          nextPath="/rsvp"
+          nextLabel="RSVP Now"
+          teaser="Ready to celebrate with us?"
+        />
       </Section>
     </PassportPage>
   );

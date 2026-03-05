@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
+import { NextPageCTA } from '@/components/layout/NextPageCTA';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Camera, Heart, X, ChevronLeft, ChevronRight, ExternalLink, ImageIcon, Upload } from 'lucide-react';
@@ -205,8 +206,11 @@ export function PhotosPage() {
             </CardContent>
           </Card>
         </motion.div>
-
-        
+        <NextPageCTA
+          nextPath="/faq"
+          nextLabel="Read the FAQ"
+          teaser="Have questions?"
+        />
       </Section>
 
       {/* Lightbox */}

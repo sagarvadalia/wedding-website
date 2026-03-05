@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
+import { NextPageCTA } from '@/components/layout/NextPageCTA';
 import { Card, CardContent } from '@/components/ui/card';
 import { CAST_MEMBERS } from '@/lib/constants';
 import { Camera } from 'lucide-react';
@@ -82,6 +83,12 @@ export function CastPage() {
             </motion.li>
           ))}
         </ul>
+
+        <NextPageCTA
+          nextPath="/events"
+          nextLabel="View the Events"
+          teaser="See what we have planned"
+        />
       </Section>
     </PassportPage>
   );
