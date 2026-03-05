@@ -38,6 +38,8 @@ const navGroups: NavGroup[] = [
     items: [
       { path: '/photos', label: 'Photos' },
       { path: '/faq', label: 'FAQ' },
+      { path: '/registry', label: 'Registry' },
+      { path: '/guestbook', label: 'Guestbook' },
     ],
   },
 ];

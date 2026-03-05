@@ -29,7 +29,6 @@ const travelInfo = [
       'Fly into Cancun International Airport (CUN)',
       'Direct flights available from most major US cities',
       'We recommend booking flights early for best rates',
-      'Flight time: ~3-4 hours from most US cities',
     ],
   },
   {
@@ -47,8 +46,7 @@ const travelInfo = [
     title: 'Transportation',
     content: [
       'Resort is 35-45 minutes from the airport',
-      'Shuttle services available through the resort',
-      'We will arrange group transportation for wedding events',
+      'We will arrange group transportation to and from the airport.',
       'Taxis and rental cars also available',
     ],
   },
@@ -166,11 +164,7 @@ export function TravelPage() {
                     Book Your Room <ExternalLink className="w-4 h-4 ml-2 flex-shrink-0" />
                   </a>
                 </Button>
-                <Button variant="outline" size="lg" className="border-sand-pearl/30 text-sand-pearl hover:bg-sand-pearl/10" asChild>
-                  <a href="https://www.hyattinclusivecollection.com/en/resorts-hotels/dreams/mexico/playa-mujeres-golf-spa-resort/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center whitespace-nowrap">
-                    View Resort <ExternalLink className="w-4 h-4 ml-2 flex-shrink-0" />
-                  </a>
-                </Button>
+               
               </div>
               <p className="text-sand-pearl/60 text-sm mt-4">
                 <strong className="text-gold">Important:</strong> All guests must book accommodations through Indian Destination Wedding to attend wedding events.
@@ -286,7 +280,7 @@ export function TravelPage() {
           viewport={{ once: true }}
           className="mb-12"
         >
-          <h2 className="text-2xl md:text-3xl font-heading text-center text-ocean-deep mb-8">
+          <h2 className="text-2xl md:text-3xl font-heading text-center text-ocean-deep mb-6">
             <MapPin className="w-6 h-6 inline-block mr-2 mb-1" />
             Location
           </h2>
@@ -323,7 +317,7 @@ export function TravelPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
             <h2 className="text-2xl md:text-3xl font-heading text-center text-ocean-deep">
               <Briefcase className="w-6 h-6 inline-block mr-2 mb-1" />
               Packing Checklist

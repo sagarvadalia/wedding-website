@@ -300,7 +300,7 @@ export function EventsPage() {
                             href={RESORT_MAPS_URL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-sm text-ocean-caribbean hover:text-ocean-deep transition-colors"
+                            className="flex items-center gap-2 text-sm text-ocean-caribbean hover:text-ocean-deep hover:underline transition-colors duration-200"
                           >
                             <MapPin className="w-4 h-4" />
                             <span>{event.location}</span>
@@ -325,7 +325,7 @@ export function EventsPage() {
                               description: event.description,
                             })
                           }
-                          className="inline-flex items-center gap-1.5 text-sm text-ocean-caribbean hover:text-ocean-deep transition-colors mt-1"
+                          className="inline-flex items-center gap-1.5 text-sm text-ocean-caribbean hover:text-ocean-deep transition-colors duration-200 mt-1"
                         >
                           <CalendarPlus className="w-4 h-4" />
                           Add to Calendar

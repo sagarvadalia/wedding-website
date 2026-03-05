@@ -72,10 +72,7 @@ export function PageHeader({ title, subtitle, className }: PageHeaderProps) {
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ delay: 0.3, duration: 0.5 }}
-        className="mt-6 h-[2px] w-24 md:w-32 mx-auto"
-        style={{
-          background: 'linear-gradient(90deg, transparent, #D4AF37, transparent)',
-        }}
+        className="mt-6 h-[2px] w-24 md:w-32 mx-auto gold-divider"
       />
     </div>
   );

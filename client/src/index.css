@@ -258,6 +258,11 @@ h1, h2, h3, h4, h5, h6 {
   text-wrap: balance;
 }
 
+/* Gold Divider */
+.gold-divider {
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+
 /* Focus Styles */
 *:focus-visible {
   outline: 2px solid var(--color-ocean-caribbean);

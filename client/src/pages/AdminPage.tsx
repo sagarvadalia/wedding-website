@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,8 @@ import {
   type Stats,
   type MailingAddressDto,
   type ReminderResult,
+  type ImportGuestRow,
+  type ImportResult,
 } from '@/lib/api';
 import {
   Users,
@@ -20,6 +22,7 @@ import {
   Plus,
   Trash2,
   Download,
+  Upload,
   RefreshCw,
   LogIn,
   UserPlus,
@@ -75,6 +78,10 @@ export function AdminPage() {
   const [selectedGuestIds, setSelectedGuestIds] = useState<Set<string>>(new Set());
   const [reminderResult, setReminderResult] = useState<ReminderResult | null>(null);
   const [reminderSending, setReminderSending] = useState(false);
+  const [csvPreview, setCsvPreview] = useState<ImportGuestRow[] | null>(null);
+  const [csvImporting, setCsvImporting] = useState(false);
+  const [csvResult, setCsvResult] = useState<ImportResult | null>(null);
+  const csvFileRef = useRef<HTMLInputElement>(null);
 
   const handleLogin = () => {
     if (password === 'wedding2027') {
@@ -285,7 +292,7 @@ export function AdminPage() {
 
   const statusBadge = (status: string) => {
     const base = 'inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ';
-    if (status === 'confirmed') return base + 'bg-green-100 text-green-800';
+    if (status === 'confirmed') return base + 'bg-green-100 text-green-700';
     if (status === 'maybe') return base + 'bg-amber-100 text-amber-800';
     if (status === 'declined') return base + 'bg-red-100 text-red-800';
     return base + 'bg-yellow-100 text-yellow-800';
@@ -304,6 +311,64 @@ export function AdminPage() {
       else next.add(id);
       return next;
     });
+  };
+
+  const handleCsvFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result;
+      if (typeof text !== 'string') return;
+      const lines = text.split(/\r?\n/).filter((l) => l.trim());
+      if (lines.length < 2) {
+        alert('CSV must have a header row and at least one data row');
+        return;
+      }
+      const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
+      const firstNameIdx = headers.indexOf('firstname');
+      const lastNameIdx = headers.indexOf('lastname');
+      if (firstNameIdx === -1 || lastNameIdx === -1) {
+        alert('CSV must have "firstName" and "lastName" columns');
+        return;
+      }
+      const emailIdx = headers.indexOf('email');
+      const groupIdx = headers.indexOf('group');
+      const plusOneIdx = headers.indexOf('allowedplusone');
+
+      const rows: ImportGuestRow[] = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',').map((c) => c.trim());
+        const firstName = cols[firstNameIdx] ?? '';
+        const lastName = cols[lastNameIdx] ?? '';
+        if (!firstName || !lastName) continue;
+        const row: ImportGuestRow = { firstName, lastName };
+        if (emailIdx !== -1 && cols[emailIdx]) row.email = cols[emailIdx];
+        if (groupIdx !== -1 && cols[groupIdx]) row.group = cols[groupIdx];
+        if (plusOneIdx !== -1 && cols[plusOneIdx]) row.allowedPlusOne = cols[plusOneIdx].toLowerCase() === 'true';
+        rows.push(row);
+      }
+      setCsvPreview(rows);
+      setCsvResult(null);
+    };
+    reader.readAsText(file);
+    if (csvFileRef.current) csvFileRef.current.value = '';
+  };
+
+  const handleCsvImport = async () => {
+    if (!csvPreview || csvPreview.length === 0) return;
+    setCsvImporting(true);
+    try {
+      const result = await adminApi.importGuests(csvPreview);
+      setCsvResult(result);
+      setCsvPreview(null);
+      await fetchData();
+    } catch (error) {
+      console.error('CSV import failed:', error);
+      alert('CSV import failed. Check console for details.');
+    } finally {
+      setCsvImporting(false);
+    }
   };
 
   const selectAllGuests = () => {
@@ -598,13 +663,24 @@ export function AdminPage() {
                 <UserPlus className="w-4 h-4 mr-2" />
                 Add Guest
               </Button>
+              <Button variant="outline" onClick={() => csvFileRef.current?.click()}>
+                <Upload className="w-4 h-4 mr-2" />
+                Import CSV
+              </Button>
+              <input
+                ref={csvFileRef}
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={handleCsvFileSelect}
+              />
               <div className="flex items-center gap-2 ml-4 pl-4 border-l border-sand-driftwood/30">
                 <label className="flex items-center gap-2 cursor-pointer text-sm">
                   <input
                     type="checkbox"
                     checked={selectedGuestIds.size === guests.length && guests.length > 0}
                     onChange={selectAllGuests}
-                    className="rounded"
+                    className="rounded border-2 border-sand-driftwood"
                   />
                   <span className="text-sand-dark">Select all</span>
                 </label>
@@ -629,6 +705,67 @@ export function AdminPage() {
                 </Button>
               </div>
             </div>
+            {csvResult && (
+              <div className={`mb-6 p-4 rounded-lg border-2 ${csvResult.errors.length > 0 ? 'bg-yellow-50 border-yellow-300 text-yellow-900' : 'bg-green-50 border-green-300 text-green-900'}`}>
+                <div className="flex items-start gap-2">
+                  <Check className="w-5 h-5 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Import complete</p>
+                    <p className="text-sm">{csvResult.imported} imported, {csvResult.skipped} skipped (duplicates), {csvResult.groupsCreated} groups created.</p>
+                    {csvResult.errors.length > 0 && (
+                      <ul className="mt-1 text-sm list-disc list-inside space-y-0.5">
+                        {csvResult.errors.map((e, i) => (
+                          <li key={i}>Row {e.row}: {e.reason}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <Button variant="ghost" size="sm" className="ml-auto shrink-0" onClick={() => setCsvResult(null)}>
+                    Dismiss
+                  </Button>
+                </div>
+              </div>
+            )}
+            {csvPreview && (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>CSV Preview</CardTitle>
+                  <CardDescription>{csvPreview.length} row{csvPreview.length !== 1 ? 's' : ''} parsed</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto max-h-64 overflow-y-auto mb-4">
+                    <table className="w-full text-sm">
+                      <thead className="sticky top-0 bg-sand-pearl">
+                        <tr className="text-left">
+                          <th className="p-2">First</th>
+                          <th className="p-2">Last</th>
+                          <th className="p-2">Email</th>
+                          <th className="p-2">Group</th>
+                          <th className="p-2">Plus One</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {csvPreview.map((row, i) => (
+                          <tr key={i} className="border-t border-sand-driftwood/20">
+                            <td className="p-2">{row.firstName}</td>
+                            <td className="p-2">{row.lastName}</td>
+                            <td className="p-2">{row.email ?? '—'}</td>
+                            <td className="p-2">{row.group ?? '—'}</td>
+                            <td className="p-2">{row.allowedPlusOne ? 'Yes' : 'No'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={handleCsvImport} disabled={csvImporting}>
+                      {csvImporting ? 'Importing...' : `Import ${csvPreview.length} Guest${csvPreview.length !== 1 ? 's' : ''}`}
+                    </Button>
+                    <Button variant="outline" onClick={() => setCsvPreview(null)}>Cancel</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
             {reminderResult && (
               <div
                 className={`mb-6 p-4 rounded-lg border-2 ${
@@ -705,7 +842,7 @@ export function AdminPage() {
                     <div>
                       <Label>Group</Label>
                       <select
-                        className="w-full border border-sand-driftwood/30 rounded-md px-3 py-2 bg-white"
+                        className="w-full border border-sand-driftwood/50 rounded-md px-3 py-2 bg-sand-light text-sm text-ocean-deep"
                         value={newGuest.groupId}
                         onChange={(e) => setNewGuest({ ...newGuest, groupId: e.target.value })}
                       >
@@ -792,7 +929,7 @@ export function AdminPage() {
                           onChange={(e) =>
                             setNewGuest({ ...newGuest, allowedPlusOne: e.target.checked })
                           }
-                          className="rounded"
+                          className="rounded border-2 border-sand-driftwood"
                         />
                         <span className="text-sm">Allow +1</span>
                       </label>
@@ -837,7 +974,7 @@ export function AdminPage() {
                     <div>
                       <Label>Group</Label>
                       <select
-                        className="w-full border border-sand-driftwood/30 rounded-md px-3 py-2 bg-white"
+                        className="w-full border border-sand-driftwood/50 rounded-md px-3 py-2 bg-sand-light text-sm text-ocean-deep"
                         value={editGuest.groupId}
                         onChange={(e) => setEditGuest({ ...editGuest, groupId: e.target.value })}
                       >
@@ -923,7 +1060,7 @@ export function AdminPage() {
                           onChange={(e) =>
                             setEditGuest({ ...editGuest, allowedPlusOne: e.target.checked })
                           }
-                          className="rounded"
+                          className="rounded border-2 border-sand-driftwood"
                         />
                         <span className="text-sm">Allow +1</span>
                       </label>
@@ -934,7 +1071,7 @@ export function AdminPage() {
                           onChange={(e) =>
                             setEditGuest({ ...editGuest, hasBooked: e.target.checked })
                           }
-                          className="rounded"
+                          className="rounded border-2 border-sand-driftwood"
                         />
                         <span className="text-sm">Has booked</span>
                       </label>
@@ -961,7 +1098,7 @@ export function AdminPage() {
                             type="checkbox"
                             checked={guests.length > 0 && selectedGuestIds.size === guests.length}
                             onChange={selectAllGuests}
-                            className="rounded"
+                            className="rounded border-2 border-sand-driftwood"
                           />
                         </th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Name</th>
@@ -986,7 +1123,7 @@ export function AdminPage() {
                               type="checkbox"
                               checked={selectedGuestIds.has(guest._id)}
                               onChange={() => toggleGuestSelection(guest._id)}
-                              className="rounded"
+                              className="rounded border-2 border-sand-driftwood"
                             />
                           </td>
                           <td className="py-3 px-2">

@@ -1,6 +1,7 @@
 import { Component } from "react";
 import type { ErrorInfo, ReactNode } from "react";
 import { Sentry } from "../instrument";
+import { Button } from "./ui/button";
 
 interface Props {
   children: ReactNode;
@@ -42,32 +43,26 @@ export class ErrorBoundary extends Component<Props, State> {
   render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-stone-50 p-6">
+        <div className="min-h-screen flex items-center justify-center bg-sand-pearl p-6">
           <div className="max-w-md w-full text-center space-y-6">
-            <h1 className="text-2xl font-serif text-stone-800">
+            <h1 className="text-2xl font-heading text-ocean-deep">
               Something went wrong
             </h1>
-            <p className="text-stone-600">
+            <p className="text-sand-dark">
               We're sorry for the inconvenience. Please try refreshing the page.
             </p>
             {this.state.eventId && (
-              <p className="text-xs text-stone-400">
+              <p className="text-xs text-sand-dark/60">
                 Error ID: {this.state.eventId}
               </p>
             )}
             <div className="flex gap-3 justify-center">
-              <button
-                onClick={this.handleReload}
-                className="px-4 py-2 bg-stone-800 text-white rounded-md hover:bg-stone-700 transition-colors"
-              >
+              <Button onClick={this.handleReload}>
                 Refresh Page
-              </button>
-              <button
-                onClick={this.handleGoHome}
-                className="px-4 py-2 border border-stone-300 text-stone-700 rounded-md hover:bg-stone-100 transition-colors"
-              >
+              </Button>
+              <Button variant="outline" onClick={this.handleGoHome}>
                 Go Home
-              </button>
+              </Button>
             </div>
           </div>
         </div>

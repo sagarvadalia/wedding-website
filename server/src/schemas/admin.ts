@@ -53,6 +53,21 @@ export const sendReminderSchema = z.object({
   guestIds: z.array(mongoIdSchema).min(1, 'At least one guest ID is required').max(500),
 });
 
+const importGuestRowSchema = z.object({
+  firstName: z.string().trim().min(1, 'First name is required').max(100),
+  lastName: z.string().trim().min(1, 'Last name is required').max(100),
+  email: z.string().trim().email('Invalid email address').max(254).optional(),
+  group: z.string().trim().max(200).optional(),
+  allowedPlusOne: z.boolean().optional(),
+});
+
+export const importGuestsSchema = z.object({
+  guests: z.array(importGuestRowSchema).min(1, 'At least one guest is required').max(500),
+});
+
+export type ImportGuestRow = z.infer<typeof importGuestRowSchema>;
+export type ImportGuestsBody = z.infer<typeof importGuestsSchema>;
+
 export type AddGuestBody = z.infer<typeof addGuestSchema>;
 export type UpdateGuestBody = z.infer<typeof updateGuestSchema>;
 export type CreateGroupBody = z.infer<typeof createGroupSchema>;

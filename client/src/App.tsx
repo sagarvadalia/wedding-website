@@ -16,6 +16,8 @@ import { RsvpPage } from '@/pages/RsvpPage';
 import { FaqPage } from '@/pages/FaqPage';
 import { AdminPage } from '@/pages/AdminPage';
 import { CastPage } from '@/pages/CastPage';
+import { RegistryPage } from '@/pages/RegistryPage';
+import { GuestbookPage } from '@/pages/GuestbookPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 /** Inner page routes with animated transitions. */
@@ -34,6 +36,8 @@ function AnimatedPages() {
         <Route path="/photos" element={<PageTransition><PhotosPage /></PageTransition>} />
         <Route path="/rsvp" element={<PageTransition><RsvpPage /></PageTransition>} />
         <Route path="/faq" element={<PageTransition><FaqPage /></PageTransition>} />
+        <Route path="/registry" element={<PageTransition><RegistryPage /></PageTransition>} />
+        <Route path="/guestbook" element={<PageTransition><GuestbookPage /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFoundPage /></PageTransition>} />
       </Routes>
     </AnimatePresence>

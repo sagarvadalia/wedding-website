@@ -212,16 +212,71 @@ export const adminApi = {
 
   getStats: () => api.get<Stats>('/admin/stats').then((res) => res.data),
 
+  importGuests: (guests: ImportGuestRow[]) =>
+    api.post<ImportResult>('/admin/guests/import', { guests }).then((res) => res.data),
+
   sendRsvpReminder: (guestIds: string[]) =>
     api.post<ReminderResult>('/admin/reminders/rsvp', { guestIds }).then((res) => res.data),
   sendTravelReminder: (guestIds: string[]) =>
     api.post<ReminderResult>('/admin/reminders/travel', { guestIds }).then((res) => res.data),
 };
 
+export interface ImportGuestRow {
+  firstName: string;
+  lastName: string;
+  email?: string;
+  group?: string;
+  allowedPlusOne?: boolean;
+}
+
+export interface ImportResult {
+  imported: number;
+  skipped: number;
+  errors: { row: number; reason: string }[];
+  groupsCreated: number;
+}
+
 export interface ReminderResult {
   sent: number;
   skipped: number;
   errors: { guestId: string; name: string; email: string; reason: string }[];
 }
+
+export interface GuestbookEntry {
+  _id: string;
+  name: string;
+  message: string;
+  hasPhoto: boolean;
+  hasAudioClip: boolean;
+  createdAt: string;
+}
+
+export interface GuestbookListResponse {
+  entries: GuestbookEntry[];
+  nextCursor: string | null;
+}
+
+export function guestbookPhotoUrl(entryId: string): string {
+  return `/api/guestbook/${entryId}/photo`;
+}
+
+export function guestbookAudioUrl(entryId: string): string {
+  return `/api/guestbook/${entryId}/audio`;
+}
+
+export const guestbookApi = {
+  list: (cursor?: string, limit?: number) => {
+    const params: Record<string, string> = {};
+    if (cursor) params.cursor = cursor;
+    if (limit) params.limit = String(limit);
+    return api.get<GuestbookListResponse>('/guestbook', { params }).then((res) => res.data);
+  },
+
+  create: (data: { name: string; message: string; photo?: string; audioClip?: string }) =>
+    api.post<{ success: boolean; entry: GuestbookEntry }>('/guestbook', data).then((res) => res.data),
+
+  remove: (id: string) =>
+    api.delete(`/guestbook/${id}`).then((res) => res.data),
+};
 
 export default api;

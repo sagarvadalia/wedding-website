@@ -11,7 +11,8 @@ import { useGuest } from '@/contexts/GuestContext';
 import { RSVP_BACKGROUND_PHOTO } from '@/lib/constants';
 import { OceanBackground } from '@/components/layout/OceanBackground';
 import { HeroSection } from '@/components/home/HeroSection';
-import { Search, Check, X, PartyPopper, Music, HelpCircle, Hotel, ExternalLink, AlertCircle, Eye, Mail, MapPin } from 'lucide-react';
+import { Search, Check, X, PartyPopper, Music, HelpCircle, Hotel, ExternalLink, AlertCircle, Eye, Mail, MapPin, Gift, BookOpen } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Analytics } from '@/utils/analytics';
 
@@ -129,8 +130,7 @@ function RsvpLayout({ children }: { children: React.ReactNode }) {
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="mb-4 h-[2px] w-24 md:w-32"
-          style={{ background: 'linear-gradient(90deg, transparent, #D4AF37, transparent)' }}
+          className="mb-4 h-[2px] w-24 md:w-32 gold-divider"
         />
 
         <motion.p
@@ -451,8 +451,8 @@ export function RsvpPage() {
                     <div className="mt-6 pt-6 border-t border-sand-driftwood/20 text-center">
                       <p className="text-sm text-sand-dark">
                         Questions? Contact us at{' '}
-                        <a href="mailto:wedding@sagarandgrace.com" className="text-ocean-caribbean hover:underline">
-                          wedding@sagarandgrace.com
+                        <a href="mailto:sagarandgrace@gmail.com" className="text-ocean-caribbean hover:text-ocean-deep hover:underline transition-colors duration-200">
+                          sagarandgrace@gmail.com
                         </a>
                       </p>
                     </div>
@@ -883,7 +883,7 @@ export function RsvpPage() {
                       if (!guest) return null;
                       const isAttending = state.attending === true || state.attending === 'maybe';
                       const statusLabel = state.attending === true ? 'Attending' : state.attending === 'maybe' ? 'Maybe' : 'Not Attending';
-                      const statusColor = state.attending === true ? 'text-green-700 bg-green-50 border-green-200' : state.attending === 'maybe' ? 'text-gold bg-gold/5 border-gold/20' : 'text-sand-dark bg-sand-light border-sand-driftwood/20';
+                      const statusColor = state.attending === true ? 'text-green-700 bg-green-100 border-green-200' : state.attending === 'maybe' ? 'text-gold bg-gold/5 border-gold/20' : 'text-sand-dark bg-sand-light border-sand-driftwood/20';
                       return (
                         <div key={state.guestId} className="p-4 border border-sand-driftwood/20 rounded-lg space-y-2">
                           <div className="flex items-center justify-between">
@@ -986,6 +986,23 @@ export function RsvpPage() {
                     <Button variant="outline" onClick={startOver} className="mt-4">
                       RSVP for someone else
                     </Button>
+
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8 pt-6 border-t border-sand-driftwood/20">
+                      <Link
+                        to="/registry"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-ocean-deep hover:text-ocean-caribbean transition-colors"
+                      >
+                        <Gift className="w-4 h-4" />
+                        View Registry
+                      </Link>
+                      <Link
+                        to="/guestbook"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-ocean-deep hover:text-ocean-caribbean transition-colors"
+                      >
+                        <BookOpen className="w-4 h-4" />
+                        Sign the Guestbook
+                      </Link>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>

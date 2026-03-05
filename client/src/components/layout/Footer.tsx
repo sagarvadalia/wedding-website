@@ -1,5 +1,4 @@
 import { Heart } from 'lucide-react';
-import { HONEYMOON_FUND_VENMO_URL } from '@/lib/constants';
 
 export function Footer() {
   return (
@@ -39,30 +38,29 @@ export function Footer() {
           </p>
 
           {/* Decorative line */}
-          <div 
-            className="h-[1px] w-32 mx-auto mb-8"
-            style={{
-              background: 'linear-gradient(90deg, transparent, #D4AF37, transparent)',
-            }}
-          />
+          <div className="h-px w-32 mx-auto mb-8 gold-divider" />
 
           {/* Hashtag */}
           <p className="text-gold font-medium mb-4">
             #SagarAndGrace2027
           </p>
 
-          {/* Optional honeymoon fund - subtle */}
+          {/* Registry & Guestbook links */}
           <p className="text-sand-pearl/50 text-xs mb-6 max-w-sm mx-auto">
-            Your presence is our gift. If you'd like to contribute to our honeymoon,{' '}
+            Your presence is our gift.{' '}
             <a
-              href={HONEYMOON_FUND_VENMO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gold/80 hover:text-gold hover:underline"
+              href="/registry"
+              className="text-gold/80 hover:text-gold hover:underline transition-colors duration-200"
             >
-              Venmo us here
+              View our registry
             </a>
-            .
+            {' · '}
+            <a
+              href="/guestbook"
+              className="text-gold/80 hover:text-gold hover:underline transition-colors duration-200"
+            >
+              Sign the guestbook
+            </a>
           </p>
 
          

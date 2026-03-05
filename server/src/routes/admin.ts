@@ -4,6 +4,7 @@ import {
   addGuest,
   updateGuest,
   deleteGuest,
+  importGuests,
   getAllGroups,
   getGroup,
   createGroup,
@@ -19,6 +20,7 @@ import {
   mongoIdParamsSchema,
   addGuestSchema,
   updateGuestSchema,
+  importGuestsSchema,
   createGroupSchema,
   updateGroupSchema,
   sendReminderSchema,
@@ -33,6 +35,7 @@ router.get('/guests', getAllGuests);
 router.post('/guests', validate({ body: addGuestSchema }), addGuest);
 router.put('/guests/:id', validate({ params: mongoIdParamsSchema, body: updateGuestSchema }), updateGuest);
 router.delete('/guests/:id', validate({ params: mongoIdParamsSchema }), deleteGuest);
+router.post('/guests/import', validate({ body: importGuestsSchema }), importGuests);
 
 // Groups
 router.get('/groups', getAllGroups);

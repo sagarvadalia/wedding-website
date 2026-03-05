@@ -6,6 +6,7 @@ import express from 'express';
 import cors from 'cors';
 import rsvpRoutes from './routes/rsvp.js';
 import adminRoutes from './routes/admin.js';
+import guestbookRoutes from './routes/guestbook.js';
 import { initDb } from './db.js';
 import { loggers } from './utils/logger.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
@@ -48,11 +49,12 @@ app.use(cors({
   origin: getAllowedOrigins(),
   credentials: true
 }));
-app.use(express.json());
+app.use(express.json({ limit: '6mb' }));
 
 // Routes
 app.use('/api/rsvp', rsvpRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/guestbook', guestbookRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

@@ -20,7 +20,7 @@ const faqs: FAQ[] = [
   {
     category: 'travel',
     question: 'Do I need a visa to visit Mexico?',
-    answer: 'US citizens do not need a visa for stays under 180 days. You\'ll receive a tourist card (FMM) upon arrival. If you\'re traveling from another country, please check the Mexican embassy website for your specific requirements.',
+    answer: 'US citizens do not need a visa for stays under 180 days. If you\'re traveling from another country, please check the Mexican embassy website for your specific requirements.',
   },
   {
     category: 'travel',
@@ -30,7 +30,7 @@ const faqs: FAQ[] = [
   {
     category: 'travel',
     question: 'How do I get from the airport to the resort?',
-    answer: 'Sagar and Grace will be arranging transportation from the airport to the resort for our guests. We will provide more details closer to the wedding date.',
+    answer: 'We will be arranging transportation from the airport to the resort for our guests. We will provide more details closer to the wedding date.',
   },
   {
     category: 'accommodation',
@@ -85,7 +85,7 @@ const faqs: FAQ[] = [
   {
     category: 'general',
     question: 'Are gifts expected?',
-    answer: 'Your presence at our destination wedding is the greatest gift! If you\'d like to give a gift, we have a honeymoon fund linked in the footer of our website.',
+    answer: 'Your presence at our destination wedding is the greatest gift! If you\'d like to give a gift, we have a honeymoon fund on our registry page.',
   },
   {
     category: 'general',
@@ -120,7 +120,7 @@ export function FaqPage() {
             transition={{ delay: categoryIndex * 0.1 }}
             className="mb-12"
           >
-            <h2 className="text-xl md:text-2xl font-heading text-ocean-deep mb-4">
+            <h2 className="text-2xl md:text-3xl font-heading text-ocean-deep mb-4">
               {category.label}
             </h2>
             
@@ -152,17 +152,24 @@ export function FaqPage() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                 <a 
                   href="mailto:sagarandgrace@gmail.com"
-                  className="flex items-center gap-2 text-gold hover:text-gold-light transition-colors"
+                  className="flex items-center gap-2 text-gold hover:text-gold-light hover:underline transition-colors duration-200"
                 >
                   <Mail className="w-5 h-5" />
                   <span>sagarandgrace@gmail.com</span>
                 </a>
                 <a 
                   href="tel:+5163048498"
-                  className="flex items-center gap-2 text-gold hover:text-gold-light transition-colors"
+                  className="flex items-center gap-2 text-gold hover:text-gold-light hover:underline transition-colors duration-200"
                 >
                   <Phone className="w-5 h-5" />
                   <span>(516) 304-8498</span>
+                </a>
+                <a 
+                  href="tel:+6467074647"
+                  className="flex items-center gap-2 text-gold hover:text-gold-light hover:underline transition-colors duration-200"
+                >
+                  <Phone className="w-5 h-5" />
+                  <span>(646) 707-4647</span>
                 </a>
               </div>
             </CardContent>
@@ -170,9 +177,9 @@ export function FaqPage() {
         </motion.div>
 
         <NextPageCTA
-          nextPath="/rsvp"
-          nextLabel="RSVP Now"
-          teaser="Ready to celebrate with us?"
+          nextPath="/registry"
+          nextLabel="View the Registry"
+          teaser="Wondering about gifts?"
         />
       </Section>
     </PassportPage>

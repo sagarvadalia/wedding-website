@@ -391,6 +391,102 @@ export const getStats = async (_req: Request, res: Response): Promise<void> => {
   }
 };
 
+export const importGuests = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { guests: rows } = req.body as { guests: { firstName: string; lastName: string; email?: string; group?: string; allowedPlusOne?: boolean }[] };
+
+    const existingGuests = await Guest.find({}, { firstName: 1, lastName: 1 }).lean();
+    const existingSet = new Set(
+      existingGuests.map((g) =>
+        `${String((g as Record<string, unknown>).firstName).trim().toLowerCase()}|${String((g as Record<string, unknown>).lastName).trim().toLowerCase()}`
+      )
+    );
+
+    const existingGroups = await Group.find({}, { _id: 1, name: 1 }).lean();
+    const groupMap = new Map<string, mongoose.Types.ObjectId>();
+    for (const g of existingGroups) {
+      const row = g as { _id: mongoose.Types.ObjectId; name?: string };
+      const name = (row.name ?? '').trim().toLowerCase();
+      if (name) groupMap.set(name, row._id);
+    }
+
+    let imported = 0;
+    let skipped = 0;
+    let groupsCreated = 0;
+    const errors: { row: number; reason: string }[] = [];
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]!;
+      const firstName = row.firstName.trim();
+      const lastName = row.lastName.trim();
+      const key = `${firstName.toLowerCase()}|${lastName.toLowerCase()}`;
+
+      if (existingSet.has(key)) {
+        skipped++;
+        continue;
+      }
+
+      try {
+        const groupName = (row.group ?? '').trim();
+        let groupId: mongoose.Types.ObjectId;
+
+        if (groupName) {
+          const existing = groupMap.get(groupName.toLowerCase());
+          if (existing) {
+            groupId = existing;
+          } else {
+            const newGroup = new Group({ name: groupName });
+            await newGroup.save();
+            groupMap.set(groupName.toLowerCase(), newGroup._id);
+            groupId = newGroup._id;
+            groupsCreated++;
+          }
+        } else {
+          const newGroup = new Group({ name: '' });
+          await newGroup.save();
+          groupId = newGroup._id;
+          groupsCreated++;
+        }
+
+        const guestData: Record<string, unknown> = {
+          firstName,
+          lastName,
+          groupId,
+          allowedPlusOne: row.allowedPlusOne ?? false,
+          rsvpStatus: 'pending',
+          events: [],
+        };
+
+        const email = row.email?.trim().toLowerCase();
+        if (email) guestData.email = email;
+
+        const guest = new Guest(guestData);
+        await guest.save();
+        existingSet.add(key);
+        imported++;
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        errors.push({ row: i + 1, reason: message });
+      }
+    }
+
+    enrichWideEvent(res, {
+      business: {
+        operation: 'import_guests',
+        imported,
+        skipped,
+        errors: errors.length,
+        groups_created: groupsCreated,
+      },
+    });
+
+    res.json({ imported, skipped, errors, groupsCreated });
+  } catch (error) {
+    log.error({ err: error }, 'Import guests error');
+    res.status(500).json({ error: 'Failed to import guests' });
+  }
+};
+
 export const sendRsvpReminderHandler = async (req: Request, res: Response): Promise<void> => {
   try {
     const { guestIds } = req.body as { guestIds: string[] };

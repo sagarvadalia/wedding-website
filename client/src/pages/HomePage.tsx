@@ -36,8 +36,7 @@ export function HomePage() {
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="mb-4 h-[2px] w-24 md:w-32"
-          style={{ background: 'linear-gradient(90deg, transparent, #D4AF37, transparent)' }}
+          className="mb-4 h-[2px] w-24 md:w-32 gold-divider"
         />
 
         <motion.p
@@ -238,9 +237,9 @@ export function HomePage() {
                       transition={{ delay: 0.55 }}
                       className="mt-8 flex items-center gap-3"
                     >
-                      <div className="h-px w-8" style={{ background: 'linear-gradient(90deg, transparent, #D4AF37)' }} />
+                      <div className="h-px w-8 bg-linear-to-r from-transparent to-gold" />
                       <span className="text-gold/50 text-lg">{'\u2665'}</span>
-                      <div className="h-px w-8" style={{ background: 'linear-gradient(90deg, #D4AF37, transparent)' }} />
+                      <div className="h-px w-8 bg-linear-to-r from-gold to-transparent" />
                     </motion.div>
                   )}
                 </div>
