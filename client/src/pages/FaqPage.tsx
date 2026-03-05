@@ -30,32 +30,32 @@ const faqs: FAQ[] = [
   {
     category: 'travel',
     question: 'How do I get from the airport to the resort?',
-    answer: 'The resort offers shuttle services, or you can arrange private transportation. We\'ll provide more details closer to the wedding date. Taxi and rental car options are also available at the airport.',
+    answer: 'Sagar and Grace will be arranging transportation from the airport to the resort for our guests. We will provide more details closer to the wedding date.',
   },
   {
     category: 'accommodation',
     question: 'Is there a room block for wedding guests?',
-    answer: 'Yes! We have reserved a block of rooms at Dreams Playa Mujeres for our guests. Details on how to book will be provided with your invitation. We recommend booking early as rooms are limited.',
+    answer: 'Yes! We have reserved a block of rooms at Dreams Playa Mujeres for our guests. You can book here at https://www.indiandestinationwedding.com/grace-sagar/. We recommend booking early as rooms are limited.',
   },
   {
     category: 'accommodation',
     question: 'What is included at the all-inclusive resort?',
-    answer: 'Dreams Playa Mujeres is all-inclusive, meaning your room rate covers: all meals at 10+ restaurants, unlimited drinks (including alcohol), room service, pools, beach access, water sports, entertainment, WiFi, and more!',
+    answer: 'Dreams Playa Mujeres is all-inclusive, meaning your room rate covers: all meals at 10+ restaurants, unlimited drinks (including alcohol), room service, pools, beach access, water sports, entertainment, and more!',
   },
   {
     category: 'accommodation',
     question: 'Can I bring my children?',
-    answer: 'Dreams Playa Mujeres is a family-friendly resort with activities for all ages, including a kids\' club and water park. However, please note that most evening wedding events are adults-only. Babysitting services are available at the resort.',
+    answer: 'Dreams Playa Mujeres is a family-friendly resort with activities for all ages, including a kids\' club and water park.',
   },
   {
     category: 'events',
     question: 'What should I wear to each event?',
-    answer: 'Dress codes vary by event: Welcome Party is resort casual/beach attire, Mehndi is colorful Indian attire (we love seeing guests in bright colors!), Baraat and Wedding are formal Indian attire, Reception is formal/evening wear, and the After Party is come as you are!',
+    answer: 'Dress codes vary by event: Welcome Party is resort casual/beach attire, Haldi Ceremony is yellow/white attire (clothes may get stained!), Mehndi is colorful Indian attire (we love seeing guests in bright colors!), Baraat and Wedding are formal Indian attire, Reception is formal/evening wear, and the After Party is come as you are!',
   },
   {
     category: 'events',
     question: 'Can I attend just some of the events?',
-    answer: 'Absolutely! We understand travel can be challenging. Feel free to join us for as many events as you\'re able to attend. The main event is the Wedding Ceremony and Reception on Sunday, April 6th.',
+    answer: 'Unfortunately, our room block is only available for 3 night minimums. Please reach out to us directly for a shorter stay.',
   },
   {
     category: 'events',
@@ -85,7 +85,7 @@ const faqs: FAQ[] = [
   {
     category: 'general',
     question: 'Are gifts expected?',
-    answer: 'Your presence at our destination wedding is the greatest gift! If you\'d like to give a gift, we have a registry linked on our website. We also welcome contributions to our honeymoon fund.',
+    answer: 'Your presence at our destination wedding is the greatest gift! If you\'d like to give a gift, we have a honeymoon fund linked in the footer of our website.',
   },
   {
     category: 'general',
