@@ -38,7 +38,7 @@ const travelInfo = [
       'Dreams Playa Mujeres Golf & Spa Resort',
       'All guests MUST book through our wedding block',
       'All-inclusive resort with 10+ dining options',
-      'Book via Indian Destination Wedding (see link below)',
+      'Book via Indian Destination Wedding (link above)',
     ],
   },
   {
