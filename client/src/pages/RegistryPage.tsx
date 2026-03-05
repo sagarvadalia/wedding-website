@@ -27,16 +27,12 @@ export function RegistryPage() {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-2xl mx-auto text-center mb-16"
         >
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center">
-              <Gift className="w-8 h-8 text-gold" />
-            </div>
-          </div>
+          
           <p className="text-lg text-sand-dark leading-relaxed mb-4">
             The greatest gift you can give us is celebrating with us in Mexico.
             We truly mean it&mdash;your presence is our present.
           </p>
-          <p className="text-sand-dark/80 leading-relaxed">
+          <p className="text-sand-dark leading-relaxed">
             Since we&apos;re having a destination wedding, we kindly ask that you
             skip the boxed gifts. Hauling a toaster through customs is nobody&apos;s
             idea of a vacation!
@@ -59,16 +55,7 @@ export function RegistryPage() {
                   unforgettable memories together.
                 </p>
 
-                <div className="flex justify-center gap-8 mb-8">
-                  {honeymoonIdeas.map(({ icon: Icon, label }) => (
-                    <div key={label} className="flex flex-col items-center gap-2">
-                      <div className="w-12 h-12 rounded-full bg-ocean-caribbean/30 flex items-center justify-center">
-                        <Icon className="w-5 h-5 text-gold" />
-                      </div>
-                      <span className="text-xs text-sand-pearl/70">{label}</span>
-                    </div>
-                  ))}
-                </div>
+              
 
                 <Button variant="gold" size="lg" className="rounded-full" asChild>
                   <a
