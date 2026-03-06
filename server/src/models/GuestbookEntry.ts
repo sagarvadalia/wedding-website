@@ -3,8 +3,10 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IGuestbookEntry extends Document {
   name: string;
   message: string;
-  photo?: string;
-  audioClip?: string;
+  photoKey?: string;
+  audioClipKey?: string;
+  photoUrl?: string;
+  audioUrl?: string;
   hasPhoto: boolean;
   hasAudioClip: boolean;
   createdAt: Date;
@@ -24,10 +26,16 @@ const GuestbookEntrySchema = new Schema<IGuestbookEntry>(
       trim: true,
       maxlength: 2000,
     },
-    photo: {
+    photoKey: {
       type: String,
     },
-    audioClip: {
+    audioClipKey: {
+      type: String,
+    },
+    photoUrl: {
+      type: String,
+    },
+    audioUrl: {
       type: String,
     },
     hasPhoto: {
@@ -43,8 +51,8 @@ const GuestbookEntrySchema = new Schema<IGuestbookEntry>(
 );
 
 GuestbookEntrySchema.pre('save', function () {
-  this.hasPhoto = !!this.photo;
-  this.hasAudioClip = !!this.audioClip;
+  this.hasPhoto = !!this.photoKey;
+  this.hasAudioClip = !!this.audioClipKey;
 });
 
 GuestbookEntrySchema.index({ createdAt: -1 });

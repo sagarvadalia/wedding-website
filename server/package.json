@@ -24,6 +24,7 @@
     "pino": "^9.2.0",
     "pino-pretty": "^11.2.1",
     "posthog-node": "^5.21.2",
+    "uploadthing": "^7.7.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {

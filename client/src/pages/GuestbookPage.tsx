@@ -7,12 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { NextPageCTA } from '@/components/layout/NextPageCTA';
-import {
-  guestbookApi,
-  guestbookPhotoUrl,
-  guestbookAudioUrl,
-  type GuestbookEntry,
-} from '@/lib/api';
+import { guestbookApi, type GuestbookEntry } from '@/lib/api';
+import { uploadFiles } from '@/lib/uploadthing';
 import {
   Camera,
   Mic,
@@ -28,45 +24,16 @@ import {
 const MAX_RECORDING_SECONDS = 60;
 const PAGE_SIZE = 20;
 
-function resizeImage(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const maxWidth = 1200;
-      let { width, height } = img;
-      if (width > maxWidth) {
-        height = Math.round((height * maxWidth) / width);
-        width = maxWidth;
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        reject(new Error('Canvas context unavailable'));
-        return;
-      }
-      ctx.drawImage(img, 0, 0, width, height);
-      resolve(canvas.toDataURL('image/jpeg', 0.8));
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Failed to load image'));
-    };
-    img.src = url;
-  });
-}
-
 function AudioRecorder({
   onRecorded,
   onClear,
-  audioData,
+  audioPreviewUrl,
+  uploading,
 }: {
-  onRecorded: (dataUri: string) => void;
+  onRecorded: (blob: Blob) => void;
   onClear: () => void;
-  audioData: string | null;
+  audioPreviewUrl: string | null;
+  uploading: boolean;
 }) {
   const [recording, setRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -109,11 +76,7 @@ function AudioRecorder({
         stream.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType });
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          if (typeof reader.result === 'string') onRecorded(reader.result);
-        };
-        reader.readAsDataURL(blob);
+        onRecorded(blob);
       };
       recorderRef.current = recorder;
       recorder.start();
@@ -133,13 +96,19 @@ function AudioRecorder({
     }
   };
 
-  if (audioData) {
+  if (audioPreviewUrl || uploading) {
     return (
       <div className="flex items-center gap-2">
-        <AudioPlayer src={audioData} label="Preview recorded voice note" />
-        <Button type="button" variant="ghost" size="sm" onClick={onClear} aria-label="Remove voice note">
-          <X className="w-4 h-4" />
-        </Button>
+        {uploading ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : audioPreviewUrl ? (
+          <>
+            <AudioPlayer src={audioPreviewUrl} label="Preview recorded voice note" />
+            <Button type="button" variant="ghost" size="sm" onClick={onClear} aria-label="Remove voice note">
+              <X className="w-4 h-4" />
+            </Button>
+          </>
+        ) : null}
       </div>
     );
   }
@@ -234,9 +203,9 @@ function EntryCard({
     >
       <Card className="overflow-hidden">
         <CardContent className="p-0">
-          {entry.hasPhoto && (
+          {entry.hasPhoto && entry.photoUrl && (
             <img
-              src={guestbookPhotoUrl(entry._id)}
+              src={entry.photoUrl}
               alt={`Photo from ${entry.name}`}
               className="w-full max-h-80 object-cover"
               loading="lazy"
@@ -269,9 +238,9 @@ function EntryCard({
             <p className="text-sand-dark text-sm leading-relaxed whitespace-pre-wrap">
               {entry.message}
             </p>
-            {entry.hasAudioClip && (
+            {entry.hasAudioClip && entry.audioUrl && (
               <div className="mt-3">
-                <AudioPlayer src={guestbookAudioUrl(entry._id)} label={`Play voice note from ${entry.name}`} />
+                <AudioPlayer src={entry.audioUrl} label={`Play voice note from ${entry.name}`} />
               </div>
             )}
           </div>
@@ -290,8 +259,12 @@ export function GuestbookPage() {
 
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
-  const [photo, setPhoto] = useState<string | null>(null);
-  const [audioClip, setAudioClip] = useState<string | null>(null);
+  const [photoKey, setPhotoKey] = useState<string | null>(null);
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null);
+  const [audioClipKey, setAudioClipKey] = useState<string | null>(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadingAudio, setUploadingAudio] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const photoInputRef = useRef<HTMLInputElement>(null);
@@ -328,13 +301,35 @@ export function GuestbookPage() {
   const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setUploadingPhoto(true);
     try {
-      const dataUri = await resizeImage(file);
-      setPhoto(dataUri);
+      const res = await uploadFiles('guestbookPhoto', { files: [file] });
+      if (res[0]) {
+        setPhotoKey(res[0].key);
+        setPhotoPreviewUrl(res[0].ufsUrl ?? res[0].url);
+      }
     } catch {
-      alert('Failed to process image');
+      alert('Failed to upload photo. Please try again.');
+    } finally {
+      setUploadingPhoto(false);
+      if (photoInputRef.current) photoInputRef.current.value = '';
     }
-    if (photoInputRef.current) photoInputRef.current.value = '';
+  };
+
+  const handleAudioRecorded = async (blob: Blob) => {
+    setUploadingAudio(true);
+    try {
+      const file = new File([blob], 'voice-note.webm', { type: blob.type });
+      const res = await uploadFiles('guestbookAudio', { files: [file] });
+      if (res[0]) {
+        setAudioClipKey(res[0].key);
+        setAudioPreviewUrl(res[0].ufsUrl ?? res[0].url);
+      }
+    } catch {
+      alert('Failed to upload voice note. Please try again.');
+    } finally {
+      setUploadingAudio(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -346,15 +341,23 @@ export function GuestbookPage() {
         name: name.trim(),
         message: message.trim(),
       };
-      if (photo) payload.photo = photo;
-      if (audioClip) payload.audioClip = audioClip;
+      if (photoKey) {
+        payload.photoKey = photoKey;
+        if (photoPreviewUrl) payload.photoUrl = photoPreviewUrl;
+      }
+      if (audioClipKey) {
+        payload.audioClipKey = audioClipKey;
+        if (audioPreviewUrl) payload.audioUrl = audioPreviewUrl;
+      }
 
       const { entry } = await guestbookApi.create(payload);
       setEntries((prev) => [entry, ...prev]);
       setName('');
       setMessage('');
-      setPhoto(null);
-      setAudioClip(null);
+      setPhotoKey(null);
+      setPhotoPreviewUrl(null);
+      setAudioClipKey(null);
+      setAudioPreviewUrl(null);
     } catch {
       alert('Failed to submit. Please try again.');
     } finally {
@@ -420,9 +423,14 @@ export function GuestbookPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => photoInputRef.current?.click()}
+                    disabled={uploadingPhoto}
                   >
-                    <Camera className="w-4 h-4 mr-1" />
-                    {photo ? 'Change Photo' : 'Add Photo'}
+                    {uploadingPhoto ? (
+                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    ) : (
+                      <Camera className="w-4 h-4 mr-1" />
+                    )}
+                    {photoKey ? 'Change Photo' : 'Add Photo'}
                   </Button>
                   <input
                     ref={photoInputRef}
@@ -433,17 +441,21 @@ export function GuestbookPage() {
                   />
 
                   <AudioRecorder
-                    audioData={audioClip}
-                    onRecorded={setAudioClip}
-                    onClear={() => setAudioClip(null)}
+                    audioPreviewUrl={audioPreviewUrl}
+                    uploading={uploadingAudio}
+                    onRecorded={handleAudioRecorded}
+                    onClear={() => {
+                      setAudioClipKey(null);
+                      setAudioPreviewUrl(null);
+                    }}
                   />
                 </div>
 
                 {/* Photo preview */}
-                {photo && (
+                {photoPreviewUrl && (
                   <div className="relative inline-block">
                     <img
-                      src={photo}
+                      src={photoPreviewUrl}
                       alt="Preview"
                       className="max-h-40 rounded-lg object-cover"
                     />
@@ -451,7 +463,10 @@ export function GuestbookPage() {
                       type="button"
                       variant="destructive"
                       size="icon"
-                      onClick={() => setPhoto(null)}
+                      onClick={() => {
+                        setPhotoKey(null);
+                        setPhotoPreviewUrl(null);
+                      }}
                       className="absolute -top-2 -right-2 rounded-full w-6 h-6"
                       aria-label="Remove photo"
                     >

@@ -248,20 +248,14 @@ export interface GuestbookEntry {
   message: string;
   hasPhoto: boolean;
   hasAudioClip: boolean;
+  photoUrl: string | null;
+  audioUrl: string | null;
   createdAt: string;
 }
 
 export interface GuestbookListResponse {
   entries: GuestbookEntry[];
   nextCursor: string | null;
-}
-
-export function guestbookPhotoUrl(entryId: string): string {
-  return `/api/guestbook/${entryId}/photo`;
-}
-
-export function guestbookAudioUrl(entryId: string): string {
-  return `/api/guestbook/${entryId}/audio`;
 }
 
 export const guestbookApi = {
@@ -272,7 +266,7 @@ export const guestbookApi = {
     return api.get<GuestbookListResponse>('/guestbook', { params }).then((res) => res.data);
   },
 
-  create: (data: { name: string; message: string; photo?: string; audioClip?: string }) =>
+  create: (data: { name: string; message: string; photoKey?: string; audioClipKey?: string; photoUrl?: string; audioUrl?: string }) =>
     api.post<{ success: boolean; entry: GuestbookEntry }>('/guestbook', data).then((res) => res.data),
 
   remove: (id: string) =>

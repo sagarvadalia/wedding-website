@@ -1,20 +1,12 @@
 import { z } from 'zod';
 
-const MAX_BASE64_SIZE = 2 * 1024 * 1024 * 1.37; // ~2MB file ≈ 2.74MB base64
-
 export const createGuestbookEntrySchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(100),
   message: z.string().trim().min(1, 'Message is required').max(2000),
-  photo: z
-    .string()
-    .max(MAX_BASE64_SIZE, 'Photo exceeds 2MB limit')
-    .refine((v) => v.startsWith('data:image/'), 'Photo must be a data URI')
-    .optional(),
-  audioClip: z
-    .string()
-    .max(MAX_BASE64_SIZE, 'Audio exceeds 2MB limit')
-    .refine((v) => v.startsWith('data:audio/') || v.startsWith('data:video/webm'), 'Audio must be a data URI')
-    .optional(),
+  photoKey: z.string().trim().min(1).optional(),
+  audioClipKey: z.string().trim().min(1).optional(),
+  photoUrl: z.string().url().optional(),
+  audioUrl: z.string().url().optional(),
 });
 
 export const listGuestbookQuerySchema = z.object({

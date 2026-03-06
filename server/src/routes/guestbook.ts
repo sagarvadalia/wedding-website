@@ -4,8 +4,6 @@ import {
   listEntries,
   createEntry,
   deleteEntry,
-  getPhoto,
-  getAudio,
 } from '../controllers/guestbookController.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
@@ -26,8 +24,6 @@ const createEntryLimiter = rateLimit({
 });
 
 router.get('/', validate({ query: listGuestbookQuerySchema }), listEntries);
-router.get('/:id/photo', validate({ params: mongoIdParamsSchema }), getPhoto);
-router.get('/:id/audio', validate({ params: mongoIdParamsSchema }), getAudio);
 router.post('/', createEntryLimiter, validate({ body: createGuestbookEntrySchema }), createEntry);
 router.delete('/:id', authMiddleware, validate({ params: mongoIdParamsSchema }), deleteEntry);
 
