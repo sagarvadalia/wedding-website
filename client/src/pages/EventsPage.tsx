@@ -432,7 +432,7 @@ export function EventsPage() {
                 ],
               },
               {
-                title: 'Formal Indian Attire',
+                title: 'Formal Attire',
                 events: 'Baraat & Wedding Ceremony',
                 color: 'from-ocean-deep to-ocean-caribbean',
                 items: [
