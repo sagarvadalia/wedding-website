@@ -439,7 +439,6 @@ export function EventsPage() {
                   'Traditional Indian formalwear — sarees, lehengas, sherwanis, kurta pajamas',
                   'Western formal also works great',
                   'Avoid white/ivory (reserved for the bride)',
-                  'Embellished accessories and statement jewelry encouraged',
                 ],
               },
               {
