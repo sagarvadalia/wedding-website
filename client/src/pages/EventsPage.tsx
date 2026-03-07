@@ -437,7 +437,7 @@ export function EventsPage() {
                 color: 'from-ocean-deep to-ocean-caribbean',
                 items: [
                   'Traditional Indian formalwear — sarees, lehengas, sherwanis, kurta pajamas',
-                  'Western formal in rich jewel tones also works great',
+                  'Western formal also works great',
                   'Avoid white/ivory (reserved for the bride)',
                   'Embellished accessories and statement jewelry encouraged',
                 ],
