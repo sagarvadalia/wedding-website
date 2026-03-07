@@ -22,7 +22,7 @@ const navGroups: NavGroup[] = [
     label: 'Our Story',
     items: [
       { path: '/our-story', label: 'Our Story' },
-      { path: '/the-cast', label: 'The Cast' },
+      // { path: '/the-cast', label: 'The Cast' },
     ],
   },
   {

@@ -46,7 +46,14 @@ const timeline: TimelineEvent[] = [
     image: '/images/second-chance.avif',
   },
   {
-    year: '2021-present',
+    year: '2022',
+    title: 'Meeting the family',
+    description: 'We decided to take the next step and meet each other\'s families! Ready for the lifelong commitment, we wanted to share our joy at having found each other with our loved ones.',
+    icon: <Heart className="w-5 h-5 fill-current" />,
+    image: '/images/family.avif',
+  },
+  {
+    year: '2022-present',
     title: 'Life together in NYC',
     description: 'Over the next several years, we have grown our lives together, and our love has only continued to grow every day. We eventually made our first home in Long Island City, NYC, and have raised our sweet 4 legged boy, Cosmo. From our weekend bagels in Gantry Park (our most sacred tradition!) to our spontaneous ferry rides to explore different areas of NYC, we always treasure our adventures together. We both share a love of food, travel, and exploration. We have been fortunate to have visited various places around the country and world, including Aruba, India, Jamaica, Mexico, California, Arizona, and Greece.',
     icon: <House className="w-5 h-5 fill-current" />,
@@ -135,9 +142,9 @@ export function OurStoryPage() {
         )}
 
         <NextPageCTA
-          nextPath="/the-cast"
-          nextLabel="Meet The Cast"
-          teaser="Meet our favorite people"
+          nextPath="/events"
+          nextLabel="View the Events"
+          teaser="See what we have planned"
         />
       </Section>
     </PassportPage>

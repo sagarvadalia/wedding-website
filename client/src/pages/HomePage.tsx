@@ -157,16 +157,15 @@ export function HomePage() {
                   animate={{ opacity: 1, y: 0 }}
                   className="text-center mb-3"
                 >
-                  <h1 className="text-xl md:text-3xl font-heading text-ocean-deep mb-1">
-                    Sagar & Grace
+                  <h1 className="text-lg md:text-2xl font-heading text-ocean-deep mb-1 leading-tight">
+                    Together with their families,
                   </h1>
-                  <p className="text-lg md:text-lg text-sand-dark font-light">
-                    are getting married!
+                  <p className="text-xl md:text-3xl font-heading text-ocean-deep font-light">
+                    Sagar & Grace
                   </p>
-                  <p className="text-sand-dark/90 text-xs mt-1 italic">
-                    We can't wait to celebrate with you!
+                  <p className="text-sand-dark/90 text-xs mt-2 italic">
+                  invite you to celebrate their marriage
                   </p>
-                 
                 </motion.div>
                   
 
