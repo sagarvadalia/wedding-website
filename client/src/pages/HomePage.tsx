@@ -145,13 +145,13 @@ export function HomePage() {
 
               {/* ── Right page — invitation ── */}
               <div
-                className="relative w-full md:w-1/2 min-h-[60vh] md:min-h-[80vh] max-h-[85vh] min-h-0 overflow-hidden paper-texture p-5 md:p-8 flex flex-col items-center justify-center rounded-b-lg md:rounded-r-lg md:rounded-l-none"
+                className="relative w-full md:w-1/2 min-h-[60vh] md:min-h-[80vh] max-h-[85vh] min-h-0 overflow-hidden paper-texture p-5 md:p-8 flex flex-col items-center justify-center rounded-b-lg md:rounded-r-lg md:rounded-l-none "
                 style={{ boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.05)' }}
               >
            
                
 
-                <div className="text-center flex flex-col items-center justify-center flex-1 min-h-0 py-4">
+                <div className="text-center flex flex-col items-center justify-center flex-1 min-h-0 pt-6 pb-4 md:py-4">
                 <motion.div
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
