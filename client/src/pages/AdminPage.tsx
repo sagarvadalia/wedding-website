@@ -263,6 +263,7 @@ export function AdminPage() {
       'Events',
       'Dietary',
       'Plus One',
+      'Plus One Dietary',
       'Song Request',
       'Mailing Address',
       'Has Booked',
@@ -276,6 +277,7 @@ export function AdminPage() {
       g.events.join('; '),
       g.dietaryRestrictions ?? '',
       g.plusOne?.name ?? '',
+      g.plusOne?.dietaryRestrictions ?? '',
       g.songRequest ?? '',
       formatMailingAddress(g),
       g.hasBooked ? 'Yes' : 'No',
@@ -1131,7 +1133,12 @@ export function AdminPage() {
                               {guest.firstName} {guest.lastName}
                             </p>
                             {guest.plusOne?.name && (
-                              <p className="text-xs text-sand-dark">+1: {guest.plusOne.name}</p>
+                              <>
+                                <p className="text-xs text-sand-dark">+1: {guest.plusOne.name}</p>
+                                {guest.plusOne.dietaryRestrictions?.trim() && (
+                                  <p className="text-xs text-sand-dark ml-3">+1 dietary: {guest.plusOne.dietaryRestrictions.trim()}</p>
+                                )}
+                              </>
                             )}
                           </td>
                           <td className="py-3 px-2 text-sm text-sand-dark">{guest.email || <span className="text-sand-driftwood italic">—</span>}</td>

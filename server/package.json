@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "seed": "tsx src/seed.ts",
+    "sync-guest-indexes": "tsx scripts/sync-guest-indexes.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },

@@ -36,7 +36,7 @@ interface GuestForEmail {
   rsvpStatus: string;
   events: string[];
   dietaryRestrictions?: string;
-  plusOne?: { name: string } | null;
+  plusOne?: { name: string; dietaryRestrictions?: string } | null;
   songRequest?: string;
 }
 
@@ -104,6 +104,9 @@ function buildConfirmationText(
       }
       if (g.plusOne?.name?.trim()) {
         lines.push(`  Plus one: ${g.plusOne.name.trim()}`);
+        if (g.plusOne.dietaryRestrictions?.trim()) {
+          lines.push(`  Plus one dietary: ${g.plusOne.dietaryRestrictions.trim()}`);
+        }
       }
       if (g.songRequest?.trim()) {
         lines.push(`  Song request: ${g.songRequest.trim()}`);
@@ -155,11 +158,15 @@ function buildConfirmationHtml(
     }
 
     const dietary = g.dietaryRestrictions?.trim() ? escapeHtml(g.dietaryRestrictions.trim()) : '';
-    const plusOne = g.plusOne?.name?.trim() ? escapeHtml(g.plusOne.name.trim()) : '';
+    const plusOneName = g.plusOne?.name?.trim() ? escapeHtml(g.plusOne.name.trim()) : '';
+    const plusOneDietary = g.plusOne?.dietaryRestrictions?.trim() ? escapeHtml(g.plusOne.dietaryRestrictions.trim()) : '';
     const song = g.songRequest?.trim() ? escapeHtml(g.songRequest.trim()) : '';
     const extraRows: string[] = [];
     if (dietary) extraRows.push(`<tr><td style="padding:6px 0;font-size:14px;color:${SAND_DARK};"><strong>Dietary:</strong> ${dietary}</td></tr>`);
-    if (plusOne) extraRows.push(`<tr><td style="padding:6px 0;font-size:14px;color:${SAND_DARK};"><strong>Plus one:</strong> ${plusOne}</td></tr>`);
+    if (plusOneName) {
+      extraRows.push(`<tr><td style="padding:6px 0;font-size:14px;color:${SAND_DARK};"><strong>Plus one:</strong> ${plusOneName}</td></tr>`);
+      if (plusOneDietary) extraRows.push(`<tr><td style="padding:6px 0;font-size:14px;color:${SAND_DARK};"><strong>Plus one dietary:</strong> ${plusOneDietary}</td></tr>`);
+    }
     if (song) extraRows.push(`<tr><td style="padding:6px 0;font-size:14px;color:${SAND_DARK};"><strong>Song request:</strong> ${song}</td></tr>`);
     const extraHtml = isAttending && extraRows.length > 0
       ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:12px;padding-top:12px;border-top:1px solid ${SAND_DRIFTWOOD};"><tbody>${extraRows.join('')}</tbody></table>`
@@ -240,7 +247,7 @@ export async function sendRsvpConfirmation(groupId: string): Promise<void> {
       return;
     }
 
-    const firstGuest = guests[0] as { email?: string; firstName: string; lastName: string; rsvpStatus: string; events: string[]; dietaryRestrictions?: string; plusOne?: { name: string } | null; songRequest?: string };
+    const firstGuest = guests[0] as { email?: string; firstName: string; lastName: string; rsvpStatus: string; events: string[]; dietaryRestrictions?: string; plusOne?: { name: string; dietaryRestrictions?: string } | null; songRequest?: string };
     const to = firstGuest.email?.trim();
     if (!to) {
       log.warn({ groupId }, 'No email for first guest, skipping confirmation');
