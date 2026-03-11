@@ -41,9 +41,9 @@ export function Footer() {
           <div className="h-px w-32 mx-auto mb-8 gold-divider" />
 
           {/* Hashtag */}
-          <p className="text-gold font-medium mb-4">
+          {/* <p className="text-gold font-medium mb-4">
             #SagarAndGrace2027
-          </p>
+          </p> */}
 
           {/* Registry & Guestbook links */}
           <p className="text-sand-pearl/50 text-xs mb-6 max-w-sm mx-auto">

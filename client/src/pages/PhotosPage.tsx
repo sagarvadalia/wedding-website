@@ -199,9 +199,9 @@ export function PhotosPage() {
                     </a>
                   </Button>
                 </div>
-                <p className="text-sm text-sand-pearl/70 mt-4">
+                {/* <p className="text-sm text-sand-pearl/70 mt-4">
                   Use hashtag <span className="font-semibold">#SagarAndGrace2027</span> on social media
-                </p>
+                </p> */}
               </div>
             </CardContent>
           </Card>
