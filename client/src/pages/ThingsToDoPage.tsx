@@ -237,7 +237,7 @@ export function ThingsToDoPage() {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-gold">★</span>
-                  <span>The resort's unlimited dining is amazing - try a different restaurant each night!</span>
+                  <span>The resort's all inclusive dining is amazing - try a different restaurant each night!</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-gold">★</span>
