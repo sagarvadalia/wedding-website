@@ -169,6 +169,14 @@ export function TravelPage() {
               <p className="text-sand-pearl/60 text-sm mt-4">
                 <strong className="text-gold">Important:</strong> All guests must book accommodations through Indian Destination Wedding to attend wedding events.
               </p>
+              <div className="mt-3 text-sand-pearl/60 text-sm">
+                <strong className="text-gold">Key dates:</strong>
+                <ul className="mt-1 space-y-0.5 list-none">
+                  <li>RSVP date — 10/01/2026</li>
+                  <li>Room block deadline — 10/21/2026</li>
+                  <li>Final payment date — 12/07/2026</li>
+                </ul>
+              </div>
             </div>
             
             <CardContent className="p-6">
