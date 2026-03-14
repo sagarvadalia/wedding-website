@@ -137,6 +137,8 @@ export interface RsvpStatusResponse {
 
 export interface GroupRsvpGuestPayload {
   guestId: string;
+  firstName: string;
+  lastName: string;
   attending: boolean | 'maybe';
   email?: string;
   events?: EventType[];

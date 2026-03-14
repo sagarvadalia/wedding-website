@@ -35,6 +35,8 @@ function getApiErrorMessage(err: unknown): string {
 
 interface GuestFormState {
   guestId: string;
+  firstName: string;
+  lastName: string;
   email: string;
   attending: boolean | 'maybe';
   events: EventType[];
@@ -92,6 +94,8 @@ function guestToFormState(g: LookupGuestDto): GuestFormState {
     g.rsvpStatus === 'confirmed' ? true : g.rsvpStatus === 'maybe' ? 'maybe' : false;
   return {
     guestId: g._id,
+    firstName: g.firstName?.trim() ?? '',
+    lastName: g.lastName?.trim() ?? '',
     email: g.email ?? '',
     attending,
     events: (g.events as EventType[]) ?? [],
@@ -240,37 +244,42 @@ export function RsvpPage() {
 
   const validateForm = (): string | null => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const displayName = (s: GuestFormState) => [s.firstName.trim(), s.lastName.trim()].filter(Boolean).join(' ') || 'Guest';
     for (const state of guestFormState) {
-      const guest = group?.guests.find((g) => g._id === state.guestId);
-      if (!guest) continue;
+      if (!state.firstName.trim()) {
+        return 'Please enter a first name for each guest.';
+      }
+      if (!state.lastName.trim()) {
+        return 'Please enter a last name for each guest.';
+      }
       if ((state.attending === true || state.attending === 'maybe') && !state.email.trim()) {
-        return `Please enter an email address for ${guest.firstName}.`;
+        return `Please enter an email address for ${displayName(state)}.`;
       }
       if (state.email.trim() && !emailRegex.test(state.email.trim())) {
-        return `Please enter a valid email address for ${guest.firstName}.`;
+        return `Please enter a valid email address for ${displayName(state)}.`;
       }
       if ((state.attending === true || state.attending === 'maybe') && state.events.length === 0) {
-        return `Please select at least one event for ${guest.firstName}.`;
+        return `Please select at least one event for ${displayName(state)}.`;
       }
       if (state.plusOne && !state.plusOne.name.trim()) {
-        return `Please enter a name for ${guest.firstName}'s plus-one, or choose "No".`;
+        return `Please enter a name for ${displayName(state)}'s plus-one, or choose "No".`;
       }
       if (state.attending === true || state.attending === 'maybe') {
         const ma = state.mailingAddress;
         if (!ma?.addressLine1?.trim()) {
-          return `Please enter a mailing address (street) for ${guest.firstName}.`;
+          return `Please enter a mailing address (street) for ${displayName(state)}.`;
         }
         if (!ma.city?.trim()) {
-          return `Please enter a city for ${guest.firstName}'s mailing address.`;
+          return `Please enter a city for ${displayName(state)}'s mailing address.`;
         }
         if (!ma.stateOrProvince?.trim()) {
-          return `Please enter state/province for ${guest.firstName}'s mailing address.`;
+          return `Please enter state/province for ${displayName(state)}'s mailing address.`;
         }
         if (!ma.postalCode?.trim()) {
-          return `Please enter a postal code for ${guest.firstName}'s mailing address.`;
+          return `Please enter a postal code for ${displayName(state)}'s mailing address.`;
         }
         if (!ma.country?.trim()) {
-          return `Please enter a country for ${guest.firstName}'s mailing address.`;
+          return `Please enter a country for ${displayName(state)}'s mailing address.`;
         }
       }
     }
@@ -309,6 +318,8 @@ export function RsvpPage() {
               : null;
           return {
             guestId: s.guestId,
+            firstName: s.firstName.trim(),
+            lastName: s.lastName.trim(),
             attending: s.attending === true ? true : s.attending === 'maybe' ? 'maybe' : false,
             email: s.email.trim() || undefined,
             events: s.attending === true || s.attending === 'maybe' ? s.events : [],
@@ -323,6 +334,11 @@ export function RsvpPage() {
       const declineCount = guestFormState.filter((s) => s.attending === false).length;
       Analytics.rsvp.submitted(group._id, guestFormState.length, confirmCount, declineCount);
       setConfirmationEmail(guestFormState[0]?.email ?? '');
+      const updatedGuests = group.guests.map((g) => {
+        const s = guestFormState.find((x) => x.guestId === g._id);
+        return s ? { ...g, firstName: s.firstName.trim(), lastName: s.lastName.trim() } : g;
+      });
+      guestContext.setGroup({ ...group, guests: updatedGuests });
       setStep('confirmation');
     } catch (err) {
       const errMsg = getApiErrorMessage(err);
@@ -544,7 +560,7 @@ export function RsvpPage() {
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-2xl">
-                        {group.name || `${group.guests.map((g) => g.firstName).join(' & ')}'s party`}
+                        {group.name || `${guestFormState.map((s) => s.firstName).filter(Boolean).join(' & ')}'s party`}
                       </CardTitle>
                       <CardDescription>
                         Confirm attendance for each guest below
@@ -569,8 +585,34 @@ export function RsvpPage() {
                         if (!guest) return null;
                         return (
                           <div key={state.guestId} className="p-4 border border-sand-driftwood/20 rounded-lg space-y-4">
-                            <p className="font-medium text-ocean-deep">
-                              {guest.firstName} {guest.lastName}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <Label htmlFor={`${state.guestId}-firstName`}>First name</Label>
+                                <Input
+                                  id={`${state.guestId}-firstName`}
+                                  placeholder="First name"
+                                  value={state.firstName}
+                                  onChange={(e) =>
+                                    updateGuestState(state.guestId, (s) => ({ ...s, firstName: e.target.value }))
+                                  }
+                                  autoComplete="given-name"
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor={`${state.guestId}-lastName`}>Last name</Label>
+                                <Input
+                                  id={`${state.guestId}-lastName`}
+                                  placeholder="Last name"
+                                  value={state.lastName}
+                                  onChange={(e) =>
+                                    updateGuestState(state.guestId, (s) => ({ ...s, lastName: e.target.value }))
+                                  }
+                                  autoComplete="family-name"
+                                />
+                              </div>
+                            </div>
+                            <p className="text-xs text-sand-dark -mt-2">
+                              Correct your name here if it&apos;s different from how we had it.
                             </p>
                             <div>
                               <Label className="flex items-center gap-1">
@@ -888,7 +930,7 @@ export function RsvpPage() {
                         <div key={state.guestId} className="p-4 border border-sand-driftwood/20 rounded-lg space-y-2">
                           <div className="flex items-center justify-between">
                             <p className="font-medium text-ocean-deep text-lg">
-                              {guest.firstName} {guest.lastName}
+                              {state.firstName} {state.lastName}
                             </p>
                             <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${statusColor}`}>
                               {statusLabel}

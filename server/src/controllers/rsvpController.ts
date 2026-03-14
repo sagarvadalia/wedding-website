@@ -183,6 +183,8 @@ function toEventTypes(arr: unknown): EventType[] {
 interface GuestUpdatePayload {
   guestId: string;
   attending: AttendingPayload;
+  firstName?: string;
+  lastName?: string;
   email?: string;
   events?: string[];
   dietaryRestrictions?: string;
@@ -253,6 +255,23 @@ export const submitRsvp = async (req: Request, res: Response): Promise<void> => 
           }
           guest.email = trimmedEmail;
         }
+      }
+
+      if (payload.firstName !== undefined) {
+        const trimmed = payload.firstName.trim();
+        if (!trimmed) {
+          res.status(400).json({ error: 'First name is required for each guest.' });
+          return;
+        }
+        guest.firstName = trimmed;
+      }
+      if (payload.lastName !== undefined) {
+        const trimmed = payload.lastName.trim();
+        if (!trimmed) {
+          res.status(400).json({ error: 'Last name is required for each guest.' });
+          return;
+        }
+        guest.lastName = trimmed;
       }
 
       const status = attendingToStatus(payload.attending);

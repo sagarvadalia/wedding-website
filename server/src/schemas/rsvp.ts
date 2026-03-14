@@ -29,6 +29,8 @@ const mailingAddressSchema = z
 
 const guestUpdateSchema = z.object({
   guestId: z.string().min(1, 'guestId is required'),
+  firstName: z.string().trim().min(1, 'First name is required').max(100, 'First name too long').optional(),
+  lastName: z.string().trim().min(1, 'Last name is required').max(100, 'Last name too long').optional(),
   attending: z.union([z.boolean(), z.literal('maybe')]),
   email: z.string().trim().email('Invalid email address').max(254).optional(),
   events: z.array(z.enum(EVENT_TYPES)).optional(),
