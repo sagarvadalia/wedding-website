@@ -77,7 +77,21 @@ export function NextPageCTA({ nextPath, nextLabel, teaser }: NextPageCTAProps) {
           {teaser}
         </motion.p>
 
-        <motion.div variants={item}>
+        <motion.div
+          variants={item}
+          className="flex flex-wrap items-center justify-center gap-3"
+        >
+          {nextPath !== '/rsvp' && (
+            <Link
+              to="/rsvp"
+              className={cn(
+                buttonVariants({  size: 'lg' }),
+                'gap-2'
+              )}
+            >
+              RSVP Here
+            </Link>
+          )}
           <Link
             to={nextPath}
             className={cn(
@@ -88,6 +102,7 @@ export function NextPageCTA({ nextPath, nextLabel, teaser }: NextPageCTAProps) {
             {nextLabel}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
+          
         </motion.div>
       </div>
     </motion.div>

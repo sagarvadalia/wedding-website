@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PassportCover } from '@/components/passport/PassportCover';
 import { PassportPolaroid } from '@/components/passport/PassportPolaroid';
@@ -7,17 +7,34 @@ import { Button } from '@/components/ui/button';
 import { StampCollection } from '@/components/passport/VisaStamp';
 import { FEATURED_PHOTOS, HERO_PHOTO, PASSPORT_SPREAD_PHOTO } from '@/lib/constants';
 import { WeddingCountdown } from '@/components/layout/WeddingCountdown';
+import { rsvpApi } from '@/lib/api';
 import { Calendar, MapPin } from 'lucide-react';
 import { OceanBackground } from '@/components/layout/OceanBackground';
 import { HeroSection } from '@/components/home/HeroSection';
 import { Footer } from '@/components/layout/Footer';
+import { buttonVariants } from '@/components/ui/button-variants';
+import { cn } from '@/lib/utils';
 
 const PASSPORT_SECTION_ID = 'passport-section';
 
+/** Format ISO date string (YYYY-MM-DD) to "Month D, YYYY". */
+function formatRsvpByDate(iso: string): string {
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
 export function HomePage() {
   const [isOpen, setIsOpen] = useState(false);
+  const [rsvpByDate, setRsvpByDate] = useState<string | null>(null);
   const navigate = useNavigate();
   const availablePhotos = FEATURED_PHOTOS.filter(p => p.src);
+
+  useEffect(() => {
+    rsvpApi
+      .status()
+      .then((s) => s.rsvpByDate && setRsvpByDate(s.rsvpByDate))
+      .catch(() => { /* ignore; RSVP by line is optional */ });
+  }, []);
 
   return (
     <div className="relative">
@@ -56,6 +73,24 @@ export function HomePage() {
         >
           <WeddingCountdown variant="heroOverlay" className="drop-shadow-md" />
         </motion.div>
+        {rsvpByDate && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 1.2 }}
+            className="mt-3 drop-shadow-md"
+          >
+            <Link
+              to="/rsvp"
+              className={cn(
+                buttonVariants({ variant:"link", size: 'lg' }),
+                'text-white'
+              )}
+            >
+            RSVP by {formatRsvpByDate(rsvpByDate)}
+            </Link>
+          </motion.p>
+        )}
       </HeroSection>
 
       {/* ── Section 2: Passport ── */}
