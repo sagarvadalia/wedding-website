@@ -6,6 +6,7 @@ import {
   deleteEntry,
 } from '../controllers/guestbookController.js';
 import { authMiddleware } from '../middleware/auth.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
 import { validate } from '../middleware/validate.js';
 import {
   createGuestbookEntrySchema,
@@ -23,8 +24,8 @@ const createEntryLimiter = rateLimit({
   message: { error: 'Too many guestbook submissions. Please try again later.' },
 });
 
-router.get('/', validate({ query: listGuestbookQuerySchema }), listEntries);
-router.post('/', createEntryLimiter, validate({ body: createGuestbookEntrySchema }), createEntry);
-router.delete('/:id', authMiddleware, validate({ params: mongoIdParamsSchema }), deleteEntry);
+router.get('/', validate({ query: listGuestbookQuerySchema }), asyncHandler(listEntries));
+router.post('/', createEntryLimiter, validate({ body: createGuestbookEntrySchema }), asyncHandler(createEntry));
+router.delete('/:id', authMiddleware, validate({ params: mongoIdParamsSchema }), asyncHandler(deleteEntry));
 
 export default router;

@@ -9,7 +9,7 @@ import adminRoutes from './routes/admin.js';
 import guestbookRoutes from './routes/guestbook.js';
 import { createRouteHandler } from 'uploadthing/express';
 import { uploadRouter } from './uploadthing.js';
-import { initDb } from './db.js';
+import { initDb, closeDb } from './db.js';
 import { loggers } from './utils/logger.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
 import { wideEventMiddleware, wideEventErrorMiddleware } from './middleware/wideEvent.js';
@@ -80,9 +80,14 @@ app.use(wideEventErrorMiddleware);
 Sentry.setupExpressErrorHandler(app);
 app.use(errorHandler);
 
-// Graceful shutdown
+// Graceful shutdown (single path: close DB, then PostHog, then exit)
 async function gracefulShutdown(signal: string) {
   log.info({ signal }, 'Received shutdown signal');
+  try {
+    await closeDb();
+  } catch (err) {
+    log.warn({ err }, 'Error closing MongoDB during shutdown');
+  }
   await shutdownPostHog();
   process.exit(0);
 }

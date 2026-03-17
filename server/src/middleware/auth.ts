@@ -30,16 +30,13 @@ export const authMiddleware = (
     return;
   }
 
-  // Accept simple admin token (client uses this after password check)
-  const adminToken = process.env.ADMIN_TOKEN ?? 'demo-token';
-  if (token === adminToken) {
-    req.user = { id: 'admin', email: 'admin@localhost', role: 'admin' };
-    next();
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    res.status(503).json({ error: 'Server auth not configured' });
     return;
   }
 
   try {
-    const secret = process.env.JWT_SECRET ?? 'wedding-secret-key';
     const decoded = jwt.verify(token, secret);
 
     if (

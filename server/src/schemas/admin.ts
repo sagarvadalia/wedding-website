@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+export const loginSchema = z.object({
+  password: z.string().min(1, 'Password is required'),
+});
+
+export type LoginBody = z.infer<typeof loginSchema>;
+
 export const mongoIdParamsSchema = z.object({
   id: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid ID format'),
 });

@@ -4,13 +4,6 @@ import { NextPageCTA } from '@/components/layout/NextPageCTA';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { HONEYMOON_FUND_VENMO_URL } from '@/lib/constants';
-import { Heart, Gift, Palmtree, Plane } from 'lucide-react';
-
-const honeymoonIdeas = [
-  { icon: Plane, label: 'Flights' },
-  { icon: Palmtree, label: 'Excursions' },
-  { icon: Heart, label: 'Experiences' },
-];
 
 export function RegistryPage() {
   return (

@@ -133,7 +133,7 @@ wedding-website/
 
 ## Admin Access
 
-Access the admin dashboard at `/admin`. Default password: `wedding2027`
+Access the admin dashboard at `/admin`. Set `ADMIN_PASSWORD` and `JWT_SECRET` in server `.env`; log in with your admin password to receive a JWT.
 
 > **Note**: For production, implement proper authentication with JWT tokens.
 

@@ -189,6 +189,9 @@ export const rsvpApi = {
 };
 
 export const adminApi = {
+  login: (password: string) =>
+    api.post<{ token: string }>('/admin/login', { password }).then((res) => res.data),
+
   getGuests: () => api.get<Guest[]>('/admin/guests').then((res) => res.data),
   addGuest: (data: {
     firstName: string;

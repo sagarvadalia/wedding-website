@@ -44,6 +44,12 @@ export const initDb = async () => {
   }
 };
 
+/** Close MongoDB connection. Used by graceful shutdown. */
+export const closeDb = async (): Promise<void> => {
+  await mongoose.connection.close();
+  log.info("MongoDB connection closed");
+};
+
 // Handling connection events
 mongoose.connection.on("error", (err: Error) => {
   log.error({ err }, "MongoDB connection error");
@@ -51,31 +57,4 @@ mongoose.connection.on("error", (err: Error) => {
 
 mongoose.connection.on("disconnected", () => {
   log.warn("MongoDB disconnected");
-});
-
-// Graceful shutdown
-process.on("SIGINT", () => {
-  mongoose.connection
-    .close()
-    .then(() => {
-      log.info("MongoDB connection closed through app termination");
-      process.exit(0);
-    })
-    .catch((err: Error) => {
-      log.error({ err }, "Error closing MongoDB connection");
-      process.exit(1);
-    });
-});
-
-process.on("SIGTERM", () => {
-  mongoose.connection
-    .close()
-    .then(() => {
-      log.info("MongoDB connection closed through SIGTERM");
-      process.exit(0);
-    })
-    .catch((err: Error) => {
-      log.error({ err }, "Error closing MongoDB connection on SIGTERM");
-      process.exit(1);
-    });
 });

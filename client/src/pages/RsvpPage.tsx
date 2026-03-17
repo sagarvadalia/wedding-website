@@ -1022,7 +1022,7 @@ export function RsvpPage() {
                     </p>
                     {confirmationEmail && (
                       <p className="text-sm text-sand-dark mb-6">
-                        A confirmation email has been sent to {confirmationEmail}.
+                        If you provided an email, we&apos;ll send a confirmation to {confirmationEmail} shortly.
                       </p>
                     )}
                     <Button variant="outline" onClick={startOver} className="mt-4">

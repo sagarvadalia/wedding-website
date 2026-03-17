@@ -83,12 +83,25 @@ export function AdminPage() {
   const [csvResult, setCsvResult] = useState<ImportResult | null>(null);
   const csvFileRef = useRef<HTMLInputElement>(null);
 
-  const handleLogin = () => {
-    if (password === 'wedding2027') {
-      localStorage.setItem('adminToken', 'demo-token');
+  const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  const handleLogin = async () => {
+    setLoginError('');
+    setLoginLoading(true);
+    try {
+      const { token } = await adminApi.login(password);
+      localStorage.setItem('adminToken', token);
       setIsAuthenticated(true);
-    } else {
-      alert('Incorrect password');
+    } catch (err) {
+      const data =
+        err &&
+        typeof err === 'object' &&
+        'response' in err &&
+        (err as { response?: { data?: { message?: string; error?: string } } }).response?.data;
+      setLoginError(data?.message ?? data?.error ?? 'Login failed. Try again.');
+    } finally {
+      setLoginLoading(false);
     }
   };
 
@@ -439,13 +452,19 @@ export function AdminPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                  onKeyDown={(e) => e.key === 'Enter' && !loginLoading && handleLogin()}
                   placeholder="Enter admin password"
+                  disabled={loginLoading}
                 />
               </div>
-              <Button onClick={handleLogin} className="w-full">
+              {loginError && (
+                <p className="text-sm text-red-600" role="alert">
+                  {loginError}
+                </p>
+              )}
+              <Button onClick={handleLogin} className="w-full" disabled={loginLoading}>
                 <LogIn className="w-4 h-4 mr-2" />
-                Login
+                {loginLoading ? 'Signing in…' : 'Login'}
               </Button>
             </div>
           </CardContent>
