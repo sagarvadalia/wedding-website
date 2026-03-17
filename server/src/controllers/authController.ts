@@ -11,7 +11,7 @@ const JWT_EXPIRY = '24h';
  */
 export async function login(req: Request, res: Response): Promise<void> {
   const password = (req.body as { password?: string }).password ?? '';
-  const adminPassword = process.env.ADMIN_PASSWORD;
+  const adminPassword = process.env.ADMIN_PASSWORD?.trim();
 
   if (!adminPassword) {
     throw new HttpError(503, 'Admin login is not configured (missing ADMIN_PASSWORD)');
@@ -21,7 +21,7 @@ export async function login(req: Request, res: Response): Promise<void> {
     throw new HttpError(401, 'Incorrect password');
   }
 
-  const secret = process.env.JWT_SECRET;
+  const secret = process.env.JWT_SECRET?.trim();
   if (!secret) {
     throw new HttpError(503, 'Admin login is not configured (missing JWT_SECRET)');
   }

@@ -18,6 +18,15 @@ import { shutdownPostHog } from './utils/posthog.js';
 
 const log = loggers.app;
 
+// Diagnose admin auth env at startup (safe: no values logged)
+log.info(
+  {
+    adminPasswordSet: Boolean(process.env.ADMIN_PASSWORD?.trim()),
+    jwtSecretSet: Boolean(process.env.JWT_SECRET?.trim()),
+  },
+  'Admin auth env'
+);
+
 /** Build allowed CORS origins: CLIENT_URL plus www/non-www and http/https variants. */
 function getAllowedOrigins(): string[] {
   const url = process.env.CLIENT_URL ?? 'http://localhost:5173';
