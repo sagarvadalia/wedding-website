@@ -127,6 +127,10 @@ export function DesktopTimeline({ events }: DesktopTimelineProps) {
                         <img
                           src={event.image}
                           alt={event.title}
+                          width={288}
+                          height={288}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover"
                         />
                       ) : (

@@ -56,6 +56,10 @@ export function CastPage() {
                       <img
                         src={member.photo}
                         alt={`${member.name}, ${member.role}`}
+                        width={600}
+                        height={800}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full aspect-3/4 object-cover"
                       />
                     ) : (

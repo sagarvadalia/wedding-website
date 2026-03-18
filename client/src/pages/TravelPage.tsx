@@ -122,6 +122,11 @@ export function TravelPage() {
               <img
                 src="/images/dreams-playa-mujeres.jpg"
                 alt="Dreams Playa Mujeres Golf & Spa Resort - Aerial view of the beachfront property"
+                width={1920}
+                height={960}
+                sizes="100vw"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   // Fallback gradient if image not found

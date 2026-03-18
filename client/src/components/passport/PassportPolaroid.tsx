@@ -18,6 +18,13 @@ const sizeClasses = {
   lg: 'w-40 h-40 md:w-44 md:h-44',
 };
 
+/** Max rendered edge (md+) for width/height hints */
+const sizeDimensionsPx = {
+  sm: 96,
+  md: 160,
+  lg: 176,
+} as const;
+
 const placeholderGradients = [
   'from-ocean-deep to-ocean-caribbean',
   'from-ocean-caribbean to-ocean-sky',
@@ -57,6 +64,10 @@ export function PassportPolaroid({
             <img
               src={src}
               alt={alt}
+              width={sizeDimensionsPx[size]}
+              height={sizeDimensionsPx[size]}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover"
             />
           ) : (

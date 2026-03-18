@@ -161,6 +161,11 @@ export function HomePage() {
                 <img
                   src={PASSPORT_SPREAD_PHOTO.src}
                   alt={PASSPORT_SPREAD_PHOTO.alt}
+                  width={1200}
+                  height={1600}
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 w-full h-full object-cover"
                   style={{ objectPosition: PASSPORT_SPREAD_PHOTO.objectPosition }}
                 />

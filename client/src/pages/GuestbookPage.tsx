@@ -207,8 +207,11 @@ function EntryCard({
             <img
               src={entry.photoUrl}
               alt={`Photo from ${entry.name}`}
-              className="w-full max-h-80 object-cover"
+              width={800}
+              height={450}
               loading="lazy"
+              decoding="async"
+              className="w-full max-h-80 object-cover"
             />
           )}
           <div className="p-4">
@@ -457,6 +460,9 @@ export function GuestbookPage() {
                     <img
                       src={photoPreviewUrl}
                       alt="Preview"
+                      width={320}
+                      height={240}
+                      decoding="async"
                       className="max-h-40 rounded-lg object-cover"
                     />
                     <Button

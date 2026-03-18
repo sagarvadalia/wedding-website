@@ -2,6 +2,23 @@
  * Wedding site constants. Update these for your wedding.
  */
 
+/**
+ * Target longest edge when exporting originals (manual compression in Photos/Lightroom/etc.).
+ * Keeps payloads reasonable without multiple build-time sizes.
+ */
+export const IMAGE_EXPORT_MAX_WIDTH_PX = {
+  /** Full-bleed heroes (Home, RSVP) */
+  hero: 1920,
+  /** Open passport left page */
+  passportSpread: 1600,
+  /** Polaroid strips on home — display ~96–176px; 480px is plenty for 2× DPR */
+  polaroid: 480,
+  /** Our Story timeline tiles — display 288px square */
+  storyTimeline: 576,
+  /** Travel resort banner — full width card */
+  travelResort: 1600,
+} as const;
+
 /** Venmo profile URL for optional honeymoon fund (e.g. https://venmo.com/u/YourUsername) */
 export const HONEYMOON_FUND_VENMO_URL = 'https://venmo.com/u/grace-capati';
 

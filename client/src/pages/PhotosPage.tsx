@@ -140,6 +140,11 @@ export function PhotosPage() {
                       <img
                         src={photo.src}
                         alt={photo.alt}
+                        width={400}
+                        height={400}
+                        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                       />
                     ) : (
@@ -259,6 +264,10 @@ export function PhotosPage() {
                 <img
                   src={lightboxPhoto.src}
                   alt={lightboxPhoto.alt}
+                  width={1200}
+                  height={800}
+                  sizes="(max-width: 896px) 100vw, 896px"
+                  decoding="async"
                   className="w-full h-full object-contain rounded-lg"
                 />
               ) : (

@@ -75,6 +75,8 @@ export function HeroSection({
           <img
             src={photo.src}
             alt={photo.alt}
+            fetchPriority="high"
+            decoding="async"
             className="hero-img h-full w-full object-cover"
             style={
               {
