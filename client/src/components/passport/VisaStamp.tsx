@@ -3,7 +3,10 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { EventType } from '@/types';
+import { BARAAT_ELEPHANT_STAMP_CIRCLES, BARAAT_ELEPHANT_STAMP_PATHS } from '@/components/passport/baraatElephantStampPaths';
+import { HALDI_LOTUS_STAMP_PATH } from '@/components/passport/haldiLotusStampPath';
 import { MEHNDI_HAND_STAMP_PATHS } from '@/components/passport/mehndiHandStampPaths';
+import { RECEPTION_DANCE_PARTY_STAMP_PATH } from '@/components/passport/receptionDancePartyStampPath';
 
 // Generate a stable random-ish rotation based on a seed string
 function seededRotation(seed: string): number {
@@ -48,17 +51,13 @@ const stampConfigs: Record<EventType, {
     color: '#B8860B',
     borderStyle: 'circle',
     icon: (
-      <g>
-      
-        {/* Turmeric/flower bowl */}
-        <ellipse cx="50" cy="60" rx="20" ry="8" fill="none" stroke="currentColor" strokeWidth="2" />
-        <path d="M30 60 Q30 45 50 45 Q70 45 70 60" fill="none" stroke="currentColor" strokeWidth="2" />
-        {/* Turmeric mound */}
-        <ellipse cx="50" cy="52" rx="12" ry="6" fill="currentColor" opacity="0.6" />
-        {/* Marigold flowers */}
-        <circle cx="35" cy="38" r="6" fill="currentColor" opacity="0.8" />
-        <circle cx="50" cy="32" r="6" fill="currentColor" opacity="0.8" />
-        <circle cx="65" cy="38" r="6" fill="currentColor" opacity="0.8" />
+      <g
+        fill="currentColor"
+        stroke="none"
+        transform="translate(50, 50) scale(0.19) translate(-148.5, -148.5)"
+      >
+        {/* lotus-svgrepo-com.svg — 297×297 */}
+        <path d={HALDI_LOTUS_STAMP_PATH} />
       </g>
     ),
   },
@@ -84,15 +83,18 @@ const stampConfigs: Record<EventType, {
     color: '#CC3333',
     borderStyle: 'rectangle',
     icon: (
-      <g>
-        {/* Elephant silhouette */}
-        <path d="M30 55 Q25 50 25 45 Q25 35 35 35 L40 35 Q42 30 45 30 L55 30 Q58 30 60 35 L65 35 Q75 35 75 45 Q75 50 70 55 L70 65 L65 65 L65 55 L35 55 L35 65 L30 65 Z" 
-          fill="currentColor" />
-        {/* Trunk */}
-        <path d="M25 45 Q20 50 22 58 Q24 62 28 60" stroke="currentColor" strokeWidth="3" fill="none" />
-        {/* Marigold decorations */}
-        <circle cx="45" cy="45" r="3" fill="currentColor" />
-        <circle cx="55" cy="45" r="3" fill="currentColor" />
+      <g
+        fill="currentColor"
+        stroke="none"
+        transform="translate(50, 52) scale(0.185) translate(-148.5, -148.5)"
+      >
+        {/* elephant-svgrepo-com.svg — 297×297 */}
+        {BARAAT_ELEPHANT_STAMP_PATHS.map((d, i) => (
+          <path key={i} d={d} />
+        ))}
+        {BARAAT_ELEPHANT_STAMP_CIRCLES.map((c, i) => (
+          <circle key={`c-${i}`} cx={c.cx} cy={c.cy} r={c.r} />
+        ))}
       </g>
     ),
   },
@@ -139,18 +141,13 @@ const stampConfigs: Record<EventType, {
     color: '#2874A6',
     borderStyle: 'oval',
     icon: (
-      <g>
-        {/* Champagne glasses */}
-        <path d="M35 35 L35 55 M30 55 L40 55 M35 55 L35 65 M30 65 L40 65" 
-          stroke="currentColor" strokeWidth="2" fill="none" />
-        <path d="M30 35 Q35 45 40 35" stroke="currentColor" strokeWidth="2" fill="none" />
-        
-        <path d="M65 35 L65 55 M60 55 L70 55 M65 55 L65 65 M60 65 L70 65" 
-          stroke="currentColor" strokeWidth="2" fill="none" />
-        <path d="M60 35 Q65 45 70 35" stroke="currentColor" strokeWidth="2" fill="none" />
-        
-        {/* Clink sparkle */}
-        <path d="M47 40 L53 40 M50 37 L50 43" stroke="currentColor" strokeWidth="1.5" />
+      <g
+        fill="currentColor"
+        stroke="none"
+        transform="translate(50, 50) scale(0.217) translate(-130, -130)"
+      >
+        {/* dance-party-party-fun-entertain-svgrepo-com.svg — 260×260 */}
+        <path d={RECEPTION_DANCE_PARTY_STAMP_PATH} />
       </g>
     ),
   },
