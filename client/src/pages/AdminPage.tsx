@@ -1127,6 +1127,8 @@ export function AdminPage() {
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Group</th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Status</th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Events</th>
+                        <th className="text-left py-3 px-2 font-medium text-sand-dark max-w-40">Dietary</th>
+                        <th className="text-left py-3 px-2 font-medium text-sand-dark max-w-40">Song</th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Booked</th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">RSVP rem.</th>
                         <th className="text-left py-3 px-2 font-medium text-sand-dark">Travel rem.</th>
@@ -1174,6 +1176,20 @@ export function AdminPage() {
                           </td>
                           <td className="py-3 px-2 text-xs text-sand-dark">
                             {guest.events?.length > 0 ? guest.events.join(', ') : '-'}
+                          </td>
+                          <td className="py-3 px-2 text-xs text-sand-dark max-w-48 align-top wrap-break-word">
+                            {guest.dietaryRestrictions?.trim() ? (
+                              <span title={guest.dietaryRestrictions.trim()}>{guest.dietaryRestrictions.trim()}</span>
+                            ) : (
+                              <span className="text-sand-driftwood">—</span>
+                            )}
+                          </td>
+                          <td className="py-3 px-2 text-xs text-sand-dark max-w-48 align-top wrap-break-word">
+                            {guest.songRequest?.trim() ? (
+                              <span title={guest.songRequest.trim()}>{guest.songRequest.trim()}</span>
+                            ) : (
+                              <span className="text-sand-driftwood">—</span>
+                            )}
                           </td>
                           <td className="py-3 px-2">
                             {guest.hasBooked ? (
