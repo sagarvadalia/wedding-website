@@ -10,16 +10,21 @@ import { loggers } from '../utils/logger.js';
 const log = loggers.app;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-/** Event metadata for day-by-day itinerary (must match client RsvpPage eventOptions). */
-const EVENT_META: Record<string, { dayOfWeek: string; date: string; time: string; name: string }> = {
-  welcome: { dayOfWeek: 'Friday', date: 'April 2, 2027', time: '6:00 PM', name: 'Welcome Dinner' },
-  haldi: { dayOfWeek: 'Saturday', date: 'April 3, 2027', time: '10:00 AM', name: 'Haldi Ceremony' },
-  mehndi: { dayOfWeek: 'Saturday', date: 'April 3, 2027', time: '2:00 PM', name: 'Mehndi Ceremony' },
-  baraat: { dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '4:00 PM', name: 'Baraat Procession' },
-  wedding: { dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '5:30 PM', name: 'Wedding Ceremony' },
-  cocktail: { dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '6:30 PM', name: 'Cocktail Hour' },
-  reception: { dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '7:30 PM', name: 'Reception Dinner' }
+/**
+ * Event itinerary for confirmation emails — must match client EventsPage (canonical schedule).
+ */
+const EVENT_META: Record<string, { dayOfWeek: string; date: string; time: string; name: string; location: string }> = {
+  welcome: { dayOfWeek: 'Friday', date: 'April 2, 2027', time: '6:00 PM - 10:00 PM', name: 'Welcome Dinner', location: 'Beachfront' },
+  haldi: { dayOfWeek: 'Saturday', date: 'April 3, 2027', time: '11:00 AM - 1:00 PM', name: 'Haldi Ceremony', location: 'Beachfront' },
+  mehndi: { dayOfWeek: 'Saturday', date: 'April 3, 2027', time: '6:00 PM - 10:00 PM', name: 'Mehndi Ceremony', location: 'Central Garden' },
+  baraat: { dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '9:00 AM - 10:00 AM', name: 'Baraat Procession', location: 'Resort Main Entrance' },
+  wedding: { dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '4:00 PM - 6:00 PM', name: 'Wedding Ceremony', location: 'Beach Gazebo' },
+  cocktail: { dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '6:00 PM - 7:00 PM', name: 'Cocktail Hour', location: 'Grand Ballroom Foyer' },
+  reception: { dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '7:00 PM - 11:00 PM', name: 'Reception Dinner', location: 'Grand Ballroom' }
 };
+
+/** Chronological order within the weekend (matches Events page). */
+const EVENT_CHRONO_ORDER = ['welcome', 'haldi', 'mehndi', 'baraat', 'wedding', 'cocktail', 'reception'] as const;
 
 const GMAIL_USER = process.env.GMAIL_USER ?? '';
 const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD ?? '';
@@ -61,16 +66,25 @@ function statusLabel(status: string): string {
 const DAY_ORDER = ['Friday, April 2, 2027', 'Saturday, April 3, 2027', 'Sunday, April 4, 2027'];
 
 /** Group a guest's event ids by date for day-by-day display (chronological order). */
-function groupEventsByDate(eventIds: string[]): { dateLabel: string; events: { name: string; time: string }[] }[] {
-  const byDate = new Map<string, { name: string; time: string }[]>();
+function groupEventsByDate(eventIds: string[]): { dateLabel: string; events: { name: string; time: string; location: string }[] }[] {
+  const byDate = new Map<string, { name: string; time: string; location: string; order: number }[]>();
   for (const id of eventIds) {
     const meta = EVENT_META[id];
     if (!meta) continue;
     const key = `${meta.dayOfWeek}, ${meta.date}`;
     if (!byDate.has(key)) byDate.set(key, []);
-    byDate.get(key)!.push({ name: meta.name, time: meta.time });
+    const order = EVENT_CHRONO_ORDER.indexOf(id as (typeof EVENT_CHRONO_ORDER)[number]);
+    byDate.get(key)!.push({
+      name: meta.name,
+      time: meta.time,
+      location: meta.location,
+      order: order === -1 ? 999 : order
+    });
   }
-  const entries = Array.from(byDate.entries()).map(([dateLabel, events]) => ({ dateLabel, events }));
+  const entries = Array.from(byDate.entries()).map(([dateLabel, list]) => ({
+    dateLabel,
+    events: [...list].sort((a, b) => a.order - b.order).map(({ name, time, location }) => ({ name, time, location }))
+  }));
   entries.sort((a, b) => DAY_ORDER.indexOf(a.dateLabel) - DAY_ORDER.indexOf(b.dateLabel));
   return entries;
 }
@@ -95,7 +109,7 @@ function buildConfirmationText(
         for (const day of byDay) {
           lines.push(`  ${day.dateLabel}`);
           for (const ev of day.events) {
-            lines.push(`    · ${ev.name} — ${ev.time}`);
+            lines.push(`    · ${ev.name} — ${ev.time} — ${ev.location}`);
           }
         }
       }
@@ -151,7 +165,12 @@ function buildConfirmationHtml(
     if (isAttending && g.events?.length) {
       const byDay = groupEventsByDate(g.events);
       const dayRows = byDay.map((day) => {
-        const eventRows = day.events.map((ev) => `<tr><td style="padding:6px 0 6px 16px;font-size:14px;color:${SAND_DARK};border:none;">${escapeHtml(ev.name)}</td><td style="padding:6px 0;font-size:14px;color:${SAND_DARK};border:none;white-space:nowrap;">${escapeHtml(ev.time)}</td></tr>`).join('');
+        const eventRows = day.events
+          .map(
+            (ev) =>
+              `<tr><td style="padding:6px 0 6px 16px;font-size:14px;color:${SAND_DARK};border:none;vertical-align:top;">${escapeHtml(ev.name)}<br/><span style="font-size:12px;color:${SAND_DRIFTWOOD};">${escapeHtml(ev.location)}</span></td><td style="padding:6px 0 6px 8px;font-size:14px;color:${SAND_DARK};border:none;vertical-align:top;text-align:right;white-space:nowrap;">${escapeHtml(ev.time)}</td></tr>`
+          )
+          .join('');
         return `<tr><td colspan="2" style="padding:10px 0 4px 0;font-size:14px;font-weight:600;color:${OCEAN_DEEP};border:none;">${escapeHtml(day.dateLabel)}</td></tr>${eventRows}`;
       }).join('');
       itineraryHtml = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;"><tbody>${dayRows}</tbody></table>`;

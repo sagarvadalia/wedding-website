@@ -53,6 +53,7 @@ interface GuestFormState {
   } | null;
 }
 
+/** Aligned with EventsPage itinerary (times & dates). */
 const eventOptions: {
   id: EventType;
   name: string;
@@ -60,13 +61,13 @@ const eventOptions: {
   date: string;
   time: string;
 }[] = [
-  { id: 'welcome', name: 'Welcome Dinner', dayOfWeek: 'Friday', date: 'April 2, 2027', time: '6:00 PM' },
-  { id: 'haldi', name: 'Haldi Ceremony', dayOfWeek: 'Saturday', date: 'April 3, 2027', time: '10:00 AM' },
-  { id: 'mehndi', name: 'Mehndi Ceremony', dayOfWeek: 'Saturday', date: 'April 3, 2027', time: '2:00 PM' },
-  { id: 'baraat', name: 'Baraat Procession', dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '4:00 PM' },
-  { id: 'wedding', name: 'Wedding Ceremony', dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '5:30 PM' },
-  { id: 'cocktail', name: 'Cocktail Hour', dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '6:30 PM' },
-  { id: 'reception', name: 'Reception Dinner', dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '7:30 PM' },
+  { id: 'welcome', name: 'Welcome Dinner', dayOfWeek: 'Friday', date: 'April 2, 2027', time: '6:00 PM - 10:00 PM' },
+  { id: 'haldi', name: 'Haldi Ceremony', dayOfWeek: 'Saturday', date: 'April 3, 2027', time: '11:00 AM - 1:00 PM' },
+  { id: 'mehndi', name: 'Mehndi Ceremony', dayOfWeek: 'Saturday', date: 'April 3, 2027', time: '6:00 PM - 10:00 PM' },
+  { id: 'baraat', name: 'Baraat Procession', dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '9:00 AM - 10:00 AM' },
+  { id: 'wedding', name: 'Wedding Ceremony', dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '4:00 PM - 6:00 PM' },
+  { id: 'cocktail', name: 'Cocktail Hour', dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '6:00 PM - 7:00 PM' },
+  { id: 'reception', name: 'Reception Dinner', dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '7:00 PM - 11:00 PM' },
 ];
 
 const ALL_EVENT_IDS: EventType[] = eventOptions.map((e) => e.id);
