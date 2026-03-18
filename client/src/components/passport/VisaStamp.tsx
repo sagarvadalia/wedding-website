@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { EventType } from '@/types';
+import { MEHNDI_HAND_STAMP_PATHS } from '@/components/passport/mehndiHandStampPaths';
 
 // Generate a stable random-ish rotation based on a seed string
 function seededRotation(seed: string): number {
@@ -66,15 +67,15 @@ const stampConfigs: Record<EventType, {
     color: '#8B5E3C',
     borderStyle: 'oval',
     icon: (
-      <g>
-        {/* Henna hand design */}
-        <path d="M50 30 L50 55 M45 35 Q50 40 55 35 M40 45 Q50 50 60 45 M35 55 Q50 62 65 55" 
-          stroke="currentColor" strokeWidth="2" fill="none" />
-        {/* Paisley accent */}
-        <path d="M30 65 Q25 55 35 50 Q45 45 40 60 Q35 70 30 65" 
-          stroke="currentColor" strokeWidth="1.5" fill="none" />
-        <path d="M70 65 Q75 55 65 50 Q55 45 60 60 Q65 70 70 65" 
-          stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <g
+        fill="currentColor"
+        stroke="none"
+        transform="translate(50, 50) scale(0.19) translate(-148.5, -148.5)"
+      >
+        {/* henna-painted-hand-svgrepo-com.svg — 297×297, centered in 100×100 stamp */}
+        {MEHNDI_HAND_STAMP_PATHS.map((d, i) => (
+          <path key={i} d={d} />
+        ))}
       </g>
     ),
   },
