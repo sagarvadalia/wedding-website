@@ -41,6 +41,7 @@ const photos: Photo[] = [
 {id: '62', src: 'images/silent-disco.avif', alt: 'silent disco', category: 'lovedones' },
 
   { id: '13', src: '/images/pottery.avif', alt: 'Pottery together', category: 'couple' },
+  {id: '66', src: 'images/skitrip.avif', alt: 'skiing', category: 'lovedones' },
   { id: '14', src: '/images/snorkeling.avif', alt: 'Snorkeling', category: 'couple' },
   { id: '15', src: '/images/antelope-canyon.avif', alt: 'Antelope Canyon', category: 'couple' },
   { id: '16', src: '/images/arizona.avif', alt: 'Arizona', category: 'couple' },
@@ -90,6 +91,7 @@ const photos: Photo[] = [
 {id: '58', src: 'images/coconuts.avif', alt: 'coconuts', category: 'lovedones' },
 {id: '59', src: 'images/boys.avif', alt: 'boys', category: 'lovedones' },
 {id: '61', src: 'images/kaylin.avif', alt: 'Kaylin', category: 'lovedones' },
+
 
 
 
