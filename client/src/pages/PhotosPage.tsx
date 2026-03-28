@@ -26,14 +26,18 @@ const photos: Photo[] = [
   { id: '1', src: '/images/the-parents.avif', alt: 'Parents', category: 'lovedones' },
   { id: '2', src: '/images/the-family.avif', alt: 'Family', category: 'lovedones' },
   { id: '3', src: '/images/cosmo.avif', alt: 'Cosmo', category: 'lovedones' },
+  { id: '25', src: '/images/hershey.avif', alt: 'Hershey Park', category: 'lovedones' },
   { id: '4', src: '/images/best-friends.avif', alt: 'Best Friends', category: 'lovedones' },
   { id: '5', src: '/images/coldplay.avif', alt: 'Coldplay with Laura', category: 'lovedones' },
   { id: '6', src: '/images/cousins.avif', alt: 'Cousins', category: 'lovedones' },
   { id: '7', src: '/images/day-at-the-beach.avif', alt: 'Day at the Beach', category: 'couple' },
   { id: '8', src: '/images/skiing.avif', alt: 'Skiing', category: 'couple' },
+
   { id: '10', src: '/images/jasons-wedding.avif', alt: 'Graces family', category: 'lovedones' },
   { id: '11', src: '/images/foam-party.avif', alt: 'Foam Party', category: 'lovedones' },
   { id: '12', src: '/images/birthday.avif', alt: 'Birthday Party', category: 'lovedones' },
+{id: '62', src: 'images/silent-disco.avif', alt: 'silent disco', category: 'lovedones' },
+
   { id: '13', src: '/images/pottery.avif', alt: 'Pottery together', category: 'couple' },
   { id: '14', src: '/images/snorkeling.avif', alt: 'Snorkeling', category: 'couple' },
   { id: '15', src: '/images/antelope-canyon.avif', alt: 'Antelope Canyon', category: 'couple' },
@@ -42,12 +46,13 @@ const photos: Photo[] = [
   { id: '18', src: '/images/halloween.avif', alt: 'Halloween', category: 'couple' },
   { id: '19', src: '/images/new-york.avif', alt: 'New York', category: 'couple' },
   { id: '20', src: '/images/pizza.avif', alt: 'Pizza', category: 'couple' },
+{id: '60', src: 'images/hiking.avif', alt: 'hiking', category: 'lovedones' },
+
   { id: '21', src: '/images/spa-day.avif', alt: 'Spa Day', category: 'couple' },
   { id: '22', src: '/images/night-spa-swim.avif', alt: 'Night Spa Swim', category: 'couple' },
   { id: '23', src: '/images/bao.avif', alt: 'Bao', category: 'lovedones' },
   { id: '24', src: '/images/cruise-kids.avif', alt: 'cruise kids!', category: 'lovedones' },
   {id: '47', src: 'images/cosmostare.avif', alt: 'cosmo', category: 'lovedones' },
-  { id: '25', src: '/images/hershey.avif', alt: 'Hershey Park', category: 'lovedones' },
   { id: '26', src: '/images/theBoys.avif', alt: 'The Boys', category: 'lovedones' },
   { id: '27', src: '/images/grandparents.avif', alt: 'Grandparents', category: 'lovedones' },
   { id: '28', src: '/images/Laura.avif', alt: 'Laura and Grace', category: 'lovedones' },
@@ -80,6 +85,7 @@ const photos: Photo[] = [
 {id: '56', src: 'images/niagara.avif', alt: 'Niagara Falls', category: 'couple' },
 {id: '57', src: 'images/wedding-india.avif', alt: 'wedding in india', category: 'couple' },
 {id: '58', src: 'images/coconuts.avif', alt: 'coconuts', category: 'lovedones' },
+{id: '59', src: 'images/boys.avif', alt: 'boys', category: 'lovedones' },
 
  ];
 
