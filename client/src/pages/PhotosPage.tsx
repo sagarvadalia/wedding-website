@@ -66,6 +66,8 @@ const photos: Photo[] = [
   {id: '42', src: 'images/atv.avif', alt: 'atv ride', category: 'couple' },
   {id: '43', src: 'images/top-golf.avif', alt: 'top golf', category: 'lovedones' },
   {id: '44', src: 'images/swimming.avif', alt: 'swimming', category: 'couple' },
+  {id: '45', src: 'images/christmas.avif', alt: 'christmas', category: 'couple' },
+  {id: '46', src: 'images/snorklin.avif', alt: 'snorkling in cancun', category: 'couple' },
 ];
 
 export function PhotosPage() {
