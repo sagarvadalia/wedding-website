@@ -72,10 +72,12 @@ const photos: Photo[] = [
   {id: '48', src: 'images/cosmohi.avif', alt: 'cosmo', category: 'lovedones' },
   {id: '49', src: 'images/michael.avif', alt: 'Michael', category: 'lovedones' },
   {id: '50', src: 'images/nighttime-couple.avif', alt: 'nighttime biking', category: 'couple' },
-  {id: '51', src: 'images/old-photos.avif', alt: 'old photos', category: 'couple' },
+  {id: '51', src: 'images/old-photo.avif', alt: 'old photos', category: 'couple' },
   {id: '52', src: 'images/couple-nyc-skyline.avif', alt: 'nyc skyline', category: 'couple' },
   {id: '53', src: 'images/some-friends.avif', alt: 'friends at central park', category: 'lovedones' },
-
+  {id: '54', src: 'images/moon-palace.avif', alt: 'moon palace', category: 'couple' },
+{id: '55', src: 'images/aunt.avif', alt: 'aunt', category: 'lovedones' },
+{id: '56', src: 'images/niagara.avif', alt: 'Niagara Falls', category: 'couple' },
  ];
 
 export function PhotosPage() {
