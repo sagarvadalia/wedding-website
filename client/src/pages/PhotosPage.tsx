@@ -31,8 +31,8 @@ const photos: Photo[] = [
   { id: '5', src: '/images/coldplay.avif', alt: 'Coldplay with Laura', category: 'lovedones' },
   { id: '6', src: '/images/cousins.avif', alt: 'Cousins', category: 'lovedones' },
   { id: '7', src: '/images/day-at-the-beach.avif', alt: 'Day at the Beach', category: 'couple' },
-  {id: '62', src: 'images/grace-fam-big.avif', alt: 'Graces family', category: 'lovedones' },
-{id: '63', src: 'images/grace-fam-filip.avif', alt: 'Graces family', category: 'lovedones' },
+  {id: '63', src: 'images/grace-fam-big.avif', alt: 'Graces family', category: 'lovedones' },
+{id: '64', src: 'images/grace-fam-filip.avif', alt: 'Graces family', category: 'lovedones' },
   { id: '8', src: '/images/skiing.avif', alt: 'Skiing', category: 'couple' },
 
   { id: '10', src: '/images/jasons-wedding.avif', alt: 'Graces family', category: 'lovedones' },
@@ -59,6 +59,7 @@ const photos: Photo[] = [
   { id: '27', src: '/images/grandparents.avif', alt: 'Grandparents', category: 'lovedones' },
   { id: '28', src: '/images/Laura.avif', alt: 'Laura and Grace', category: 'lovedones' },
   {id: '29', src: '/images/autumn.avif', alt: 'Autumn and Grace', category: 'lovedones' },
+  {id: '65', src: 'images/more-family.avif', alt: 'Graces family', category: 'lovedones' },
   {id: '30', src: '/images/childhood-friends.avif', alt: 'Once upon a time', category: 'lovedones' },
   {id: '31', src: '/images/thefamily.avif', alt: 'The Family', category: 'lovedones' },
   {id: '32', src: '/images/swimming-with-bapuji.avif', alt: 'At the pool with Bapuji', category: 'lovedones' },
@@ -89,6 +90,7 @@ const photos: Photo[] = [
 {id: '58', src: 'images/coconuts.avif', alt: 'coconuts', category: 'lovedones' },
 {id: '59', src: 'images/boys.avif', alt: 'boys', category: 'lovedones' },
 {id: '61', src: 'images/kaylin.avif', alt: 'Kaylin', category: 'lovedones' },
+
 
 
  ];
