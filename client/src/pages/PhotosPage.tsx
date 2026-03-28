@@ -68,7 +68,9 @@ const photos: Photo[] = [
   {id: '44', src: 'images/swimming.avif', alt: 'swimming', category: 'couple' },
   {id: '45', src: 'images/christmas.avif', alt: 'christmas', category: 'couple' },
   {id: '46', src: 'images/snorklin.avif', alt: 'snorkling in cancun', category: 'couple' },
-];
+  {id: '47', src: 'images/cosmostare.avif', alt: 'cosmo', category: 'lovedones' },
+  {id: '48', src: 'images/cosmohi.avif', alt: 'cosmo', category: 'lovedones' },
+ ];
 
 export function PhotosPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
