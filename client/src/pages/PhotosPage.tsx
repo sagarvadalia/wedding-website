@@ -31,6 +31,8 @@ const photos: Photo[] = [
   { id: '5', src: '/images/coldplay.avif', alt: 'Coldplay with Laura', category: 'lovedones' },
   { id: '6', src: '/images/cousins.avif', alt: 'Cousins', category: 'lovedones' },
   { id: '7', src: '/images/day-at-the-beach.avif', alt: 'Day at the Beach', category: 'couple' },
+  {id: '62', src: 'images/grace-fam-big.avif', alt: 'Graces family', category: 'lovedones' },
+{id: '63', src: 'images/grace-fam-filip.avif', alt: 'Graces family', category: 'lovedones' },
   { id: '8', src: '/images/skiing.avif', alt: 'Skiing', category: 'couple' },
 
   { id: '10', src: '/images/jasons-wedding.avif', alt: 'Graces family', category: 'lovedones' },
@@ -87,6 +89,7 @@ const photos: Photo[] = [
 {id: '58', src: 'images/coconuts.avif', alt: 'coconuts', category: 'lovedones' },
 {id: '59', src: 'images/boys.avif', alt: 'boys', category: 'lovedones' },
 {id: '61', src: 'images/kaylin.avif', alt: 'Kaylin', category: 'lovedones' },
+
 
  ];
 
