@@ -46,6 +46,7 @@ const photos: Photo[] = [
   { id: '22', src: '/images/night-spa-swim.avif', alt: 'Night Spa Swim', category: 'couple' },
   { id: '23', src: '/images/bao.avif', alt: 'Bao', category: 'lovedones' },
   { id: '24', src: '/images/cruise-kids.avif', alt: 'cruise kids!', category: 'lovedones' },
+  {id: '47', src: 'images/cosmostare.avif', alt: 'cosmo', category: 'lovedones' },
   { id: '25', src: '/images/hershey.avif', alt: 'Hershey Park', category: 'lovedones' },
   { id: '26', src: '/images/theBoys.avif', alt: 'The Boys', category: 'lovedones' },
   { id: '27', src: '/images/grandparents.avif', alt: 'Grandparents', category: 'lovedones' },
@@ -68,8 +69,8 @@ const photos: Photo[] = [
   {id: '44', src: 'images/swimming.avif', alt: 'swimming', category: 'couple' },
   {id: '45', src: 'images/christmas.avif', alt: 'christmas', category: 'couple' },
   {id: '46', src: 'images/snorklin.avif', alt: 'snorkling in cancun', category: 'couple' },
-  {id: '47', src: 'images/cosmostare.avif', alt: 'cosmo', category: 'lovedones' },
   {id: '48', src: 'images/cosmohi.avif', alt: 'cosmo', category: 'lovedones' },
+  {id: '49', src: 'images/michael.avif', alt: 'Michael', category: 'lovedones' },
  ];
 
 export function PhotosPage() {
