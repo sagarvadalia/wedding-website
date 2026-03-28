@@ -86,6 +86,7 @@ const photos: Photo[] = [
 {id: '57', src: 'images/wedding-india.avif', alt: 'wedding in india', category: 'couple' },
 {id: '58', src: 'images/coconuts.avif', alt: 'coconuts', category: 'lovedones' },
 {id: '59', src: 'images/boys.avif', alt: 'boys', category: 'lovedones' },
+{id: '61', src: 'images/kaylin.avif', alt: 'Kaylin', category: 'lovedones' },
 
  ];
 
