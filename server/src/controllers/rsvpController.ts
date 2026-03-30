@@ -235,7 +235,7 @@ interface GuestUpdatePayload {
 
 /**
  * POST /api/rsvp
- * Body: { groupId, guests: [{ guestId, attending, events?, dietaryRestrictions?, plusOne?, songRequest? }] }
+ * Body: { groupId, guests: [{ guestId, attending, events?, dietaryRestrictions?, plusOne?, songRequest?, mailingAddress? }] }
  * Same for submit and edit. Rejects if rsvpOpen is false.
  */
 export const submitRsvp = async (req: Request, res: Response): Promise<void> => {
@@ -267,17 +267,6 @@ export const submitRsvp = async (req: Request, res: Response): Promise<void> => 
     if (guestsInGroup.length !== guestIds.length) {
       res.status(400).json({ error: 'All guestIds must belong to the group' });
       return;
-    }
-
-    for (const payload of guestsPayload) {
-      const isAttending = payload.attending === true || payload.attending === 'maybe';
-      if (isAttending) {
-        const ma = payload.mailingAddress;
-        if (!ma?.addressLine1?.trim() || !ma?.city?.trim() || !ma?.stateOrProvince?.trim() || !ma?.postalCode?.trim() || !ma?.country?.trim()) {
-          res.status(400).json({ error: 'Mailing address (street, city, state/province, postal code, and country) is required for attending guests.' });
-          return;
-        }
-      }
     }
 
     const now = new Date();

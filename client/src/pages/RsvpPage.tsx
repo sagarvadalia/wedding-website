@@ -72,6 +72,18 @@ const eventOptions: {
 
 const ALL_EVENT_IDS: EventType[] = eventOptions.map((e) => e.id);
 
+function cloneMailingAddressSnapshot(ma: GuestFormState['mailingAddress']): GuestFormState['mailingAddress'] {
+  if (!ma) return null;
+  return {
+    addressLine1: ma.addressLine1,
+    addressLine2: ma.addressLine2,
+    city: ma.city,
+    stateOrProvince: ma.stateOrProvince,
+    postalCode: ma.postalCode,
+    country: ma.country,
+  };
+}
+
 function toFormMailingAddress(ma: MailingAddressDto | null | undefined): GuestFormState['mailingAddress'] {
   if (!ma) return null;
   const line1 = ma.addressLine1?.trim() ?? '';
@@ -266,24 +278,6 @@ export function RsvpPage() {
       if (state.plusOne && !state.plusOne.name.trim()) {
         return `Please enter a name for ${displayName(state)}'s plus-one, or choose "No".`;
       }
-      if (state.attending === true || state.attending === 'maybe') {
-        const ma = state.mailingAddress;
-        if (!ma?.addressLine1?.trim()) {
-          return `Please enter a mailing address (street) for ${displayName(state)}.`;
-        }
-        if (!ma.city?.trim()) {
-          return `Please enter a city for ${displayName(state)}'s mailing address.`;
-        }
-        if (!ma.stateOrProvince?.trim()) {
-          return `Please enter state/province for ${displayName(state)}'s mailing address.`;
-        }
-        if (!ma.postalCode?.trim()) {
-          return `Please enter a postal code for ${displayName(state)}'s mailing address.`;
-        }
-        if (!ma.country?.trim()) {
-          return `Please enter a country for ${displayName(state)}'s mailing address.`;
-        }
-      }
     }
     return null;
   };
@@ -366,6 +360,29 @@ export function RsvpPage() {
         : [...s.events, eventId],
     }));
   };
+
+  const applyPartyAttendance = useCallback((choice: true | false | 'maybe') => {
+    setGuestFormState((prev) => {
+      if (prev.length === 0) return prev;
+      if (choice === false) {
+        return prev.map((s) => ({ ...s, attending: false }));
+      }
+      const source = prev[0]?.mailingAddress;
+      return prev.map((s) => ({
+        ...s,
+        attending: choice === true ? true : 'maybe',
+        events: ALL_EVENT_IDS,
+        mailingAddress: cloneMailingAddressSnapshot(source),
+      }));
+    });
+  }, []);
+
+  const partyAllYes =
+    guestFormState.length > 1 && guestFormState.every((s) => s.attending === true);
+  const partyAllMaybe =
+    guestFormState.length > 1 && guestFormState.every((s) => s.attending === 'maybe');
+  const partyAllNo =
+    guestFormState.length > 1 && guestFormState.every((s) => s.attending === false);
 
   const startOver = () => {
     setStep('lookup');
@@ -611,6 +628,43 @@ export function RsvpPage() {
                           </a>
                         </Button>
                       </div>
+                      {guestFormState.length > 1 && (
+                        <div className="rounded-lg border border-sand-driftwood/30 bg-sand-light/20 p-4 space-y-3">
+                          <div>
+                            <p className="text-base font-medium text-ocean-deep">Set attendance for everyone</p>
+                            <p className="text-xs text-sand-dark mt-1">
+                              Yes or Maybe also selects all events and copies the mailing address from the{' '}
+                              <span className="font-medium">first guest</span> below. You can edit any card afterward.
+                            </p>
+                          </div>
+                          <div className="flex flex-wrap gap-2" role="group" aria-label="Set attendance for all guests in your party">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant={partyAllYes ? 'gold' : 'outline'}
+                              onClick={() => applyPartyAttendance(true)}
+                            >
+                              <Check className="w-4 h-4 mr-1" aria-hidden /> Yes
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant={partyAllMaybe ? 'gold' : 'outline'}
+                              onClick={() => applyPartyAttendance('maybe')}
+                            >
+                              <HelpCircle className="w-4 h-4 mr-1" aria-hidden /> Maybe
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant={partyAllNo ? 'destructive' : 'outline'}
+                              onClick={() => applyPartyAttendance(false)}
+                            >
+                              <X className="w-4 h-4 mr-1" aria-hidden /> No
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                       {guestFormState.map((state) => {
                         const guest = group.guests.find((g) => g._id === state.guestId);
                         if (!guest) return null;
@@ -668,10 +722,11 @@ export function RsvpPage() {
                             </div>
                             <div>
                               <Label className="flex items-center gap-1">
-                                <MapPin className="w-4 h-4" /> Mailing address
+                                <MapPin className="w-4 h-4" /> Mailing address{' '}
+                                <span className="font-normal text-sand-dark">(optional)</span>
                               </Label>
                               <p className="text-xs text-sand-dark mt-1">
-                                We&apos;ll send wedding updates, important information, and more to this address.
+                                If you share it, we can send wedding updates and important information by mail.
                               </p>
                               <div className="space-y-2 mt-2">
                                 <Input
