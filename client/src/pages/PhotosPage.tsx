@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
 import { NextPageCTA } from '@/components/layout/NextPageCTA';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,6 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Camera, Heart, X, ChevronLeft, ChevronRight, ExternalLink, ImageIcon, Upload, Users } from 'lucide-react';
 
 const GOOGLE_PHOTOS_ALBUM_URL = 'https://photos.app.goo.gl/bAu9CCMBZ6sw4LQH6';
+
+/** First rows of the grid load eagerly so above-the-fold thumbs paint sooner on mobile. */
+const PRIORITY_THUMB_COUNT = 8;
+/** Hint for layout; square crop in CSS — does not resize the downloaded file. */
+const THUMB_DIMENSION = 600;
 
 interface Photo {
   id: string;
@@ -31,17 +36,17 @@ const photos: Photo[] = [
   { id: '5', src: '/images/coldplay.avif', alt: 'Coldplay with Laura', category: 'lovedones' },
   { id: '6', src: '/images/cousins.avif', alt: 'Cousins', category: 'lovedones' },
   { id: '7', src: '/images/day-at-the-beach.avif', alt: 'Day at the Beach', category: 'couple' },
-  {id: '63', src: 'images/grace-fam-big.avif', alt: 'Graces family', category: 'lovedones' },
-{id: '64', src: 'images/grace-fam-filip.avif', alt: 'Graces family', category: 'lovedones' },
+  {id: '63', src: '/images/grace-fam-big.avif', alt: 'Graces family', category: 'lovedones' },
+{id: '64', src: '/images/grace-fam-filip.avif', alt: 'Graces family', category: 'lovedones' },
   { id: '8', src: '/images/skiing.avif', alt: 'Skiing', category: 'couple' },
 
   { id: '10', src: '/images/jasons-wedding.avif', alt: 'Graces family', category: 'lovedones' },
   { id: '11', src: '/images/foam-party.avif', alt: 'Foam Party', category: 'lovedones' },
   { id: '12', src: '/images/birthday.avif', alt: 'Birthday Party', category: 'lovedones' },
-{id: '62', src: 'images/silent-disco.avif', alt: 'silent disco', category: 'lovedones' },
+{id: '62', src: '/images/silent-disco.avif', alt: 'silent disco', category: 'lovedones' },
 
   { id: '13', src: '/images/pottery.avif', alt: 'Pottery together', category: 'couple' },
-  {id: '66', src: 'images/skitrip.avif', alt: 'skiing', category: 'lovedones' },
+  {id: '66', src: '/images/skitrip.avif', alt: 'skiing', category: 'lovedones' },
   { id: '14', src: '/images/snorkeling.avif', alt: 'Snorkeling', category: 'couple' },
   { id: '15', src: '/images/antelope-canyon.avif', alt: 'Antelope Canyon', category: 'couple' },
   { id: '16', src: '/images/arizona.avif', alt: 'Arizona', category: 'couple' },
@@ -49,18 +54,18 @@ const photos: Photo[] = [
   { id: '18', src: '/images/halloween.avif', alt: 'Halloween', category: 'couple' },
   { id: '19', src: '/images/new-york.avif', alt: 'New York', category: 'couple' },
   { id: '20', src: '/images/pizza.avif', alt: 'Pizza', category: 'couple' },
-{id: '60', src: 'images/hiking.avif', alt: 'hiking', category: 'lovedones' },
+{id: '60', src: '/images/hiking.avif', alt: 'hiking', category: 'lovedones' },
 
   { id: '21', src: '/images/spa-day.avif', alt: 'Spa Day', category: 'couple' },
   { id: '22', src: '/images/night-spa-swim.avif', alt: 'Night Spa Swim', category: 'couple' },
   { id: '23', src: '/images/bao.avif', alt: 'Bao', category: 'lovedones' },
   { id: '24', src: '/images/cruise-kids.avif', alt: 'cruise kids!', category: 'lovedones' },
-  {id: '47', src: 'images/cosmostare.avif', alt: 'cosmo', category: 'lovedones' },
+  {id: '47', src: '/images/cosmostare.avif', alt: 'cosmo', category: 'lovedones' },
   { id: '26', src: '/images/theBoys.avif', alt: 'The Boys', category: 'lovedones' },
   { id: '27', src: '/images/grandparents.avif', alt: 'Grandparents', category: 'lovedones' },
   { id: '28', src: '/images/Laura.avif', alt: 'Laura and Grace', category: 'lovedones' },
   {id: '29', src: '/images/autumn.avif', alt: 'Autumn and Grace', category: 'lovedones' },
-  {id: '65', src: 'images/more-family.avif', alt: 'Graces family', category: 'lovedones' },
+  {id: '65', src: '/images/more-family.avif', alt: 'Graces family', category: 'lovedones' },
   {id: '30', src: '/images/childhood-friends.avif', alt: 'Once upon a time', category: 'lovedones' },
   {id: '31', src: '/images/thefamily.avif', alt: 'The Family', category: 'lovedones' },
   {id: '32', src: '/images/swimming-with-bapuji.avif', alt: 'At the pool with Bapuji', category: 'lovedones' },
@@ -68,29 +73,29 @@ const photos: Photo[] = [
   {id: '34', src: '/images/friends.avif', alt: 'Friends', category: 'lovedones' },
   {id: '35', src: '/images/the-half.avif', alt: 'Half marathon with liana', category: 'lovedones' },
   {id: '36', src: '/images/the-three-musketeers.avif', alt: 'The Three Musketeers', category: 'lovedones' },
-  {id: '37', src: 'images/marlon.avif', alt: 'Marlon', category: 'lovedones' },
-  {id: '38', src: 'images/family-old.avif', alt: 'Family Old', category: 'lovedones' },
-  {id: '39', src: 'images/sagar-aakash.avif', alt: 'sagar and aakash', category: 'lovedones' },
-  {id: '40', src: 'images/binal-graduation.avif', alt: 'binal graduation', category: 'lovedones' },
-  {id: '41', src: 'images/greece.avif', alt: 'greece', category: 'couple' },
-  {id: '42', src: 'images/atv.avif', alt: 'atv ride', category: 'couple' },
-  {id: '43', src: 'images/top-golf.avif', alt: 'top golf', category: 'lovedones' },
-  {id: '44', src: 'images/swimming.avif', alt: 'swimming', category: 'couple' },
-  {id: '45', src: 'images/christmas.avif', alt: 'christmas', category: 'couple' },
-  {id: '46', src: 'images/snorklin.avif', alt: 'snorkling in cancun', category: 'couple' },
-  {id: '48', src: 'images/cosmohi.avif', alt: 'cosmo', category: 'lovedones' },
-  {id: '49', src: 'images/michael.avif', alt: 'Michael', category: 'lovedones' },
-  {id: '50', src: 'images/nighttime-couple.avif', alt: 'nighttime biking', category: 'couple' },
-  {id: '51', src: 'images/old-photo.avif', alt: 'old photos', category: 'couple' },
-  {id: '52', src: 'images/couple-nyc-skyline.avif', alt: 'nyc skyline', category: 'couple' },
-  {id: '53', src: 'images/some-friends.avif', alt: 'friends at central park', category: 'lovedones' },
-  {id: '54', src: 'images/moon-palace.avif', alt: 'moon palace', category: 'couple' },
-{id: '55', src: 'images/aunt.avif', alt: 'aunt', category: 'lovedones' },
-{id: '56', src: 'images/niagara.avif', alt: 'Niagara Falls', category: 'couple' },
-{id: '57', src: 'images/wedding-india.avif', alt: 'wedding in india', category: 'couple' },
-{id: '58', src: 'images/coconuts.avif', alt: 'coconuts', category: 'lovedones' },
-{id: '59', src: 'images/boys.avif', alt: 'boys', category: 'lovedones' },
-{id: '61', src: 'images/kaylin.avif', alt: 'Kaylin', category: 'lovedones' },
+  {id: '37', src: '/images/marlon.avif', alt: 'Marlon', category: 'lovedones' },
+  {id: '38', src: '/images/family-old.avif', alt: 'Family Old', category: 'lovedones' },
+  {id: '39', src: '/images/sagar-aakash.avif', alt: 'sagar and aakash', category: 'lovedones' },
+  {id: '40', src: '/images/binal-graduation.avif', alt: 'binal graduation', category: 'lovedones' },
+  {id: '41', src: '/images/greece.avif', alt: 'greece', category: 'couple' },
+  {id: '42', src: '/images/atv.avif', alt: 'atv ride', category: 'couple' },
+  {id: '43', src: '/images/top-golf.avif', alt: 'top golf', category: 'lovedones' },
+  {id: '44', src: '/images/swimming.avif', alt: 'swimming', category: 'couple' },
+  {id: '45', src: '/images/christmas.avif', alt: 'christmas', category: 'couple' },
+  {id: '46', src: '/images/snorklin.avif', alt: 'snorkling in cancun', category: 'couple' },
+  {id: '48', src: '/images/cosmohi.avif', alt: 'cosmo', category: 'lovedones' },
+  {id: '49', src: '/images/michael.avif', alt: 'Michael', category: 'lovedones' },
+  {id: '50', src: '/images/nighttime-couple.avif', alt: 'nighttime biking', category: 'couple' },
+  {id: '51', src: '/images/old-photo.avif', alt: 'old photos', category: 'couple' },
+  {id: '52', src: '/images/couple-nyc-skyline.avif', alt: 'nyc skyline', category: 'couple' },
+  {id: '53', src: '/images/some-friends.avif', alt: 'friends at central park', category: 'lovedones' },
+  {id: '54', src: '/images/moon-palace.avif', alt: 'moon palace', category: 'couple' },
+{id: '55', src: '/images/aunt.avif', alt: 'aunt', category: 'lovedones' },
+{id: '56', src: '/images/niagara.avif', alt: 'Niagara Falls', category: 'couple' },
+{id: '57', src: '/images/wedding-india.avif', alt: 'wedding in india', category: 'couple' },
+{id: '58', src: '/images/coconuts.avif', alt: 'coconuts', category: 'lovedones' },
+{id: '59', src: '/images/boys.avif', alt: 'boys', category: 'lovedones' },
+{id: '61', src: '/images/kaylin.avif', alt: 'Kaylin', category: 'lovedones' },
 
 
 
@@ -101,6 +106,16 @@ export function PhotosPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [lightboxPhoto, setLightboxPhoto] = useState<Photo | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [narrowViewport, setNarrowViewport] = useState(false);
+  const reducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const sync = () => setNarrowViewport(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   const filteredPhotos = useMemo(
     () => selectedCategory === 'all'
@@ -187,22 +202,29 @@ export function PhotosPage() {
         </div>
 
         {/* Photo Grid */}
-        <motion.div 
-          layout
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-        >
+        <motion.div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <AnimatePresence mode="popLayout">
-            {filteredPhotos.map((photo, index) => (
+            {filteredPhotos.map((photo, index) => {
+              const skipStagger =
+                Boolean(reducedMotion) ||
+                narrowViewport ||
+                filteredPhotos.length > 24;
+              const staggerDelay = skipStagger
+                ? 0
+                : Math.min(index * 0.025, 0.35);
+              const animDuration = reducedMotion ? 0.12 : 0.25;
+              const priorityThumb = index < PRIORITY_THUMB_COUNT;
+
+              return (
               <motion.div
                 key={photo.id}
-                layout
-                initial={{ opacity: 0, scale: 0.8 }}
+                initial={reducedMotion ? false : { opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
+                exit={{ opacity: 0, scale: reducedMotion ? 1 : 0.92 }}
+                transition={{ duration: animDuration, delay: staggerDelay }}
                 role="button"
                 tabIndex={0}
-                className="aspect-square cursor-pointer group"
+                className="aspect-square cursor-pointer group [content-visibility:auto] [contain-intrinsic-size:240px_240px]"
                 onClick={() => openLightbox(photo, index)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -216,7 +238,10 @@ export function PhotosPage() {
                     <img
                       src={photo.src}
                       alt={photo.alt}
-                      loading="lazy"
+                      width={THUMB_DIMENSION}
+                      height={THUMB_DIMENSION}
+                      loading={priorityThumb ? 'eager' : 'lazy'}
+                      fetchPriority={priorityThumb ? 'high' : undefined}
                       decoding="async"
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     />
@@ -226,7 +251,8 @@ export function PhotosPage() {
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
+              );
+            })}
           </AnimatePresence>
         </motion.div>
 

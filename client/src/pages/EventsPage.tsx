@@ -404,7 +404,7 @@ export function EventsPage() {
                 events: 'Welcome Dinner',
                 color: 'from-ocean-sky to-ocean-caribbean',
                 items: [
-                  'Flowy sundress, linen pants & a nice blouse, or a guayabera shirt',
+                  'Flowy sundress, linen pants & a nice blouse, etc',
                   'Light fabrics — cotton, linen, chiffon',
                   'Sandals or dressy flats (think sand-friendly)',
                   'Ocean / tropical color palette welcome',
