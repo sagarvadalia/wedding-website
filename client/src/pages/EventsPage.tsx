@@ -158,7 +158,7 @@ const events: WeddingEvent[] = [
     id: 'wedding',
     name: 'Wedding Ceremony',
     date: 'Sunday, April 4, 2027',
-    time: '4:00 PM - 6:00 PM',
+    time: '11:00 AM - 1:00 PM',
     location: 'Beach Gazebo',
     dressCode: 'Formal Indian Attire',
     description: 'The moment we\'ve been waiting for! Witness Sagar and Grace exchange vows under a beautiful mandap overlooking the Caribbean Sea. This sacred ceremony will unite our families forever.',

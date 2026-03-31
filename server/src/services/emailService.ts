@@ -18,7 +18,7 @@ const EVENT_META: Record<string, { dayOfWeek: string; date: string; time: string
   haldi: { dayOfWeek: 'Saturday', date: 'April 3, 2027', time: '11:00 AM - 1:00 PM', name: 'Haldi Ceremony', location: 'Beachfront' },
   mehndi: { dayOfWeek: 'Saturday', date: 'April 3, 2027', time: '6:00 PM - 10:00 PM', name: 'Mehndi Ceremony', location: 'Central Garden' },
   baraat: { dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '9:00 AM - 10:00 AM', name: 'Baraat Procession', location: 'Resort Main Entrance' },
-  wedding: { dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '4:00 PM - 6:00 PM', name: 'Wedding Ceremony', location: 'Beach Gazebo' },
+  wedding: { dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '11:00 AM - 1:00 PM', name: 'Wedding Ceremony', location: 'Beach Gazebo' },
   cocktail: { dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '6:00 PM - 7:00 PM', name: 'Cocktail Hour', location: 'Grand Ballroom Foyer' },
   reception: { dayOfWeek: 'Sunday', date: 'April 4, 2027', time: '7:00 PM - 11:00 PM', name: 'Reception Dinner', location: 'Grand Ballroom' }
 };
