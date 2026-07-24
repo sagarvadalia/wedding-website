@@ -277,11 +277,6 @@ export const submitRsvp = async (req: Request, res: Response): Promise<void> => 
       if (payload.email !== undefined) {
         const trimmedEmail = payload.email.trim().toLowerCase();
         if (trimmedEmail) {
-          const existing = await Guest.findOne({ email: trimmedEmail, _id: { $ne: guest._id } });
-          if (existing) {
-            res.status(400).json({ error: `Email "${trimmedEmail}" is already in use by another guest` });
-            return;
-          }
           guest.email = trimmedEmail;
         }
       }

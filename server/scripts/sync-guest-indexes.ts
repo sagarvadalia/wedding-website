@@ -1,6 +1,7 @@
 /**
- * One-time fix: sync Guest collection indexes so the email index is sparse.
- * Run this if you see E11000 duplicate key on email: null when importing guests without email.
+ * Sync Guest collection indexes after schema changes.
+ * Run after deploy to drop the old unique email index and recreate the non-unique sparse index.
+ * Also fixes E11000 duplicate key on email: null when importing guests without email.
  *
  * Usage: from server dir: npm run sync-guest-indexes  or  npx tsx scripts/sync-guest-indexes.ts
  */
@@ -25,7 +26,7 @@ async function main() {
   await mongoose.connect(uri);
   try {
     await Guest.syncIndexes();
-    console.log('Guest indexes synced. Email index is now sparse (multiple null emails allowed).');
+    console.log('Guest indexes synced. Email index is sparse and non-unique (shared emails allowed).');
   } finally {
     await mongoose.disconnect();
   }

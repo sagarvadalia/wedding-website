@@ -240,6 +240,26 @@ function buildConfirmationHtml(
 </html>`;
 }
 
+function normalizeGuestEmail(email: string | undefined): string | null {
+  const trimmed = email?.trim();
+  return trimmed ? trimmed.toLowerCase() : null;
+}
+
+type ReminderTimestampField = 'lastRsvpReminderAt' | 'lastTravelReminderAt';
+
+async function markReminderSentForBatchGuests(
+  guestIds: string[],
+  normalizedEmail: string,
+  field: ReminderTimestampField
+): Promise<void> {
+  const now = new Date();
+  const objectIds = guestIds.map((id) => new mongoose.Types.ObjectId(id));
+  await Guest.updateMany(
+    { _id: { $in: objectIds }, email: normalizedEmail },
+    { [field]: now }
+  );
+}
+
 /**
  * Send RSVP confirmation email to the first guest in the group via Gmail SMTP.
  * Fire-and-forget: call without await and catch errors in the caller.
@@ -266,10 +286,11 @@ export async function sendRsvpConfirmation(groupId: string): Promise<void> {
       return;
     }
 
-    const firstGuest = guests[0] as { email?: string; firstName: string; lastName: string; rsvpStatus: string; events: string[]; dietaryRestrictions?: string; plusOne?: { name: string; dietaryRestrictions?: string } | null; songRequest?: string };
-    const to = firstGuest.email?.trim();
+    const to = guests
+      .map((g) => normalizeGuestEmail(g.email ?? undefined))
+      .find((email): email is string => email !== null);
     if (!to) {
-      log.warn({ groupId }, 'No email for first guest, skipping confirmation');
+      log.warn({ groupId }, 'No guest email in group, skipping confirmation');
       return;
     }
 
@@ -404,6 +425,7 @@ export async function sendRsvpReminder(guestIds: string[]): Promise<ReminderResu
   });
 
   const { cid: bannerCid, attachments } = loadBannerAttachment();
+  const sentEmails = new Set<string>();
 
   for (const id of guestIds) {
     let guest: { _id: mongoose.Types.ObjectId; firstName: string; lastName: string; email?: string } | null = null;
@@ -417,11 +439,22 @@ export async function sendRsvpReminder(guestIds: string[]): Promise<ReminderResu
       result.errors.push({ guestId: id, name: '', email: '', reason: 'Guest not found' });
       continue;
     }
-    const email = guest.email?.trim();
+    const normalizedEmail = normalizeGuestEmail(guest.email);
     const name = `${guest.firstName} ${guest.lastName}`;
-    if (!email) {
+    if (!normalizedEmail) {
       result.skipped++;
       result.errors.push({ guestId: id, name, email: '', reason: 'No email address' });
+      continue;
+    }
+
+    if (sentEmails.has(normalizedEmail)) {
+      result.skipped++;
+      result.errors.push({
+        guestId: id,
+        name,
+        email: normalizedEmail,
+        reason: 'Duplicate email already notified in this batch'
+      });
       continue;
     }
 
@@ -442,17 +475,18 @@ export async function sendRsvpReminder(guestIds: string[]): Promise<ReminderResu
     try {
       await transporter.sendMail({
         from: `"${WEDDING_NAME} Wedding" <${GMAIL_USER.trim()}>`,
-        to: email,
+        to: normalizedEmail,
         subject: `Don't forget to RSVP – ${WEDDING_NAME}`,
         text,
         html,
         attachments: (attachments ?? []).length > 0 ? attachments : undefined
       });
-      await Guest.findByIdAndUpdate(id, { lastRsvpReminderAt: new Date() });
+      sentEmails.add(normalizedEmail);
+      await markReminderSentForBatchGuests(guestIds, normalizedEmail, 'lastRsvpReminderAt');
       result.sent++;
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err);
-      result.errors.push({ guestId: id, name, email, reason: `Send failed: ${errMsg}` });
+      result.errors.push({ guestId: id, name, email: normalizedEmail, reason: `Send failed: ${errMsg}` });
     }
   }
 
@@ -477,6 +511,7 @@ export async function sendTravelReminder(guestIds: string[]): Promise<ReminderRe
   });
 
   const { cid: bannerCid, attachments } = loadBannerAttachment();
+  const sentEmails = new Set<string>();
 
   for (const id of guestIds) {
     let guest: { _id: mongoose.Types.ObjectId; firstName: string; lastName: string; email?: string } | null = null;
@@ -490,11 +525,22 @@ export async function sendTravelReminder(guestIds: string[]): Promise<ReminderRe
       result.errors.push({ guestId: id, name: '', email: '', reason: 'Guest not found' });
       continue;
     }
-    const email = guest.email?.trim();
+    const normalizedEmail = normalizeGuestEmail(guest.email);
     const name = `${guest.firstName} ${guest.lastName}`;
-    if (!email) {
+    if (!normalizedEmail) {
       result.skipped++;
       result.errors.push({ guestId: id, name, email: '', reason: 'No email address' });
+      continue;
+    }
+
+    if (sentEmails.has(normalizedEmail)) {
+      result.skipped++;
+      result.errors.push({
+        guestId: id,
+        name,
+        email: normalizedEmail,
+        reason: 'Duplicate email already notified in this batch'
+      });
       continue;
     }
 
@@ -515,17 +561,18 @@ export async function sendTravelReminder(guestIds: string[]): Promise<ReminderRe
     try {
       await transporter.sendMail({
         from: `"${WEDDING_NAME} Wedding" <${GMAIL_USER.trim()}>`,
-        to: email,
+        to: normalizedEmail,
         subject: `Book your travel – ${WEDDING_NAME}`,
         text,
         html,
         attachments: (attachments ?? []).length > 0 ? attachments : undefined
       });
-      await Guest.findByIdAndUpdate(id, { lastTravelReminderAt: new Date() });
+      sentEmails.add(normalizedEmail);
+      await markReminderSentForBatchGuests(guestIds, normalizedEmail, 'lastTravelReminderAt');
       result.sent++;
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err);
-      result.errors.push({ guestId: id, name, email, reason: `Send failed: ${errMsg}` });
+      result.errors.push({ guestId: id, name, email: normalizedEmail, reason: `Send failed: ${errMsg}` });
     }
   }
 

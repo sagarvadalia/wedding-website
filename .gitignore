@@ -9,9 +9,9 @@ server/public/
 
 # Environment files
 .env
-.env.local
-.env.*.local
+.env.*
 !.env.example
+!.env.sample
 
 # Logs
 logs/
@@ -45,6 +45,9 @@ coverage/
 
 # Vite
 *.local
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+.vite/
 
 # Temporary files
 tmp/
@@ -52,9 +55,21 @@ temp/
 *.tmp
 *.temp
 
-# Debug
+# Debug & caches
 .npm
 .eslintcache
+.stylelintcache
+.cache/
+.parcel-cache/
+
+# pnpm (if you switch from npm)
+.pnpm-store/
+
+# Deploy / local secrets
+.vercel/
+.netlify/
+*.pem
+.sentryclirc
 
 # Optional: IDE-specific
 *.sublime-workspace

@@ -64,14 +64,6 @@ export const addGuest = async (req: Request, res: Response): Promise<void> => {
 
     const trimmedEmail = typeof email === 'string' ? email.trim().toLowerCase() : undefined;
 
-    if (trimmedEmail) {
-      const existingGuest = await Guest.findOne({ email: trimmedEmail });
-      if (existingGuest) {
-        res.status(400).json({ error: 'Guest with this email already exists' });
-        return;
-      }
-    }
-
     const group = await Group.findById(groupId);
     if (!group) {
       res.status(400).json({ error: 'Group not found' });
@@ -122,15 +114,7 @@ export const updateGuest = async (req: Request, res: Response): Promise<void> =>
     if (firstName !== undefined) guest.firstName = String(firstName).trim();
     if (lastName !== undefined) guest.lastName = String(lastName).trim();
     if (email !== undefined) {
-      const newEmail = String(email).trim().toLowerCase();
-      if (newEmail !== guest.email) {
-        const existing = await Guest.findOne({ email: newEmail });
-        if (existing) {
-          res.status(400).json({ error: 'Another guest already has this email' });
-          return;
-        }
-        guest.email = newEmail;
-      }
+      guest.email = String(email).trim().toLowerCase();
     }
     if (groupId !== undefined) {
       const groupIdStr =

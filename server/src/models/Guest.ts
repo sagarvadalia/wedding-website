@@ -115,7 +115,7 @@ const GuestSchema = new Schema<IGuest>({
 
 GuestSchema.index({ firstName: 1, lastName: 1 });
 GuestSchema.index({ rsvpStatus: 1, updatedAt: -1 });
-GuestSchema.index({ email: 1 }, { unique: true, sparse: true });
+GuestSchema.index({ email: 1 }, { sparse: true });
 
 const Guest = mongoose.model<IGuest>('Guest', GuestSchema);
 export default Guest;
