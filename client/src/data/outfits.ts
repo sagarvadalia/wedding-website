@@ -129,7 +129,6 @@ export const eventOutfitGuides: EventOutfitGuide[] = [
       tips: [
         'Traditional Indian formalwear — sarees, lehengas, or anarkalis',
         'Western formal or cocktail attire also works great',
-        'Avoid white or ivory (reserved for the bride)',
         'Comfortable shoes — you will be dancing!',
       ],
     },
@@ -139,7 +138,6 @@ export const eventOutfitGuides: EventOutfitGuide[] = [
       tips: [
         'Sherwani, kurta pajama, or Indo-western formal',
         'Western suit or blazer with dress pants also works',
-        'Avoid all-white looks if possible',
         'Comfortable dress shoes — you will be dancing!',
       ],
     },
@@ -155,7 +153,6 @@ export const eventOutfitGuides: EventOutfitGuide[] = [
       tips: [
         'Traditional Indian formalwear — sarees, lehengas, or anarkalis',
         'Western formal or elegant midi/maxi dresses also work',
-        'Avoid white or ivory (reserved for the bride)',
         'Breathable fabrics — ceremony is outdoors',
       ],
     },
@@ -165,7 +162,6 @@ export const eventOutfitGuides: EventOutfitGuide[] = [
       tips: [
         'Sherwani, kurta pajama, or Indo-western formal',
         'Western suit or blazer with dress pants also works',
-        'Avoid all-white looks if possible',
         'Breathable fabrics — ceremony is outdoors',
       ],
     },
