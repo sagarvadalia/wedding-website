@@ -106,18 +106,16 @@ async function gracefulShutdown(signal: string) {
 process.on('SIGTERM', () => { gracefulShutdown('SIGTERM').catch(() => process.exit(1)); });
 process.on('SIGINT', () => { gracefulShutdown('SIGINT').catch(() => process.exit(1)); });
 
-// Start server
+// Start server immediately so health/status routes work while Mongo connects
 const startServer = async () => {
+  app.listen(PORT, () => {
+    log.info({ port: PORT }, 'Server started');
+  });
+
   try {
     await initDb();
-    app.listen(PORT, () => {
-      log.info({ port: PORT }, 'Server started');
-    });
   } catch (error) {
-    log.warn({ err: error }, 'Failed to connect to MongoDB, starting server anyway');
-    app.listen(PORT, () => {
-      log.info({ port: PORT }, 'Server started (without MongoDB)');
-    });
+    log.warn({ err: error }, 'Failed to connect to MongoDB, server running without DB');
   }
 };
 

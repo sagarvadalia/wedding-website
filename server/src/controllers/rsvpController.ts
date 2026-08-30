@@ -350,7 +350,7 @@ export const submitRsvp = async (req: Request, res: Response): Promise<void> => 
     });
 
     sendRsvpConfirmation(groupId).catch((err) => {
-      log.error({ err, groupId }, 'RSVP confirmation email failed');
+      log.warn({ err, groupId }, 'RSVP confirmation email failed');
     });
   } catch (error) {
     log.error({ err: error, path: '/api/rsvp' }, 'RSVP submission error');

@@ -15,6 +15,8 @@ const IGNORED_ERRORS = [
   'read ECONNRESET',
   'Too Many Requests',
   'aborted',
+  'Invalid login',
+  'EAUTH',
 ];
 
 if (SENTRY_DSN) {
@@ -55,6 +57,21 @@ if (SENTRY_DSN) {
         return null;
       }
 
+      const logText = [
+        typeof log.message === 'string' ? log.message : '',
+        log.attributes && typeof log.attributes === 'object' && 'message' in log.attributes
+          ? String(log.attributes.message)
+          : '',
+      ].join(' ');
+      if (
+        logText.includes('RSVP confirmation email') ||
+        logText.includes('Error sending RSVP confirmation email') ||
+        logText.includes('Invalid login') ||
+        logText.includes('EAUTH')
+      ) {
+        return null;
+      }
+
       if (log.attributes) {
         const sensitiveKeys = ['password', 'token', 'secret', 'apiKey', 'api_key'];
         for (const key of sensitiveKeys) {
@@ -73,7 +90,9 @@ if (SENTRY_DSN) {
       if (error instanceof Error) {
         if (
           error.message?.includes('aborted') ||
-          error.message?.includes('ECONNRESET')
+          error.message?.includes('ECONNRESET') ||
+          error.message?.includes('Invalid login') ||
+          (error as Error & { code?: string }).code === 'EAUTH'
         ) {
           return null;
         }

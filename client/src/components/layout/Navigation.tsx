@@ -37,6 +37,7 @@ const navGroups: NavGroup[] = [
     label: 'Guest',
     items: [
       { path: '/photos', label: 'Photos' },
+      { path: '/what-to-wear', label: 'What to Wear' },
       { path: '/faq', label: 'FAQ' },
       { path: '/registry', label: 'Registry' },
       { path: '/guestbook', label: 'Guestbook' },

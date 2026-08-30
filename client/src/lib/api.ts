@@ -50,17 +50,6 @@ api.interceptors.response.use(
           url: error.config?.url,
         },
       });
-
-      if (error.response && error.response.status >= 500) {
-        Sentry.captureException(error, {
-          extra: {
-            url: error.config?.url,
-            method: error.config?.method,
-            status: error.response.status,
-            responseData: error.response.data,
-          },
-        });
-      }
     }
     return Promise.reject(error);
   },

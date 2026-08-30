@@ -11,7 +11,7 @@ import { useGuest } from '@/contexts/GuestContext';
 import { RSVP_BACKGROUND_PHOTO } from '@/lib/constants';
 import { OceanBackground } from '@/components/layout/OceanBackground';
 import { HeroSection } from '@/components/home/HeroSection';
-import { Search, Check, X, PartyPopper, Music, HelpCircle, Hotel, ExternalLink, AlertCircle, Eye, Mail, MapPin, Gift, BookOpen, Loader2 } from 'lucide-react';
+import { Search, Check, X, PartyPopper, Music, HelpCircle, Hotel, ExternalLink, AlertCircle, Eye, Mail, MapPin, Gift, BookOpen, Loader2, Shirt } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Analytics } from '@/utils/analytics';
@@ -173,6 +173,103 @@ function RsvpLayout({ children }: { children: React.ReactNode }) {
         </motion.div>
       </div>
     </motion.div>
+  );
+}
+
+interface RsvpSuccessCardProps {
+  mode: 'welcome-back' | 'submitted';
+  displayName?: string;
+  confirmationEmail?: string;
+  error?: string;
+  isLoading?: boolean;
+  onEdit?: () => void;
+  onStartOver: () => void;
+}
+
+function RsvpSuccessCard({
+  mode,
+  displayName,
+  confirmationEmail,
+  error,
+  isLoading = false,
+  onEdit,
+  onStartOver,
+}: RsvpSuccessCardProps) {
+  const isWelcomeBack = mode === 'welcome-back';
+
+  return (
+    <Card>
+      <CardContent className="py-12 text-center">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', bounce: 0.5 }}
+          className="mb-6"
+        >
+          <PartyPopper className="w-16 h-16 mx-auto text-gold" />
+        </motion.div>
+        <h2 className="text-3xl font-heading text-ocean-deep mb-4">
+          {isWelcomeBack ? `Welcome back, ${displayName}!` : "We've received your RSVP!"}
+        </h2>
+        <p className="text-sand-dark mb-6">
+          {isWelcomeBack
+            ? 'Your RSVP is on file. We\'re so excited to celebrate with you.'
+            : 'Thank you for responding. We\'re so excited to celebrate with you.'}
+        </p>
+        {error && (
+          <div className="flex items-start gap-2 text-coral text-sm bg-coral/5 border border-coral/20 rounded-lg p-3 mb-6 text-left max-w-md mx-auto">
+            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <span>{error}</span>
+          </div>
+        )}
+        {!isWelcomeBack && confirmationEmail && (
+          <p className="text-sm text-sand-dark mb-6">
+            If you provided an email, we&apos;ll send a confirmation to {confirmationEmail} shortly.
+          </p>
+        )}
+        <div className="flex flex-wrap gap-3 justify-center">
+          {onEdit && (
+            <Button onClick={onEdit} variant="gold" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" aria-hidden />
+                  Loading…
+                </>
+              ) : (
+                'Edit my RSVP'
+              )}
+            </Button>
+          )}
+          <Button variant="outline" onClick={onStartOver} disabled={isLoading}>
+            RSVP for someone else
+          </Button>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8 pt-6 border-t border-sand-driftwood/20">
+          <Link
+            to="/what-to-wear"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-ocean-deep bg-sand-pearl rounded-full hover:text-ocean-caribbean transition-colors"
+          >
+            <Shirt className="w-4 h-4" />
+            What to Wear
+          </Link>
+          <Link
+            to="/registry"
+            className="flex items-center gap-2 px-4 py-2 text-sm text-ocean-deep hover:text-ocean-caribbean transition-colors"
+          >
+            <Gift className="w-4 h-4" />
+            View Registry
+          </Link>
+          <Link
+            to="/guestbook"
+            className="flex items-center gap-2 px-4 py-2 text-sm text-ocean-deep hover:text-ocean-caribbean transition-colors"
+          >
+            <BookOpen className="w-4 h-4" />
+            Sign the Guestbook
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -415,34 +512,14 @@ export function RsvpPage() {
       <RsvpLayout>
         <Section>
           <div className="max-w-2xl mx-auto">
-            <Card>
-              <CardContent className="py-8 text-center">
-                <p className="text-ocean-deep mb-4">
-                  Welcome back, {guestContext.displayName}!
-                </p>
-                {error && (
-                  <div className="flex items-start gap-2 text-coral text-sm bg-coral/5 border border-coral/20 rounded-lg p-3 mb-4 text-left max-w-md mx-auto">
-                    <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                    <span>{error}</span>
-                  </div>
-                )}
-                <div className="flex flex-wrap gap-4 justify-center">
-                  <Button onClick={handleEditMyRsvp} variant="gold" disabled={isLoading}>
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" aria-hidden />
-                        Loading…
-                      </>
-                    ) : (
-                      'Edit my RSVP'
-                    )}
-                  </Button>
-                  <Button variant="outline" onClick={startOver} disabled={isLoading}>
-                    RSVP for someone else
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <RsvpSuccessCard
+              mode="welcome-back"
+              displayName={guestContext.displayName}
+              error={error}
+              isLoading={isLoading}
+              onEdit={handleEditMyRsvp}
+              onStartOver={startOver}
+            />
           </div>
         </Section>
       </RsvpLayout>
@@ -1090,49 +1167,13 @@ export function RsvpPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <Card>
-                  <CardContent className="py-12 text-center">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: 'spring', bounce: 0.5 }}
-                      className="mb-6"
-                    >
-                      <PartyPopper className="w-16 h-16 mx-auto text-gold" />
-                    </motion.div>
-                    <h2 className="text-3xl font-heading text-ocean-deep mb-4">
-                      We've received your RSVP!
-                    </h2>
-                    <p className="text-sand-dark mb-6">
-                      Thank you for responding. We're so excited to celebrate with you.
-                    </p>
-                    {confirmationEmail && (
-                      <p className="text-sm text-sand-dark mb-6">
-                        If you provided an email, we&apos;ll send a confirmation to {confirmationEmail} shortly.
-                      </p>
-                    )}
-                    <Button variant="outline" onClick={startOver} className="mt-4">
-                      RSVP for someone else
-                    </Button>
-
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8 pt-6 border-t border-sand-driftwood/20">
-                      <Link
-                        to="/registry"
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-ocean-deep hover:text-ocean-caribbean transition-colors"
-                      >
-                        <Gift className="w-4 h-4" />
-                        View Registry
-                      </Link>
-                      <Link
-                        to="/guestbook"
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-ocean-deep hover:text-ocean-caribbean transition-colors"
-                      >
-                        <BookOpen className="w-4 h-4" />
-                        Sign the Guestbook
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
+                <RsvpSuccessCard
+                  mode="submitted"
+                  confirmationEmail={confirmationEmail}
+                  onEdit={handleEditMyRsvp}
+                  isLoading={isLoading}
+                  onStartOver={startOver}
+                />
               </motion.div>
             )}
           </AnimatePresence>

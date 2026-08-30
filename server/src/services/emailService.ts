@@ -330,7 +330,7 @@ export async function sendRsvpConfirmation(groupId: string): Promise<void> {
 
     log.info({ messageId: info.messageId, groupId, to }, 'RSVP confirmation email sent via Gmail');
   } catch (err) {
-    log.error({ err, groupId }, 'Error sending RSVP confirmation email');
+    log.warn({ err, groupId }, 'Error sending RSVP confirmation email');
   }
 }
 

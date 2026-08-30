@@ -18,6 +18,7 @@ import { AdminPage } from '@/pages/AdminPage';
 import { CastPage } from '@/pages/CastPage';
 import { RegistryPage } from '@/pages/RegistryPage';
 import { GuestbookPage } from '@/pages/GuestbookPage';
+import { WhatToWearPage } from '@/pages/WhatToWearPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 /** Inner page routes with animated transitions. */
@@ -35,6 +36,7 @@ function AnimatedPages() {
         <Route path="/things-to-do" element={<PageTransition><ThingsToDoPage /></PageTransition>} />
         <Route path="/photos" element={<PageTransition><PhotosPage /></PageTransition>} />
         <Route path="/rsvp" element={<PageTransition><RsvpPage /></PageTransition>} />
+        <Route path="/what-to-wear" element={<PageTransition><WhatToWearPage /></PageTransition>} />
         <Route path="/faq" element={<PageTransition><FaqPage /></PageTransition>} />
         <Route path="/registry" element={<PageTransition><RegistryPage /></PageTransition>} />
         <Route path="/guestbook" element={<PageTransition><GuestbookPage /></PageTransition>} />

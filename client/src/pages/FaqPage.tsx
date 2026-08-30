@@ -1,4 +1,6 @@
+import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { PassportPage, PageHeader, Section } from '@/components/passport/PassportPage';
 import { NextPageCTA } from '@/components/layout/NextPageCTA';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
@@ -7,7 +9,7 @@ import { Mail, Phone } from 'lucide-react';
 
 interface FAQ {
   question: string;
-  answer: string;
+  answer: string | ReactNode;
   category: 'travel' | 'events' | 'accommodation' | 'general';
 }
 
@@ -50,7 +52,17 @@ const faqs: FAQ[] = [
   {
     category: 'events',
     question: 'What should I wear to each event?',
-    answer: 'Dress codes vary by event: Welcome Party is resort casual/beach attire, Haldi Ceremony is yellow/white attire (clothes may get stained!), Mehndi is colorful Indian attire (we love seeing guests in bright colors!), Baraat and Wedding are formal Indian attire, Reception is formal/evening wear, and the After Party is come as you are!',
+    answer: (
+      <>
+        Dress codes vary by event — from resort casual at the welcome dinner to formal Indian attire at the baraat and wedding.
+        {' '}
+        <Link to="/what-to-wear" className="text-ocean-caribbean hover:text-ocean-deep underline underline-offset-2 transition-colors">
+          See our full What to Wear guide
+        </Link>
+        {' '}
+        for outfit ideas, photos, and shopping suggestions.
+      </>
+    ),
   },
   {
     category: 'events',
