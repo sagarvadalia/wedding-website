@@ -4,6 +4,8 @@ export interface OutfitSide {
   imageSrc: string;
   imageAlt: string;
   tips: string[];
+  /** How the image fills its frame — use `contain` for tall full-body shots. */
+  imageFit?: 'cover' | 'contain';
 }
 
 export interface EventOutfitGuide {
