@@ -175,7 +175,7 @@ export const eventOutfitGuides: EventOutfitGuide[] = [
       imageSrc: outfitImagePath('cocktail', 'her'),
       imageAlt: 'Evening outfit inspiration for women at cocktail hour',
       tips: [
-        'Cocktail dress, evening gown, or elegant jumpsuit',
+        'Cocktail dress or any elegant evening gown',
         'Indian formalwear is also perfect — sarees, lehengas, or indo-western',
         'Dressy heels, wedges, or formal flats',
         'Think elegant — it is time to celebrate!',
@@ -223,7 +223,6 @@ export const eventOutfitGuides: EventOutfitGuide[] = [
 export const proOutfitTips: string[] = [
   'Many events are outdoors — skip stilettos on grass and sand',
   'Cancun in April is warm (80°F+) — breathable fabrics are your friend',
-  'Bring a light shawl for air-conditioned indoor spaces',
   'Do not have Indian outfits? Colorful Western wear is welcome!',
 ];
 
