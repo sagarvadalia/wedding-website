@@ -22,7 +22,7 @@ function OutfitImage({ side, label }: { side: OutfitSide; label: string }) {
         <img
           src={side.imageSrc}
           alt={side.imageAlt}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover object-top"
           onError={() => setHasError(true)}
         />
       ) : (

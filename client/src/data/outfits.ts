@@ -31,8 +31,9 @@ export interface ShoppingArea {
   stores: ShoppingStore[];
 }
 
+/** Local outfit reference images (Unsplash, free to use under the Unsplash License). */
 export function outfitImagePath(eventId: EventType, side: 'her' | 'him'): string {
-  return `/images/outfits/${eventId}-${side}.avif`;
+  return `/images/outfits/${eventId}-${side}.jpg`;
 }
 
 export function googleMapsSearchUrl(mapsQuery: string): string {
@@ -47,7 +48,7 @@ export const eventOutfitGuides: EventOutfitGuide[] = [
     accent: 'from-ocean-sky to-ocean-caribbean',
     her: {
       imageSrc: outfitImagePath('welcome', 'her'),
-      imageAlt: 'Resort casual outfit inspiration for women at the welcome dinner',
+      imageAlt: 'Reference: floral sundress with flat sandals for resort casual welcome dinner attire',
       tips: [
         'Flowy sundress or a nice blouse with linen pants',
         'Light fabrics — cotton, linen, or chiffon',
@@ -57,7 +58,7 @@ export const eventOutfitGuides: EventOutfitGuide[] = [
     },
     him: {
       imageSrc: outfitImagePath('welcome', 'him'),
-      imageAlt: 'Resort casual outfit inspiration for men at the welcome dinner',
+      imageAlt: 'Reference: floral Hawaiian shirt with linen pants and sandals for welcome dinner attire',
       tips: [
         'Linen shirt or lightweight button-down with chinos or linen pants',
         'Light fabrics — cotton or linen',
@@ -73,7 +74,7 @@ export const eventOutfitGuides: EventOutfitGuide[] = [
     accent: 'from-gold to-sand-warm',
     her: {
       imageSrc: outfitImagePath('haldi', 'her'),
-      imageAlt: 'Yellow or white outfit inspiration for women at the haldi ceremony',
+      imageAlt: 'Reference: yellow floral lehenga with marigold flower jewelry for the haldi ceremony',
       tips: [
         'Wear yellow, white, or light-colored clothing',
         'Expect turmeric stains — old clothes are perfect',
@@ -83,7 +84,7 @@ export const eventOutfitGuides: EventOutfitGuide[] = [
     },
     him: {
       imageSrc: outfitImagePath('haldi', 'him'),
-      imageAlt: 'Yellow or white outfit inspiration for men at the haldi ceremony',
+      imageAlt: 'Reference: mustard yellow embroidered kurta pajama for the haldi ceremony',
       tips: [
         'Wear yellow, white, or light-colored kurta or casual shirt',
         'Expect turmeric stains — clothes you do not mind ruining',
@@ -99,7 +100,7 @@ export const eventOutfitGuides: EventOutfitGuide[] = [
     accent: 'from-coral to-gold',
     her: {
       imageSrc: outfitImagePath('mehndi', 'her'),
-      imageAlt: 'Colorful Indian outfit inspiration for women at the mehndi ceremony',
+      imageAlt: 'Reference: royal blue mirror-embroidered lehenga for the mehndi ceremony',
       tips: [
         'Bright, colorful outfits — vibrant greens, pinks, blues, or oranges',
         'Lehengas, kurtas, salwar kameez, or sarees if you have them',
@@ -109,7 +110,7 @@ export const eventOutfitGuides: EventOutfitGuide[] = [
     },
     him: {
       imageSrc: outfitImagePath('mehndi', 'him'),
-      imageAlt: 'Colorful Indian outfit inspiration for men at the mehndi ceremony',
+      imageAlt: 'Reference: colorful kurta with vest for the mehndi ceremony',
       tips: [
         'Colorful kurta with churidar or linen pants',
         'Indo-western or bold Western shirts in bright colors',
@@ -121,100 +122,106 @@ export const eventOutfitGuides: EventOutfitGuide[] = [
   {
     eventId: 'baraat',
     name: 'Baraat Procession',
-    dressCode: 'Formal Indian Attire',
+    dressCode: 'Formal Indian Attire (usually worn again at the ceremony)',
     accent: 'from-ocean-deep to-ocean-caribbean',
     her: {
       imageSrc: outfitImagePath('baraat', 'her'),
-      imageAlt: 'Formal Indian outfit inspiration for women at the baraat',
+      imageAlt: 'Reference: formal Indian lehenga for the baraat and wedding ceremony',
       tips: [
-        'Traditional Indian formalwear — sarees, lehengas, or anarkalis',
+        'Most guests wear one formal Indian outfit for both the Baraat and the Wedding Ceremony',
+        'This same outfit often works for Cocktail Hour and the Reception too',
+        'Traditional formalwear — sarees, lehengas, or anarkalis',
         'Western formal or cocktail attire also works great',
-        'Comfortable shoes — you will be dancing!',
+        'Comfortable shoes — you will be dancing at the Baraat!',
       ],
     },
     him: {
       imageSrc: outfitImagePath('baraat', 'him'),
-      imageAlt: 'Formal Indian outfit inspiration for men at the baraat',
+      imageAlt: 'Reference: wedding sherwani for the baraat and wedding ceremony',
       tips: [
+        'Most guests wear one formal Indian outfit for both the Baraat and the Wedding Ceremony',
+        'This same outfit often works for Cocktail Hour and the Reception too',
         'Sherwani, kurta pajama, or Indo-western formal',
         'Western suit or blazer with dress pants also works',
-        'Comfortable dress shoes — you will be dancing!',
+        'Comfortable dress shoes — you will be dancing at the Baraat!',
       ],
     },
   },
   {
     eventId: 'wedding',
     name: 'Wedding Ceremony',
-    dressCode: 'Formal Indian Attire',
+    dressCode: 'Same as Baraat — Formal Indian Attire',
     accent: 'from-ocean-deep to-ocean-caribbean',
     her: {
-      imageSrc: outfitImagePath('wedding', 'her'),
-      imageAlt: 'Formal Indian outfit inspiration for women at the wedding ceremony',
+      imageSrc: outfitImagePath('baraat', 'her'),
+      imageAlt: 'Reference: same formal Indian lehenga worn at the baraat and wedding ceremony',
       tips: [
-        'Traditional Indian formalwear — sarees, lehengas, or anarkalis',
-        'Western formal or elegant midi/maxi dresses also work',
-        'Breathable fabrics — ceremony is outdoors',
+        'Wear the same outfit you chose for the Baraat — no need to change',
+        'Traditional formalwear — sarees, lehengas, or anarkalis',
+        'Western formal or elegant dresses also work',
+        'Breathable fabrics help — the ceremony is outdoors',
       ],
     },
     him: {
-      imageSrc: outfitImagePath('wedding', 'him'),
-      imageAlt: 'Formal Indian outfit inspiration for men at the wedding ceremony',
+      imageSrc: outfitImagePath('baraat', 'him'),
+      imageAlt: 'Reference: same wedding sherwani worn at the baraat and wedding ceremony',
       tips: [
+        'Wear the same outfit you chose for the Baraat — no need to change',
         'Sherwani, kurta pajama, or Indo-western formal',
         'Western suit or blazer with dress pants also works',
-        'Breathable fabrics — ceremony is outdoors',
+        'Breathable fabrics help — the ceremony is outdoors',
       ],
     },
   },
   {
     eventId: 'cocktail',
     name: 'Cocktail Hour',
-    dressCode: 'Formal / Evening Wear',
+    dressCode: 'Formal / Evening Wear (often worn again at reception)',
     accent: 'from-ocean-caribbean to-ocean-sky',
     her: {
       imageSrc: outfitImagePath('cocktail', 'her'),
-      imageAlt: 'Evening outfit inspiration for women at cocktail hour',
+      imageAlt: 'Reference: semi-formal cocktail evening gown for cocktail hour and reception',
       tips: [
-        'Cocktail dress or any elegant evening gown',
-        'Indian formalwear is also perfect — sarees, lehengas, or indo-western',
+        'Many guests wear one evening outfit for both Cocktail Hour and the Reception',
+        'You can also reuse your Baraat/Wedding ceremony outfit — lehenga, saree, or indo-western works beautifully',
+        'Cocktail dress or evening gown if you prefer a separate look',
         'Dressy heels, wedges, or formal flats',
-        'Think elegant — it is time to celebrate!',
       ],
     },
     him: {
       imageSrc: outfitImagePath('cocktail', 'him'),
-      imageAlt: 'Evening outfit inspiration for men at cocktail hour',
+      imageAlt: 'Reference: wedding guest suit for cocktail hour and reception',
       tips: [
-        'Suit or blazer with dress pants',
-        'Indo-western kurta with jacket or sherwani also works beautifully',
+        'Many guests wear one evening outfit for both Cocktail Hour and the Reception',
+        'You can also reuse your Baraat/Wedding ceremony outfit — sherwani or kurta pajama is welcome',
+        'Suit or blazer with dress pants if you prefer a separate look',
         'Dress shoes or polished loafers',
-        'Think elegant — it is time to celebrate!',
       ],
     },
   },
   {
     eventId: 'reception',
     name: 'Reception Dinner',
-    dressCode: 'Formal / Evening Wear',
+    dressCode: 'Same as Cocktail — Formal / Evening Wear',
     accent: 'from-ocean-caribbean to-ocean-sky',
     her: {
-      imageSrc: outfitImagePath('reception', 'her'),
-      imageAlt: 'Evening outfit inspiration for women at the reception',
+      imageSrc: outfitImagePath('cocktail', 'her'),
+      imageAlt: 'Reference: same cocktail evening gown for cocktail hour and reception',
       tips: [
-        'Cocktail dress, evening gown, or elegant formal look',
-        'Indian formalwear — sarees, lehengas, or indo-western',
+        'Wear the same outfit you chose for Cocktail Hour — no need to change',
+        'Your ceremony lehenga, saree, or indo-western look is also perfect here',
+        'Cocktail dress or evening gown if you went with a separate evening look',
         'Dressy heels, wedges, or formal flats',
-        'You can repeat cocktail attire or change into something new',
       ],
     },
     him: {
-      imageSrc: outfitImagePath('reception', 'him'),
-      imageAlt: 'Evening outfit inspiration for men at the reception',
+      imageSrc: outfitImagePath('cocktail', 'him'),
+      imageAlt: 'Reference: same wedding guest suit for cocktail hour and reception',
       tips: [
-        'Suit or tuxedo-style formal look',
-        'Indo-western or sherwani for a traditional touch',
+        'Wear the same outfit you chose for Cocktail Hour — no need to change',
+        'Your ceremony sherwani or kurta pajama is also perfect here',
+        'Suit or blazer if you went with a separate evening look',
         'Dress shoes or polished loafers',
-        'You can repeat cocktail attire or change into something new',
       ],
     },
   },
