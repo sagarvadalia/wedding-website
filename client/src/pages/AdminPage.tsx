@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -82,6 +82,18 @@ export function AdminPage() {
   const [csvImporting, setCsvImporting] = useState(false);
   const [csvResult, setCsvResult] = useState<ImportResult | null>(null);
   const csvFileRef = useRef<HTMLInputElement>(null);
+  const editGuestFormRef = useRef<HTMLDivElement>(null);
+
+  const sortedGuests = useMemo(() => {
+    const compare = (a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base' });
+    return [...guests].sort((a, b) => {
+      const groupCmp = compare(a.groupName ?? '', b.groupName ?? '');
+      if (groupCmp !== 0) return groupCmp;
+      const firstCmp = compare(a.firstName, b.firstName);
+      if (firstCmp !== 0) return firstCmp;
+      return compare(a.lastName, b.lastName);
+    });
+  }, [guests]);
 
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
@@ -128,6 +140,12 @@ export function AdminPage() {
       fetchData();
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (editingGuestId) {
+      editGuestFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [editingGuestId]);
 
   const toMailingAddressPayload = (ma: { addressLine1: string; addressLine2: string; city: string; stateOrProvince: string; postalCode: string; country: string }): MailingAddressDto | null => {
     const a1 = ma.addressLine1.trim();
@@ -281,7 +299,7 @@ export function AdminPage() {
       'Mailing Address',
       'Has Booked',
     ];
-    const rows = guests.map((g) => [
+    const rows = sortedGuests.map((g) => [
       g.firstName,
       g.lastName,
       g.email ?? '',
@@ -964,7 +982,7 @@ export function AdminPage() {
               </Card>
             )}
             {editingGuestId && (
-              <Card className="mb-6">
+              <Card ref={editGuestFormRef} className="mb-6">
                 <CardHeader>
                   <CardTitle>Edit Guest</CardTitle>
                 </CardHeader>
@@ -1136,7 +1154,7 @@ export function AdminPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {guests.map((guest) => (
+                      {sortedGuests.map((guest) => (
                         <tr
                           key={guest._id}
                           className="border-b border-sand-driftwood/10 hover:bg-sand-light/50"
